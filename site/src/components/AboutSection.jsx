@@ -1,16 +1,102 @@
-import { C, MEDIA, FadeSection, SecLabel, StarSpark, MovementGlyph, MeanderRule } from './Shared'
+import { useEffect, useRef } from 'react'
+import { C, FadeSection, MeanderRule, MEDIA, MovementGlyph, SecLabel, StarSpark } from './Shared'
+
+// ─── Sword sparks canvas ──────────────────────────────────────────────────────
+const SwordSparks = () => {
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    if (!canvas) return
+    const dpr = window.devicePixelRatio || 1
+    const W = canvas.offsetWidth || 300
+    const H = canvas.offsetHeight || 400
+    canvas.width = W * dpr
+    canvas.height = H * dpr
+    const ctx = canvas.getContext('2d')
+    ctx.scale(dpr, dpr)
+
+    const sparks = []
+    let t = 0, raf
+
+    const newSpark = () => ({
+      x: W * 0.50 + (Math.random() - 0.5) * W * 0.24,
+      y: H * 0.90 + (Math.random() - 0.5) * H * 0.64,
+      vx: (Math.random() - 0.5) * 0.6,      // мягкий горизонтальный разброс
+      vy: -(Math.random() * 0.0006 + 0.4),     // плавный старт вверх
+      size: Math.random() * 2.2 + 0.5,
+      life: 1,
+      decay: 0.00005 + Math.random() * 0.01, // долгая жизнь → высокий полёт
+    })
+
+    const draw = () => {
+      t++
+      // Sparse: 1-2 sparks per ~10 frames, occasional burst
+      if (t % 50 === 0) {
+        sparks.push(newSpark())
+        if (Math.random() > 0.55) sparks.push(newSpark())
+        if (Math.random() > 0.82) sparks.push(newSpark())
+      }
+
+      ctx.clearRect(0, 0, W, H)
+
+      for (let i = sparks.length - 1; i >= 0; i--) {
+        const s = sparks[i]
+        s.x += s.vx
+        s.y += s.vy
+        s.vy += 0.000001
+        s.vx *= 0.988
+        s.life -= s.decay
+        if (s.life <= 0) { sparks.splice(i, 1); continue }
+
+        const a = s.life
+        const size = s.size * (0.3 + s.life * 0.3)
+        const col = a > 0.9 ? `rgba(255,240,110,${a})`
+          : a > 0.35 ? `rgba(255,160,30,${a})`
+            : `rgba(220,70,10,${a})`
+
+        // Glow
+        const grd = ctx.createRadialGradient(s.x, s.y, 0, s.x, s.y, size * 3.5)
+        grd.addColorStop(0, a > 0.5 ? `rgba(255,220,80,${a * 0.42})` : `rgba(255,110,20,${a * 0.28})`)
+        grd.addColorStop(1, 'rgba(255,60,0,0)')
+        ctx.beginPath()
+        ctx.arc(s.x, s.y, size * 3.5, 0, Math.PI * 2)
+        ctx.fillStyle = grd
+        ctx.fill()
+
+        // Core dot
+        ctx.beginPath()
+        ctx.arc(s.x, s.y, size, 0, Math.PI * 2)
+        ctx.fillStyle = col
+        ctx.fill()
+      }
+      raf = requestAnimationFrame(draw)
+    }
+    draw()
+    return () => cancelAnimationFrame(raf)
+  }, [])
+
+  return (
+    <canvas ref={canvasRef} style={{
+      position: 'absolute', inset: 0,
+      width: '100%', height: '100%',
+      pointerEvents: 'none',
+      mixBlendMode: 'screen',
+    }} />
+  )
+}
 
 const ARC = [
   { k: 'Чужие сценарии', s: 'где ты сейчас' },
-  { k: 'Своя опора',     s: 'плотное Ядро' },
-  { k: 'Призвание',      s: 'твоё Дело' },
-  { k: 'Легендарность',  s: 'наследие' },
+  { k: 'Своя опора', s: 'плотное Ядро' },
+  { k: 'Призвание', s: 'твоё Дело' },
+  { k: 'Легендарность', s: 'наследие' },
 ]
 
 const MOVES = [
-  { glyph: 'yav',  big: 'Внутрь', label: 'ЯВЬ',   color: C.kost,    desc: 'Освобождение внимания. Опора.' },
-  { glyph: 'nav',  big: 'Вглубь', label: 'НАВЬ',  color: C.krovYar, desc: 'Погружение за самой большой силой.' },
-  { glyph: 'prav', big: 'Наверх', label: 'ПРАВЬ', color: C.zoloto,  desc: 'Проявленность. Дело — в мир.' },
+  { glyph: 'yav', big: 'Внутрь', label: 'ЯВЬ', color: C.kost, desc: 'Освобождение внимания. Опора.' },
+  { glyph: 'nav', big: 'Вглубь', label: 'НАВЬ', color: C.krovYar, desc: 'Погружение за самой большой силой.' },
+  { glyph: 'prav', big: 'Наверх', label: 'ПРАВЬ', color: C.zoloto, desc: 'Проявленность. Дело — в мир.' },
 ]
 
 export default function AboutSection() {
@@ -68,6 +154,7 @@ export default function AboutSection() {
                 style={{ width: '100%', display: 'block', aspectRatio: '4/5', objectFit: 'cover' }}
               />
               <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, transparent 60%, rgba(8,12,10,0.55))' }} />
+              <SwordSparks />
             </figure>
           </FadeSection>
         </div>

@@ -1,274 +1,445 @@
-import { C, MEDIA, FadeSection, SecLabel, StarSpark, useParallax, scrollTo, btnPrimary } from './Shared'
+import { useEffect, useRef, useState } from 'react'
+import { createPortal } from 'react-dom'
+import { C, FadeSection, SecLabel, StarSpark } from './Shared'
 
-// ─── SVG helpers ──────────────────────────────────────────────────────────────
-const PravRays = () => {
-  const rays = []
-  const n = 26
-  for (let i = 0; i < n; i++) {
-    const t = i / (n - 1)
-    const x = 60 + t * 1080
-    rays.push(
-      <line key={i} x1="600" y1="-60" x2={x} y2="320"
-        stroke="url(#pravRay)" strokeWidth={i % 2 ? 0.8 : 1.4} />
-    )
-  }
-  return (
-    <svg viewBox="0 0 1200 320" preserveAspectRatio="xMidYMin slice" aria-hidden="true"
-      style={{ position: 'absolute', inset: 0, width: '100%', height: '100%' }}>
-      <defs>
-        <linearGradient id="pravRay" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stopColor={C.zolotoYar} stopOpacity="0.55" />
-          <stop offset="100%" stopColor={C.zolotoYar} stopOpacity="0" />
-        </linearGradient>
-      </defs>
-      {rays}
-    </svg>
-  )
+const MAP_SRC = './media/worlds_map_ru.jpg'
+
+// ─── Canvas: draw brand star-spark shape ─────────────────────────────────────
+const drawStarShape = (ctx, x, y, size, color) => {
+  ctx.save()
+  ctx.fillStyle = color
+  ctx.translate(x, y)
+  const s = size
+  ctx.beginPath()
+  ctx.moveTo(0, -s)
+  ctx.bezierCurveTo(s * .15, -s * .3, s * .3, -s * .15, s, 0)
+  ctx.bezierCurveTo(s * .3, s * .15, s * .15, s * .3, 0, s)
+  ctx.bezierCurveTo(-s * .15, s * .3, -s * .3, s * .15, -s, 0)
+  ctx.bezierCurveTo(-s * .3, -s * .15, -s * .15, -s * .3, 0, -s)
+  ctx.closePath()
+  ctx.fill()
+  ctx.restore()
 }
 
-const MountainVeil = ({ flip, opacity = 1 }) => (
-  <svg viewBox="0 0 1200 120" preserveAspectRatio="none" aria-hidden="true"
+// ─── Four concentric gold halos (outer→inner order) ──────────────────────────
+// Each has: radius, peak opacity, rgb color, pulse amplitude, pulse frequency
+// Colors go from bronze (outer) to white-gold (inner) — classic gold gradient
+const HALOS = [
+  { r: 210, a: 0.07, rgb: [140, 96, 22], pAmp: 0.42, pFreq: 0.00088 }, // латунь-бронза
+  { r: 105, a: 0.20, rgb: [175, 132, 40], pAmp: 0.33, pFreq: 0.00145 }, // тёмное золото
+  { r: 50, a: 0.46, rgb: [214, 172, 64], pAmp: 0.24, pFreq: 0.00230 }, // золото
+  { r: 19, a: 0.88, rgb: [252, 238, 155], pAmp: 0.15, pFreq: 0.00380 }, // белое золото, ядро
+]
+
+// ─── Star follower — portal into body to avoid fixed+transform ancestor bug ──
+const StarFollower = ({ mountRef }) => createPortal(
+  <div
+    ref={mountRef}
     style={{
-      position: 'absolute', left: 0, right: 0, width: '100%', height: 'clamp(70px,9vw,120px)',
-      transform: flip ? 'scaleY(-1)' : 'none', opacity, pointerEvents: 'none',
-    }}>
-    <path d="M0,120 L0,70 L80,84 L160,46 L250,78 L340,30 L430,70 L520,40 L610,80 L700,34 L790,72 L880,44 L980,78 L1080,52 L1160,82 L1200,60 L1200,120 Z"
-      fill="#10070A" stroke="rgba(194,154,72,0.22)" strokeWidth="1" />
-    <path d="M0,120 L0,96 L120,104 L230,80 L340,100 L450,72 L560,98 L680,76 L800,100 L920,82 L1040,102 L1160,86 L1200,100 L1200,120 Z"
-      fill="#060406" opacity="0.92" />
-  </svg>
+      position: 'fixed', top: 0, left: 0,
+      transform: 'translate(-600px,-600px)',
+      opacity: 0, transition: 'opacity 0.2s ease',
+      pointerEvents: 'none', zIndex: 9999,
+      width: 22, height: 22,
+    }}
+  >
+    <svg width="22" height="22" viewBox="-11 -11 22 22"
+      style={{
+        display: 'block', position: 'relative', zIndex: 1,
+        filter: 'drop-shadow(0 0 5px rgba(217,180,90,0.9)) drop-shadow(0 0 14px rgba(194,154,72,0.5))',
+      }}
+    >
+      <path d="M0,-10 C1.5,-3 3,-1.5 10,0 C3,1.5 1.5,3 0,10 C-1.5,3 -3,1.5 -10,0 C-3,-1.5 -1.5,-3 0,-10 Z"
+        fill="#D9B45A" />
+      <path d="M0,-10 C1.5,-3 3,-1.5 10,0 C3,1.5 1.5,3 0,10 C-1.5,3 -3,1.5 -10,0 C-3,-1.5 -1.5,-3 0,-10 Z"
+        fill="rgba(255,255,235,0.55)" transform="scale(0.32)" />
+    </svg>
+  </div>,
+  document.body
 )
 
-const YavSun = ({ size = 'clamp(150px,22vw,250px)' }) => (
-  <svg viewBox="-130 -130 260 260" aria-hidden="true"
-    style={{ width: size, height: 'auto', aspectRatio: '1/1', display: 'block', flexShrink: 0 }}>
-    <defs>
-      <radialGradient id="yavCore" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor="#E9D9A6" />
-        <stop offset="34%" stopColor={C.zolotoYar} />
-        <stop offset="68%" stopColor="#1E7A56" />
-        <stop offset="100%" stopColor="#0E342E" />
-      </radialGradient>
-      <radialGradient id="yavGlow" cx="50%" cy="50%" r="50%">
-        <stop offset="0%" stopColor={C.zolotoYar} stopOpacity="0.4" />
-        <stop offset="100%" stopColor={C.zolotoYar} stopOpacity="0" />
-      </radialGradient>
-    </defs>
-    <circle r="125" fill="url(#yavGlow)" />
-    <circle r="108" fill="none" stroke={C.zoloto} strokeWidth="0.8" opacity="0.45" />
-    <circle r="84" fill="none" stroke={C.zoloto} strokeWidth="1" opacity="0.7" />
-    <circle r="58" fill="url(#yavCore)" />
-    <circle r="58" fill="none" stroke={C.zolotoYar} strokeWidth="1.4" />
-    <path d="M0,-13 C2,-4 4,-2 13,0 C4,2 2,4 0,13 C-2,4 -4,2 -13,0 C-4,-2 -2,-4 0,-13 Z" fill="#F4F1E9" />
-  </svg>
-)
-
-const NavPortal = ({ w = 'clamp(180px,26vw,300px)' }) => (
-  <svg viewBox="0 0 300 280" aria-hidden="true" style={{ width: w, height: 'auto', display: 'block' }}>
-    <defs>
-      <linearGradient id="navThresh" x1="0" y1="1" x2="0" y2="0">
-        <stop offset="0%" stopColor={C.krov} stopOpacity="0.55" />
-        <stop offset="55%" stopColor="#3a0d0a" stopOpacity="0.5" />
-        <stop offset="100%" stopColor="#050806" stopOpacity="0" />
-      </linearGradient>
-    </defs>
-    <path d="M44,280 L44,134 A106,106 0 0 1 256,134 L256,280 Z" fill="url(#navThresh)" />
-    <path d="M44,280 L44,134 A106,106 0 0 1 256,134 L256,280"
-      fill="none" stroke={C.krovYar} strokeWidth="1.4" opacity="0.75" />
-    <path d="M74,280 L74,150 A76,76 0 0 1 226,150 L226,280"
-      fill="none" stroke={C.krov} strokeWidth="1" opacity="0.5" />
-  </svg>
-)
-
-const ZoneLabel = ({ pos, name, sub, desc, color }) => (
-  <div style={{ textAlign: 'center', position: 'relative', zIndex: 3, padding: '0 24px', maxWidth: 560 }}>
+// ─── Vertical gold scrollwork ornament ───────────────────────────────────────
+const VerticalRule = ({ flip = false }) => (
+  <div style={{
+    width: 36, alignSelf: 'stretch', flexShrink: 0, position: 'relative',
+    transform: flip ? 'scaleX(-1)' : 'none'
+  }}>
     <div style={{
-      fontFamily: "'Onest', sans-serif", fontSize: 10.5, fontWeight: 600, letterSpacing: 4,
-      textTransform: 'uppercase', color: C.ghost, marginBottom: 12,
-    }}>{pos}</div>
-    <div style={{
-      fontFamily: "'Prata', serif", fontSize: 'clamp(34px,5.5vw,64px)', lineHeight: 1,
-      color, letterSpacing: '0.02em', marginBottom: 14,
-      textShadow: '0 2px 30px rgba(0,0,0,0.6)',
-    }}>{name}</div>
-    <div style={{
-      display: 'inline-flex', alignItems: 'center', gap: 9,
-      fontFamily: "'Onest', sans-serif", fontSize: 11.5, fontWeight: 500, letterSpacing: 2.5,
-      textTransform: 'uppercase', color: C.kostMuted, marginBottom: 16,
-    }}>
-      <StarSpark size={8} color={color} />{sub}
+      position: 'absolute', top: 0, bottom: 0, left: '50%', width: 1,
+      background: `linear-gradient(to bottom, transparent 0%, ${C.zoloto} 8%, ${C.zoloto} 92%, transparent 100%)`,
+      opacity: 0.33, transform: 'translateX(-50%)',
+    }} />
+    <div style={{ position: 'absolute', top: 24, left: '50%', transform: 'translateX(-50%)', width: 18, height: 1, background: C.zoloto, opacity: 0.34 }} />
+    <svg width="36" height="100" viewBox="0 0 36 100" fill="none" stroke={C.zoloto} strokeWidth="0.8"
+      style={{ position: 'absolute', top: 26, left: 0, opacity: 0.44 }}>
+      <path d="M18,2 L18,24 Q18,34 9,34 Q2,34 2,27 Q2,20 9,20 Q16,20 16,27" />
+      <path d="M18,48 L18,70 Q18,80 9,80 Q2,80 2,73 Q2,66 9,66 Q16,66 16,73" />
+    </svg>
+    <div style={{ position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)' }}>
+      <StarSpark size={8} color={C.zoloto} style={{ opacity: 0.50 }} />
     </div>
-    <p style={{
-      fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 'clamp(14.5px,1.6vw,17px)',
-      lineHeight: 1.65, color: C.kostDim, margin: '0 auto', maxWidth: '34ch',
-    }}>{desc}</p>
+    <svg width="36" height="100" viewBox="0 0 36 100" fill="none" stroke={C.zoloto} strokeWidth="0.8"
+      style={{ position: 'absolute', bottom: 26, left: 0, opacity: 0.44, transform: 'rotate(180deg)' }}>
+      <path d="M18,2 L18,24 Q18,34 9,34 Q2,34 2,27 Q2,20 9,20 Q16,20 16,27" />
+      <path d="M18,48 L18,70 Q18,80 9,80 Q2,80 2,73 Q2,66 9,66 Q16,66 16,73" />
+    </svg>
+    <div style={{ position: 'absolute', bottom: 24, left: '50%', transform: 'translateX(-50%)', width: 18, height: 1, background: C.zoloto, opacity: 0.34 }} />
   </div>
 )
 
-// ─── SECTION ──────────────────────────────────────────────────────────────────
-export default function KartaSection() {
-  const [atmosRef, atmosOffset] = useParallax(0.08)
+// ─── Configurable world circles ──────────────────────────────────────────────
+// cx / cy  — позиция центра, % от ширины / высоты изображения (0–100)
+// r        — радиус в пикселях
+// strokeW  — толщина обводки в пикселях
+// mode: 'erase'        → ЧЁРНЫЙ эффект: вырезает ореол по кольцу, создаёт тёмную окружность
+// mode: 'color' + rgb  → ЦВЕТНОЙ: рисует цветное кольцо поверх ореола
+const CIRCLES = [
+  { cx: 47, cy: 48, r: 120, strokeW: 1.8, mode: 'color', rgb: [100, 100, 100] }, // чёрный
+  { cx: 49, cy: 17, r: 120, strokeW: 1.5, mode: 'color', rgb: [200, 158, 52] }, // золотой
+  { cx: 50, cy: 77, r: 120, strokeW: 1.5, mode: 'color', rgb: [160, 42, 28] }, // красный
+]
 
+// ─── Zone labels ──────────────────────────────────────────────────────────────
+// top  — вертикальная позиция (% или px)
+// left — горизонтальная позиция (% или px), по умолчанию '50%' (центр)
+const ZONES = [
+  {
+    id: 'prav', top: '18%', left: '49%', name: 'ПРАВЬ', sub: 'Сияние · Проявленность', color: C.zolotoYar,
+    desc: 'Свет, из которого ты исходишь. Дело — в мир.'
+  },
+  {
+    id: 'yav', top: '48%', left: '47.5%', name: 'ЯВЬ', sub: 'Точка баланса', color: C.kostYar,
+    desc: 'Баланс — между светом и тенью рождается энергия.'
+  },
+  {
+    id: 'nav', top: '77%', left: '50%', name: 'НАВЬ', sub: 'Глубина · Портал', color: C.krovYar,
+    desc: 'Тьма — строительный материал, а не враг.'
+  },
+]
+
+// ─── Map + star-reveal ────────────────────────────────────────────────────────
+const MapReveal = () => {
+  const [activated, setActivated] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
+
+  const containerRef = useRef(null)
+  const overlayRef = useRef(null)
+  const trailRef = useRef(null)
+  const starRef = useRef(null)
+  const posRef = useRef({ x: -200, y: -200 })
+  const velRef = useRef({ x: 0, y: 0 })
+  const activeRef = useRef(false)
+
+  // Overlay is permanently dark — no starOverlay, no dynamic updates
+  useEffect(() => {
+    if (overlayRef.current) overlayRef.current.style.background = 'rgba(1,2,1,0.92)'
+  }, [])
+
+  // Trail canvas: 4 concentric gold halos + fading star trail
+  useEffect(() => {
+    const canvas = trailRef.current
+    if (!canvas) return
+    const ctx = canvas.getContext('2d')
+
+    const resize = () => {
+      const el = containerRef.current
+      if (!el) return
+      canvas.width = el.offsetWidth
+      canvas.height = el.offsetHeight
+      ctx.fillStyle = 'black'
+      ctx.fillRect(0, 0, canvas.width, canvas.height)
+    }
+    resize()
+    window.addEventListener('resize', resize)
+
+    let raf
+    const draw = () => {
+      const W = canvas.width, H = canvas.height
+
+      // Fade trail → black (= transparent in screen blend)
+      ctx.fillStyle = activeRef.current ? 'rgba(0,0,0,0.10)' : 'rgba(0,0,0,0.045)'
+      ctx.fillRect(0, 0, W, H)
+
+      if (activeRef.current) {
+        const rect = containerRef.current?.getBoundingClientRect()
+        if (rect) {
+          const lx = posRef.current.x - rect.left
+          const ly = posRef.current.y - rect.top
+
+          if (lx >= -20 && lx <= W + 20 && ly >= -20 && ly <= H + 20) {
+            const { x: vx, y: vy } = velRef.current
+            const speed = Math.sqrt(vx * vx + vy * vy)
+            const angle = speed > 0.5 ? Math.atan2(vy, vx) : 0
+            const stretch = Math.min(1 + speed * 0.05, 2.2)
+            const squash = 1 / Math.sqrt(stretch)
+            const now = Date.now()
+
+            // Draw outer → inner so inner halos render on top
+            for (let i = 0; i < HALOS.length; i++) {
+              const h = HALOS[i]
+              const pulse = 1 + Math.sin(now * h.pFreq + i * 1.45) * h.pAmp
+              const r = h.r * pulse
+              const [cr, cg, cb] = h.rgb
+
+              ctx.save()
+              ctx.translate(lx, ly)
+              ctx.rotate(angle)
+              ctx.scale(stretch, squash)
+
+              const grd = ctx.createRadialGradient(0, 0, 0, 0, 0, r)
+              grd.addColorStop(0, `rgba(${cr},${cg},${cb},${+(h.a * pulse).toFixed(3)})`)
+              grd.addColorStop(0.42, `rgba(${cr},${cg},${cb},${+(h.a * pulse * 0.25).toFixed(3)})`)
+              grd.addColorStop(1, `rgba(${cr},${cg},${cb},0)`)
+
+              ctx.beginPath()
+              ctx.arc(0, 0, r, 0, Math.PI * 2)
+              ctx.fillStyle = grd
+              ctx.fill()
+              ctx.restore()
+            }
+
+            // ── World circles: appear as cursor approaches ──────────────────
+            // Max outer halo reach (with pulse amplitude)
+            const outerReach = HALOS[0].r * (1 + HALOS[0].pAmp)  // ~298px
+            for (const c of CIRCLES) {
+              const cxPx = c.cx / 100 * W
+              const cyPx = c.cy / 100 * H
+              const dist = Math.sqrt((lx - cxPx) ** 2 + (ly - cyPx) ** 2)
+              const vis = Math.max(0, 1 - dist / outerReach)
+              if (vis < 0.01) continue
+
+              ctx.save()
+              ctx.beginPath()
+              ctx.arc(cxPx, cyPx, c.r, 0, Math.PI * 2)
+              ctx.lineWidth = c.strokeW
+
+              if (c.mode === 'erase') {
+                // Вырезаем кольцо из ореола → тёмное кольцо на золотом фоне
+                ctx.globalCompositeOperation = 'destination-out'
+                ctx.strokeStyle = `rgba(0,0,0,${(vis * 0.82).toFixed(3)})`
+              } else {
+                ctx.strokeStyle = `rgba(${c.rgb.join(',')},${(vis * 0.88).toFixed(3)})`
+              }
+              ctx.stroke()
+              ctx.restore()
+            }
+
+            // Star-spark on top — no stretch, stays sharp
+            drawStarShape(ctx, lx, ly, 7, 'rgba(245,215,105,0.93)')
+            drawStarShape(ctx, lx, ly, 2.8, 'rgba(255,252,228,0.82)')
+          }
+        }
+      }
+
+      raf = requestAnimationFrame(draw)
+    }
+    draw()
+    return () => { cancelAnimationFrame(raf); window.removeEventListener('resize', resize) }
+  }, [])
+
+  // Mobile: auto-drift
+  useEffect(() => {
+    const mob = window.matchMedia('(hover: none)').matches
+    setIsMobile(mob)
+    if (!mob) return
+    const timer = setTimeout(() => {
+      setActivated(true)
+      activeRef.current = true
+      let t = 0, raf
+      const tick = () => {
+        t += 0.004
+        const rect = containerRef.current?.getBoundingClientRect()
+        if (rect) {
+          posRef.current = {
+            x: rect.left + rect.width * (50 + Math.sin(t) * 28) / 100,
+            y: rect.top + rect.height * (42 + Math.cos(t * 0.7) * 22) / 100,
+          }
+        }
+        raf = requestAnimationFrame(tick)
+      }
+      raf = requestAnimationFrame(tick)
+      return () => cancelAnimationFrame(raf)
+    }, 1500)
+    return () => clearTimeout(timer)
+  }, [])
+
+  const onMove = (e) => {
+    if (!activated) return
+    const cx = e.clientX, cy = e.clientY
+    const dx = cx - posRef.current.x
+    const dy = cy - posRef.current.y
+    velRef.current = {
+      x: velRef.current.x * 0.42 + dx * 0.58,
+      y: velRef.current.y * 0.42 + dy * 0.58,
+    }
+    posRef.current = { x: cx, y: cy }
+    if (starRef.current) {
+      starRef.current.style.transform = `translate(${cx - 11}px, ${cy - 11}px)`
+    }
+  }
+
+  const onEnter = () => {
+    if (!activated) return
+    activeRef.current = true
+    if (starRef.current) starRef.current.style.opacity = '1'
+  }
+
+  const onLeave = () => {
+    activeRef.current = false
+    velRef.current = { x: 0, y: 0 }
+    if (starRef.current) starRef.current.style.opacity = '0'
+  }
+
+  const onClick = () => {
+    if (activated) return
+    setActivated(true)
+    activeRef.current = true
+    if (starRef.current) starRef.current.style.opacity = '1'
+  }
+
+  return (
+    <>
+      <StarFollower mountRef={starRef} />
+
+      <div style={{ display: 'flex', alignItems: 'stretch' }}>
+        <VerticalRule />
+
+        <div
+          ref={containerRef}
+          onMouseMove={onMove}
+          onMouseEnter={onEnter}
+          onMouseLeave={onLeave}
+          onClick={onClick}
+          style={{
+            position: 'relative', flex: 1,
+            cursor: activated ? 'none' : 'pointer',
+            userSelect: 'none',
+          }}
+        >
+          <img src={MAP_SRC} alt="Карта миров" style={{ width: '100%', height: 'auto', display: 'block' }} />
+
+          {/* Dark overlay — permanently static — z:2 */}
+          <div ref={overlayRef} style={{ position: 'absolute', inset: 0, zIndex: 2, pointerEvents: 'none' }} />
+
+          {/* Trail canvas — halos via screen blend — z:3 */}
+          <canvas ref={trailRef} style={{
+            position: 'absolute', inset: 0, zIndex: 3,
+            width: '100%', height: '100%',
+            pointerEvents: 'none', mixBlendMode: 'screen',
+            display: activated ? 'block' : 'none',
+          }} />
+
+          {/*
+            Zone labels — z:4, ABOVE the canvas, mixBlendMode: overlay.
+            overlay blend formula: dark backdrop → text almost invisible;
+            bright/gold backdrop (from halos) → text pops to full contrast.
+            This makes labels readable only where the star illuminates them.
+          */}
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 4,
+            pointerEvents: 'none', mixBlendMode: 'overlay',
+          }}>
+            {ZONES.map(z => (
+              <div key={z.id} style={{
+                position: 'absolute', top: z.top, left: z.left ?? '50%',
+                transform: 'translate(-50%, -50%)',
+                textAlign: 'center', width: '90%',
+              }}>
+                <div style={{
+                  display: 'inline-flex', alignItems: 'center', gap: 8,
+                  fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600,
+                  letterSpacing: 4, textTransform: 'uppercase',
+                  color: 'rgba(255,255,255,0.95)', marginBottom: 10,
+                }}>
+                  <StarSpark size={7} color="rgba(255,255,255,0.95)" />{z.sub}
+                </div>
+                <div style={{
+                  fontFamily: "'Prata', serif",
+                  fontSize: 'clamp(40px,5.5vw,72px)',
+                  lineHeight: 0.92, letterSpacing: '0.04em',
+                  color: 'white',   // overlay blend handles the gold toning from halos
+                  marginBottom: 12,
+                }}>{z.name}</div>
+                <p style={{
+                  fontFamily: "'Lora', serif", fontStyle: 'italic',
+                  fontSize: 'clamp(12px,1.3vw,15px)', lineHeight: 1.6,
+                  color: 'rgba(255,255,255,0.90)', margin: '0 auto', maxWidth: '26ch',
+                }}>{z.desc}</p>
+              </div>
+            ))}
+          </div>
+
+          {/* Click prompt — z:5, no blend mode */}
+          {!activated && (
+            <div style={{
+              position: 'absolute', inset: 0, zIndex: 5,
+              display: 'flex', flexDirection: 'column',
+              alignItems: 'center', justifyContent: 'center',
+              gap: 20, pointerEvents: 'none',
+            }}>
+              <svg width="22" height="22" viewBox="-11 -11 22 22"
+                style={{ filter: 'drop-shadow(0 0 8px rgba(194,154,72,0.75))', animation: 'starPulse 2.4s ease-in-out infinite', transformOrigin: 'center' }}>
+                <path d="M0,-10 C1.5,-3 3,-1.5 10,0 C3,1.5 1.5,3 0,10 C-1.5,3 -3,1.5 -10,0 C-3,-1.5 -1.5,-3 0,-10 Z" fill="#D9B45A" />
+              </svg>
+              <span style={{
+                fontFamily: "'Onest', sans-serif", fontSize: 11, fontWeight: 500,
+                letterSpacing: 3.5, textTransform: 'uppercase', color: C.kostMuted,
+              }}>Нажми — проведи звездой</span>
+            </div>
+          )}
+
+          <div style={{
+            position: 'absolute', inset: 0, zIndex: 6,
+            border: '1px solid rgba(194,154,72,0.16)', pointerEvents: 'none'
+          }} />
+        </div>
+
+        <VerticalRule flip />
+      </div>
+    </>
+  )
+}
+
+export default function KartaSection() {
   return (
     <section id="karta" style={{
       background: C.bezdna, position: 'relative', overflow: 'hidden',
       padding: 'clamp(98px,12vw,172px) 0 clamp(90px,11vw,150px)',
       borderTop: '1px solid rgba(194,154,72,0.08)',
     }}>
-      {/* Section head */}
-      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 clamp(22px,6vw,80px)' }}>
+      <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 clamp(22px,6vw,80px)', marginBottom: 'clamp(48px,6vw,72px)' }}>
         <FadeSection>
           <SecLabel num="03" text="Карта миров" />
           <h2 style={{
-            fontFamily: "'Prata', serif", fontWeight: 400, fontSize: 'clamp(28px,3.6vw,46px)',
-            lineHeight: 1.16, color: C.kostYar, maxWidth: '15ch', marginBottom: 20,
+            fontFamily: "'Prata', serif", fontWeight: 400,
+            fontSize: 'clamp(28px,3.6vw,46px)', lineHeight: 1.16,
+            color: C.kostYar, maxWidth: '15ch', marginBottom: 20,
           }}>Три мира по вертикали.</h2>
           <p style={{
-            fontFamily: "'Lora', serif", fontSize: 17.5, lineHeight: 1.78, color: C.kostDim, maxWidth: '52ch',
+            fontFamily: "'Lora', serif", fontSize: 17.5, lineHeight: 1.78,
+            color: C.kostDim, maxWidth: '52ch',
           }}>
             Карта собирает твоё внимание, чтобы ты дошёл. Путь идёт по оси: вниз — за самой
             большой силой, в точку баланса, и оттуда — наверх, в проявленность.
-            Золотое Руно — твоё скрытое Естество, которое, загораясь, меняет всё.
           </p>
         </FadeSection>
       </div>
 
-      {/* Full-bleed vertical World Map */}
-      <FadeSection delay={120} y={28}>
-        <div style={{
-          position: 'relative', width: '100%', minHeight: '100svh',
-          margin: 'clamp(48px,7vw,88px) 0 clamp(40px,6vw,72px)',
-          overflow: 'hidden',
-          borderTop: '1px solid rgba(194,154,72,0.14)',
-          borderBottom: '1px solid rgba(194,154,72,0.14)',
-          display: 'flex', flexDirection: 'column',
-          background: C.tishina,
-        }}>
-          {/* Atmosphere bg */}
-          <div ref={atmosRef} style={{
-            position: 'absolute', inset: '-8% 0', zIndex: 0,
-            backgroundImage: `url('${MEDIA.worldsMap}')`,
-            backgroundSize: 'cover', backgroundPosition: 'center top',
-            transform: `translateY(${atmosOffset}px) scale(1.06)`,
-            opacity: 0.5,
-          }} />
-          <div style={{
-            position: 'absolute', inset: 0, zIndex: 1,
-            background: 'linear-gradient(to bottom, rgba(194,154,72,0.16) 0%, rgba(11,16,14,0.42) 20%, rgba(11,16,14,0.22) 44%, rgba(11,16,14,0.5) 62%, rgba(142,32,24,0.42) 82%, rgba(5,7,6,0.94) 100%)',
-          }} />
-
-          {/* ПРАВЬ */}
-          <div style={{
-            position: 'relative', zIndex: 2, flex: '1 1 0',
-            display: 'flex', alignItems: 'center', justifyContent: 'center',
-            minHeight: '33svh', padding: 'clamp(40px,7vw,80px) 0',
-          }}>
-            <PravRays />
-            <ZoneLabel pos="Верх" name="ПРАВЬ" sub="Сияние · Проявленность" color={C.zolotoYar}
-              desc="Свет, из которого ты исходишь. Дело — в мир. Полупрозрачная, золотая высота." />
-          </div>
-
-          <div style={{ position: 'relative', zIndex: 2, height: 'clamp(70px,9vw,120px)' }}>
-            <MountainVeil opacity={0.85} />
-          </div>
-
-          {/* ЯВЬ */}
-          <div style={{
-            position: 'relative', zIndex: 2, flex: '1 1 0',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
-            gap: 'clamp(20px,3vw,34px)', minHeight: '34svh', padding: 'clamp(30px,5vw,60px) 0',
-          }}>
-            <YavSun />
-            <ZoneLabel pos="Центр" name="ЯВЬ" sub="Точка баланса" color={C.zolotoYar}
-              desc="Солнце на оси. Здесь держишь Баланс — между светом и тенью рождается энергия действия." />
-          </div>
-
-          <div style={{ position: 'relative', zIndex: 2, height: 'clamp(70px,9vw,120px)' }}>
-            <MountainVeil flip opacity={0.9} />
-          </div>
-
-          {/* НАВЬ */}
-          <div style={{
-            position: 'relative', zIndex: 2, flex: '1 1 0',
-            display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'flex-end',
-            gap: 'clamp(18px,2.5vw,28px)', minHeight: '33svh', padding: 'clamp(40px,6vw,70px) 0 0',
-          }}>
-            <ZoneLabel pos="Низ" name="НАВЬ" sub="Глубина · Портал" color={C.krovYar}
-              desc="Погружение за самой большой силой. Тьма — строительный материал, а не враг." />
-            <NavPortal />
-          </div>
-        </div>
-      </FadeSection>
-
-      {/* Video slot */}
-      <div style={{ maxWidth: 920, margin: '0 auto', padding: 'clamp(40px,6vw,80px) clamp(22px,6vw,80px) 0' }}>
-        <FadeSection>
-          <div style={{
-            textAlign: 'center', fontFamily: "'Onest', sans-serif", fontSize: 10.5, fontWeight: 600,
-            letterSpacing: 3.5, textTransform: 'uppercase', color: C.latun,
-            marginBottom: 'clamp(28px,4vw,44px)',
-            display: 'flex', alignItems: 'center', justifyContent: 'center', gap: 12,
-          }}>
-            <span style={{ width: 28, height: 1, background: C.latun, opacity: 0.4 }} />
-            Короткое погружение с Аргатом
-            <span style={{ width: 28, height: 1, background: C.latun, opacity: 0.4 }} />
-          </div>
-        </FadeSection>
-
-        <FadeSection delay={120} y={22}>
-          <div style={{
-            position: 'relative', width: '100%', aspectRatio: '16/9', display: 'block',
-            borderRadius: 10, overflow: 'hidden',
-            background: 'radial-gradient(ellipse at center, #0E1411 0%, #060908 78%)',
-            border: '1px solid rgba(194,154,72,0.28)',
-            boxShadow: 'inset 0 0 80px rgba(0,0,0,0.6), 0 30px 80px rgba(0,0,0,0.4)',
-          }}>
-            <span style={{
-              position: 'absolute', top: '50%', left: '50%', transform: 'translate(-50%,-50%)',
-              width: 'clamp(58px,8vw,80px)', height: 'clamp(58px,8vw,80px)', borderRadius: '50%',
-              border: `1.5px solid ${C.zoloto}`,
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              boxShadow: '0 0 40px rgba(194,154,72,0.22), inset 0 0 24px rgba(194,154,72,0.1)',
-              background: 'rgba(11,16,14,0.4)',
-            }}>
-              <span style={{
-                width: 0, height: 0, marginLeft: 5,
-                borderTop: 'clamp(9px,1.2vw,12px) solid transparent',
-                borderBottom: 'clamp(9px,1.2vw,12px) solid transparent',
-                borderLeft: `clamp(15px,2vw,20px) solid ${C.zolotoYar}`,
-              }} />
-            </span>
-            <span style={{
-              position: 'absolute', bottom: 16, left: 18,
-              fontFamily: "'Onest', sans-serif", fontSize: 10, letterSpacing: 2,
-              textTransform: 'uppercase', color: C.stone,
-            }}>Видео-слот · 16:9</span>
-          </div>
-        </FadeSection>
-
-        <FadeSection delay={200}>
-          <figcaption style={{ textAlign: 'center', marginTop: 'clamp(26px,4vw,40px)' }}>
-            <p style={{
-              fontFamily: "'Prata', serif", fontWeight: 400, fontSize: 'clamp(19px,2.3vw,27px)',
-              lineHeight: 1.32, color: C.kostYar, margin: '0 auto 18px', maxWidth: '24ch',
-            }}>Как работают генные замки.</p>
-            <p style={{
-              fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 'clamp(16px,1.9vw,20px)',
-              lineHeight: 1.6, color: C.kostDim, margin: '0 auto', maxWidth: '30ch',
-            }}>«Я есть свет. Я есть сам ключ — этим ключом отпираю тень.»</p>
-          </figcaption>
-        </FadeSection>
+      <div style={{ maxWidth: 1000, margin: '0 auto', padding: '0 clamp(16px,3vw,40px)' }}>
+        <FadeSection delay={80} y={20}><MapReveal /></FadeSection>
       </div>
 
-      {/* CTA */}
-      <FadeSection delay={120}>
-        <div style={{ textAlign: 'center', marginTop: 'clamp(64px,9vw,110px)', padding: '0 24px' }}>
-          <button
-            onClick={() => scrollTo('expedition')}
-            style={{ ...btnPrimary, background: C.zoloto, color: '#0B0E0C' }}
-            onMouseEnter={e => { e.currentTarget.style.background = C.zolotoYar }}
-            onMouseLeave={e => { e.currentTarget.style.background = C.zoloto }}
-          >Записаться на борт</button>
+      <FadeSection delay={100}>
+        <div style={{ maxWidth: 640, margin: 'clamp(56px,7vw,88px) auto 0', padding: '0 clamp(22px,6vw,80px)', textAlign: 'center' }}>
+          <p style={{
+            fontFamily: "'Lora', serif", fontStyle: 'italic',
+            fontSize: 'clamp(15px,1.8vw,19px)', lineHeight: 1.75,
+            color: C.kostDim,
+          }}>
+            Три мира. Один путь. Вниз — за самой большой силой.
+            В точке баланса — аргонавт держит Ядро.
+            Наверх — в проявленность, в Дело.
+          </p>
         </div>
       </FadeSection>
     </section>
