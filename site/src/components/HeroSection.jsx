@@ -2,32 +2,35 @@ import { useEffect, useRef, useState } from 'react'
 import { C, MEDIA, FadeSection, scrollTo, btnPrimary, btnGhost } from './Shared'
 
 // ─── SVG turbulence filter — real-time wave distortion ───────────────────────
-const SeaFilter = () => {
+// mobile: numOctaves=1, scale=12, updates every 3rd frame (~20fps) — safe for phones
+const SeaFilter = ({ mobile }) => {
   const turbRef = useRef(null)
 
   useEffect(() => {
-    let t = 0
-    let raf
+    let t = 0, raf, frame = 0
     const tick = () => {
-      t += 0.0022
-      if (turbRef.current) {
-        const bx = (0.007 + Math.sin(t * 0.9)  * 0.004).toFixed(5)
-        const by = (0.012 + Math.cos(t * 0.65) * 0.005).toFixed(5)
-        turbRef.current.setAttribute('baseFrequency', `${bx} ${by}`)
+      frame++
+      if (!mobile || frame % 3 === 0) {
+        t += 0.0022
+        if (turbRef.current) {
+          const bx = (0.007 + Math.sin(t * 0.9)  * 0.004).toFixed(5)
+          const by = (0.012 + Math.cos(t * 0.65) * 0.005).toFixed(5)
+          turbRef.current.setAttribute('baseFrequency', `${bx} ${by}`)
+        }
       }
       raf = requestAnimationFrame(tick)
     }
     raf = requestAnimationFrame(tick)
     return () => cancelAnimationFrame(raf)
-  }, [])
+  }, [mobile])
 
   return (
     <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
       <defs>
         <filter id="sea-filter" x="-4%" y="-4%" width="108%" height="108%">
           <feTurbulence ref={turbRef} type="turbulence" baseFrequency="0.007 0.012"
-            numOctaves="3" seed="7" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale="18"
+            numOctaves={mobile ? 1 : 3} seed="7" result="noise" />
+          <feDisplacementMap in="SourceGraphic" in2="noise" scale={mobile ? 12 : 18}
             xChannelSelector="R" yChannelSelector="G" />
         </filter>
       </defs>
@@ -87,11 +90,10 @@ const SeaShimmer = () => (
 
 // ─── HeroSection ─────────────────────────────────────────────────────────────
 export default function HeroSection() {
-  const [useFilter, setUseFilter] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
 
   useEffect(() => {
-    // Skip heavy SVG filter on touch devices to preserve frame rate
-    if (!window.matchMedia('(hover: none)').matches) setUseFilter(true)
+    setIsMobile(window.matchMedia('(hover: none)').matches)
   }, [])
 
   return (
@@ -100,15 +102,17 @@ export default function HeroSection() {
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       overflow: 'hidden', background: C.tishina, paddingTop: 'clamp(56px,9vh,112px)',
     }}>
-      <SeaFilter />
+      <SeaFilter mobile={isMobile} />
 
       {/* Sea photo — static, breathing animation only */}
       <div style={{
         position: 'absolute', inset: '-6% 0', zIndex: 0,
         backgroundImage: `url('${MEDIA.sea}')`,
         backgroundSize: 'cover', backgroundPosition: 'center',
-        filter: useFilter ? 'url(#sea-filter)' : 'none',
-        animation: 'seaBreathe 8s ease-in-out infinite',
+        filter: 'url(#sea-filter)',
+        animation: isMobile
+          ? 'seaBreathe 8s ease-in-out infinite, seaMobileDrift 18s ease-in-out infinite'
+          : 'seaBreathe 8s ease-in-out infinite',
       }} />
 
       {/* Radial tone */}

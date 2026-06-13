@@ -1,58 +1,39 @@
 import { useEffect, useRef, useState } from 'react'
 import { createPortal } from 'react-dom'
 import { C, FadeSection, Hairline, MEDIA, SecLabel, StarSpark } from './Shared'
+import manifestoRaw from '../../public/media/manifesto.md?raw'
 
-const CHAPTERS = [
-  {
-    num: 'I', title: 'Архитектура симуляции',
-    body: 'Мы живём в цифровой симуляции. Это фундаментальная рабочая предпосылка — не метафора. Задача аргонавта — научиться различать живое от неживого. Различать за тысячу шагов: чувствовать, знать и быть готовым ещё до того, как неживое на тебя бросится.',
-    pull: 'Различать живое от неживого. За тысячу шагов.'
-  },
-  {
-    num: 'IV', title: 'Вертикаль и горизонтали',
-    body: 'Пока Ядро не собрано — невозможно участвовать в собственных событийных рядах. Человек включается в чужие игры, созданные другими сценаристами. Первичная задача аргонавта — освободить внимание из внешних горизонтальных игр и сфокусироваться на уплотнении своего Ядра.',
-    hard: 'Одиночество — титановая оболочка Ядра.'
-  },
-  {
-    num: 'V', title: 'Вещество Матрицы',
-    body: 'Матрица ни в коем случае не враг. Воевать с матрицей — сон безумца. Аргонавт понимает принципы её работы и лепит из неё свою великую действительность. Намерение → Сопротивление → Рождение — абсолютная закономерность, работающая как часы.',
-    pull: 'Матрица — это пластилин в руках аргонавта.',
-    hard: 'Бояться пиздеца — значит отказываться от великих дел.'
-  },
-  {
-    num: 'VI', title: 'Мир — зеркало',
-    body: 'Ты принял твёрдое решение, Матрица приняла его к исполнению. Но проходит время, ты смотришь в зеркало — а там всё как прежде, и бросаешь начатое на полпути. Физика инертна. Матрица материализует с задержкой; её инерцию нужно воспринимать как благо.',
-    pull: 'Аргонавтика начинается, когда ты разбиваешь зеркало.'
-  },
-  {
-    num: 'VIII', title: 'Ловушка окружения',
-    body: 'Матрица не выключает тебя сразу — она действует через постепенное усыпление. Аргонавт видит вовлекающие ловушки и даже среди людей не теряет состояния трезвого одиночества. Самые сильные проверки часто приходят через близких.',
-    hard: 'Отсутствие врагов — признак посредственности человека.'
-  },
-  {
-    num: 'IX', title: 'Правило бинера',
-    body: 'Энергия вырабатывается на разнице потенциалов. Свет и тьма, день и ночь, напряжение и расслабление. Чем глубже вхождение в тишину и недеяние — тем больше энергии действия черпается из бездонного источника. Аргонавт ловит и держит Баланс.',
-    pull: 'Энергия вырабатывается на разнице потенциалов.'
-  },
-  {
-    num: 'XIV', title: 'Необходимость действовать',
-    body: 'Аргонавт идёт своим путём — он активирует Бездеятеля: того, кто создаёт импульс, из которого рождается действие. Мы встаём в точку, из которой возникает Намерение, и держимся там, пока оно не станет плотным. Намерение → Импульс → Действие.'
-  },
-  {
-    num: 'XV', title: 'Оживление',
-    body: 'Пробуждение и Просветление — не финал. За ними есть третий этап. Оживление — интеграция всех знаний в жизнь, разворачивание реальности из точки баланса. Аргонавт — человек, активирующий живые структуры.',
-    pull: 'Пробуждение — не финал. Есть третий этап: Оживление.'
-  },
-  {
-    num: 'XVIII', title: 'Перезагрузка системы 64-х',
-    body: 'Здесь всё начинается с чистого импульса. После — всегда Проверка от системы, плодородная Тень. Именно здесь ты опускаешь руки. Ты не слабый — ты просто не знаешь механизма. Проходя плотность Тени, Ядро Намерения укрепляется, и ты обретаешь Дар.',
-    pull: 'Сиддхи → Тень → Дар.'
-  },
-  {
-    num: 'XXIII', title: 'Карта Аргонавтики',
-    body: 'Карта собирает твоё внимание, чтобы ты дошёл. На ней — состояния, что держат тебя; этапы, открывающиеся по одному; и Золотое Руно как пламя, которое, загораясь, меняет всё.'
-  },
-]
+// ─── Parse manifesto.md into sections ────────────────────────────────────────
+const parseManifesto = (text) => {
+  const sections = []
+  let current = { num: '●', title: 'Предисловие' }
+  let paras = []
+  let buf = []
+
+  const pushBuf = () => { if (buf.length) { paras.push(buf.join('\n')); buf = [] } }
+  const saveSec = () => {
+    pushBuf()
+    if (paras.length) { sections.push({ ...current, paragraphs: [...paras] }); paras = [] }
+  }
+
+  for (const raw of text.split('\n')) {
+    const line = raw.trim()
+    const m = line.match(/^(0|[IVXLC]+)\.\s+(.+)/i)
+    if (m) {
+      saveSec()
+      current = { num: m[1].toUpperCase(), title: m[2] }
+    } else if (line === 'ИССЛЕДОВАНИЕ.') {
+      saveSec()
+      current = { num: '∞', title: 'Исследование' }
+    } else if (!line) {
+      pushBuf()
+    } else {
+      buf.push(line)
+    }
+  }
+  saveSec()
+  return sections
+}
 
 // ─── Thread canvas particles ──────────────────────────────────────────────────
 const ThreadParticles = () => {
@@ -99,32 +80,35 @@ const ThreadParticles = () => {
   return <canvas ref={canvasRef} style={{ position: 'absolute', top: 0, left: 0, width: '100%', height: '100%', pointerEvents: 'none', mixBlendMode: 'screen' }} />
 }
 
-// ─── Chapter body ─────────────────────────────────────────────────────────────
-const ChapterBody = ({ ch }) => (
-  <>
-    <div style={{ fontFamily: "'Onest', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', color: C.latun, marginBottom: 14, display: 'flex', alignItems: 'center', gap: 10 }}>
-      <StarSpark size={9} color={C.zoloto} />Глава {ch.num}
-    </div>
-    <h3 style={{ fontFamily: "'Prata', serif", fontWeight: 400, fontSize: 'clamp(22px,2.6vw,32px)', lineHeight: 1.22, color: C.kostYar, marginBottom: 22 }}>{ch.title}</h3>
-    <Hairline strength="soft" style={{ marginBottom: 26 }} />
-    <p style={{ fontFamily: "'Lora', serif", fontSize: 17, lineHeight: 1.85, color: C.kostDim, marginBottom: ch.pull || ch.hard ? 28 : 0 }}>{ch.body}</p>
-    {ch.pull && (
-      <blockquote style={{ margin: '0 0 28px', display: 'flex', gap: 14 }}>
-        <StarSpark size={11} color={C.zoloto} style={{ marginTop: 12, flexShrink: 0 }} />
-        <p style={{ fontFamily: "'Prata', serif", fontSize: 'clamp(18px,2.2vw,26px)', lineHeight: 1.34, color: C.kostYar, margin: 0 }}>{ch.pull}</p>
-      </blockquote>
-    )}
-    {ch.hard && (
-      <p style={{ fontFamily: "'Onest', sans-serif", fontWeight: 600, fontSize: 'clamp(13px,1.5vw,16px)', letterSpacing: 0.5, color: C.krovYar, lineHeight: 1.5, margin: '0 0 28px', paddingLeft: 16, borderLeft: `2px solid ${C.krov}` }}>{ch.hard}</p>
-    )}
-  </>
-)
+// ─── Paragraph renderer — detects all-caps sub-headers ───────────────────────
+const Para = ({ text }) => {
+  const isSubHead = text === text.toUpperCase() && text.replace(/[^А-ЯЁA-Z]/g, '').length > 3 && text.length < 80
+  if (isSubHead) {
+    return (
+      <p style={{
+        fontFamily: "'Onest', sans-serif", fontSize: 10.5, fontWeight: 700,
+        letterSpacing: 3, textTransform: 'uppercase', color: C.latun,
+        margin: '32px 0 12px', lineHeight: 1.6,
+      }}>{text}</p>
+    )
+  }
+  const lines = text.split('\n')
+  return (
+    <p style={{ fontFamily: "'Lora', serif", fontSize: 16, lineHeight: 1.9, color: C.kostDim, margin: '0 0 20px' }}>
+      {lines.map((line, i) => (
+        <span key={i}>{line}{i < lines.length - 1 && <br />}</span>
+      ))}
+    </p>
+  )
+}
 
 // ─── Full manifesto popup ─────────────────────────────────────────────────────
 const ManifestoModal = ({ open, onClose }) => {
   const [active, setActive] = useState(0)
+  const [chapters, setChapters] = useState(null)
   const containerRef = useRef(null)
   const chapterRefs = useRef([])
+  const loadedRef = useRef(false)
 
   useEffect(() => {
     document.body.style.overflow = open ? 'hidden' : ''
@@ -137,22 +121,30 @@ const ManifestoModal = ({ open, onClose }) => {
     return () => window.removeEventListener('keydown', handler)
   }, [onClose])
 
+  // Parse manifesto from bundled raw string — no HTTP request needed
   useEffect(() => {
-    if (!open) return
+    if (!open || loadedRef.current) return
+    loadedRef.current = true
+    setChapters(parseManifesto(manifestoRaw))
+  }, [open])
+
+  // IntersectionObserver for active chapter tracking
+  useEffect(() => {
+    if (!open || !chapters) return
     const container = containerRef.current
     if (!container) return
-    const observers = CHAPTERS.map((_, i) => {
+    const observers = chapters.map((_, i) => {
       const el = chapterRefs.current[i]
       if (!el) return null
       const obs = new IntersectionObserver(
         ([entry]) => { if (entry.isIntersecting) setActive(i) },
-        { root: container, threshold: 0.35 }
+        { root: container, threshold: 0.25 }
       )
       obs.observe(el)
       return obs
     }).filter(Boolean)
     return () => observers.forEach(o => o.disconnect())
-  }, [open])
+  }, [open, chapters])
 
   const scrollToChapter = (i) => {
     setActive(i)
@@ -179,7 +171,7 @@ const ManifestoModal = ({ open, onClose }) => {
         display: 'flex', flexDirection: 'column', overflow: 'hidden',
         animation: 'modalIn 0.28s cubic-bezier(.22,.61,.36,1)',
       }}>
-        {/* Modal header */}
+        {/* Header */}
         <div style={{
           display: 'flex', alignItems: 'center', justifyContent: 'space-between',
           padding: '18px 28px', borderBottom: '1px solid rgba(194,154,72,0.14)',
@@ -188,7 +180,7 @@ const ManifestoModal = ({ open, onClose }) => {
           <div style={{ display: 'flex', alignItems: 'center', gap: 10 }}>
             <StarSpark size={9} color={C.zoloto} />
             <span style={{ fontFamily: "'Onest', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', color: C.latun }}>
-              Манифест · XXIV главы
+              Аргонавтика · Манифест · XXIV главы
             </span>
           </div>
           <button onClick={onClose} style={{
@@ -201,55 +193,76 @@ const ManifestoModal = ({ open, onClose }) => {
           >✕</button>
         </div>
 
-        {/* Modal body */}
+        {/* Body */}
         <div style={{ flex: 1, overflow: 'hidden', padding: 'clamp(20px,3vw,36px)' }}>
-          <div className="manifesto-grid" style={{
-            display: 'grid', gridTemplateColumns: '54px 200px 1fr',
-            gap: 'clamp(20px,3vw,48px)', alignItems: 'start', height: '100%',
-          }}>
-            {/* Thread rail */}
-            <div className="thread-rail" style={{
-              height: '100%', borderRadius: 6, overflow: 'hidden',
-              border: '1px solid rgba(194,154,72,0.18)', position: 'relative', minHeight: 400,
+          {chapters === null ? (
+            <div style={{ display: 'flex', alignItems: 'center', justifyContent: 'center', height: '100%' }}>
+              <div style={{ fontFamily: "'Onest', sans-serif", fontSize: 11, letterSpacing: 3, color: C.latun }}>
+                Загрузка манифеста…
+              </div>
+            </div>
+          ) : (
+            <div className="manifesto-grid" style={{
+              display: 'grid', gridTemplateColumns: '54px 200px 1fr',
+              gap: 'clamp(20px,3vw,48px)', alignItems: 'start', height: '100%',
             }}>
-              <img src={MEDIA.thread} alt="Нить Ариадны"
-                style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0.85 }} />
-              <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.35), transparent 30%, transparent 70%, rgba(0,0,0,0.45))' }} />
-              <ThreadParticles />
-            </div>
-
-            {/* Chapter nav */}
-            <nav className="ch-nav manifesto-nav-scroll" style={{ position: 'sticky', top: 0, maxHeight: '72vh', overflowY: 'auto' }}>
-              <div style={{ fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 500, letterSpacing: 3, textTransform: 'uppercase', color: C.ghost, marginBottom: 14 }}>
-                I — XXIV · Главы
+              {/* Thread rail */}
+              <div className="thread-rail" style={{
+                height: '100%', borderRadius: 6, overflow: 'hidden',
+                border: '1px solid rgba(194,154,72,0.18)', position: 'relative', minHeight: 400,
+              }}>
+                <img src={MEDIA.thread} alt="Нить Ариадны"
+                  style={{ width: '100%', height: '100%', objectFit: 'cover', display: 'block', opacity: 0.85 }} />
+                <div style={{ position: 'absolute', inset: 0, background: 'linear-gradient(to bottom, rgba(0,0,0,0.35), transparent 30%, transparent 70%, rgba(0,0,0,0.45))' }} />
+                <ThreadParticles />
               </div>
-              {CHAPTERS.map((c, i) => (
-                <button key={i} onClick={() => scrollToChapter(i)} style={{
-                  display: 'flex', alignItems: 'baseline', gap: 10, width: '100%',
-                  background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer',
-                  padding: '10px 0', borderBottom: `1px solid rgba(194,154,72,${active === i ? 0.4 : 0.1})`,
-                  transition: 'border-color 220ms ease',
-                }}>
-                  <span style={{ fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: 1, color: active === i ? C.zolotoYar : C.stone, width: 32, flexShrink: 0 }}>{c.num}</span>
-                  <span style={{ fontFamily: "'Prata', serif", fontSize: 13, lineHeight: 1.3, color: active === i ? C.kostYar : C.kostMuted, transition: 'color 220ms ease' }}>{c.title}</span>
-                </button>
-              ))}
-              <div style={{ marginTop: 12, fontFamily: "'Onest', sans-serif", fontSize: 10, letterSpacing: 2, color: C.stone }}>· · · и далее до XXIV</div>
-            </nav>
 
-            {/* Reading pane */}
-            <div ref={containerRef} className="manifesto-scroll" style={{ maxHeight: '72vh', overflowY: 'auto', paddingRight: 6 }}>
-              {CHAPTERS.map((ch, i) => (
-                <article key={i} ref={el => { chapterRefs.current[i] = el }}
-                  style={{ maxWidth: '62ch', paddingTop: i === 0 ? 4 : 40, paddingBottom: 40, borderBottom: i < CHAPTERS.length - 1 ? '1px solid rgba(194,154,72,0.12)' : 'none' }}>
-                  <ChapterBody ch={ch} />
-                </article>
-              ))}
-              <div style={{ paddingTop: 28, paddingBottom: 8, fontFamily: "'Onest', sans-serif", fontSize: 10.5, letterSpacing: 2, color: C.stone, textAlign: 'center' }}>
-                · · · главы X — XXIV в полном Манифесте
+              {/* Chapter nav */}
+              <nav className="ch-nav manifesto-nav-scroll" style={{ position: 'sticky', top: 0, maxHeight: '72vh', overflowY: 'auto' }}>
+                <div style={{ fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 500, letterSpacing: 3, textTransform: 'uppercase', color: C.ghost, marginBottom: 14 }}>
+                  Главы
+                </div>
+                {chapters.map((ch, i) => (
+                  <button key={i} onClick={() => scrollToChapter(i)} style={{
+                    display: 'flex', alignItems: 'baseline', gap: 10, width: '100%',
+                    background: 'none', border: 'none', textAlign: 'left', cursor: 'pointer',
+                    padding: '9px 0', borderBottom: `1px solid rgba(194,154,72,${active === i ? 0.4 : 0.1})`,
+                    transition: 'border-color 220ms ease',
+                  }}>
+                    <span style={{ fontFamily: "'Onest', sans-serif", fontSize: 9.5, fontWeight: 600, letterSpacing: 1, color: active === i ? C.zolotoYar : C.stone, width: 28, flexShrink: 0, paddingTop: 1 }}>{ch.num}</span>
+                    <span style={{ fontFamily: "'Prata', serif", fontSize: 12.5, lineHeight: 1.3, color: active === i ? C.kostYar : C.kostMuted, transition: 'color 220ms ease' }}>{ch.title}</span>
+                  </button>
+                ))}
+              </nav>
+
+              {/* Reading pane — full manifesto text */}
+              <div ref={containerRef} className="manifesto-scroll" style={{ maxHeight: '72vh', overflowY: 'auto', paddingRight: 6 }}>
+                {chapters.map((ch, i) => (
+                  <article key={i} ref={el => { chapterRefs.current[i] = el }}
+                    style={{
+                      maxWidth: '62ch',
+                      paddingTop: i === 0 ? 4 : 44,
+                      paddingBottom: 44,
+                      borderBottom: i < chapters.length - 1 ? '1px solid rgba(194,154,72,0.12)' : 'none',
+                    }}>
+                    {ch.num !== '●' && (
+                      <div style={{ fontFamily: "'Onest', sans-serif", fontSize: 10.5, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', color: C.latun, marginBottom: 12, display: 'flex', alignItems: 'center', gap: 10 }}>
+                        <StarSpark size={8} color={C.zoloto} />Глава {ch.num}
+                      </div>
+                    )}
+                    <h3 style={{ fontFamily: "'Prata', serif", fontWeight: 400, fontSize: 'clamp(20px,2.4vw,28px)', lineHeight: 1.22, color: C.kostYar, marginBottom: 20 }}>
+                      {ch.title}
+                    </h3>
+                    <Hairline strength="soft" style={{ marginBottom: 24 }} />
+                    {ch.paragraphs.map((p, j) => (
+                      <Para key={j} text={p} />
+                    ))}
+                  </article>
+                ))}
+                <div style={{ height: 40 }} />
               </div>
             </div>
-          </div>
+          )}
         </div>
       </div>
     </div>,
@@ -293,7 +306,6 @@ export default function ManifestoSection() {
           </p>
         </FadeSection>
 
-        {/* Featured pull quotes */}
         <FadeSection delay={80}>
           <div style={{ marginBottom: 'clamp(40px,6vw,64px)' }}>
             {FEATURED.map((q, i) => (

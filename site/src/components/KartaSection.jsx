@@ -89,14 +89,11 @@ const VerticalRule = ({ flip = false }) => (
 
 // ─── Configurable world circles ──────────────────────────────────────────────
 // cx / cy  — позиция центра, % от ширины / высоты изображения (0–100)
-// r        — радиус в пикселях
+// r        — радиус, % от ширины контейнера (0–100)
 // strokeW  — толщина обводки в пикселях
 // mode: 'erase'        → ЧЁРНЫЙ эффект: вырезает ореол по кольцу, создаёт тёмную окружность
 // mode: 'color' + rgb  → ЦВЕТНОЙ: рисует цветное кольцо поверх ореола
 const CIRCLES = [
-  { cx: 47, cy: 48, r: 120, strokeW: 1.8, mode: 'color', rgb: [100, 100, 100] }, // чёрный
-  { cx: 49, cy: 17, r: 120, strokeW: 1.5, mode: 'color', rgb: [200, 158, 52] }, // золотой
-  { cx: 50, cy: 77, r: 120, strokeW: 1.5, mode: 'color', rgb: [160, 42, 28] }, // красный
 ]
 
 // ─── Zone labels ──────────────────────────────────────────────────────────────
@@ -208,9 +205,10 @@ const MapReveal = () => {
               const vis = Math.max(0, 1 - dist / outerReach)
               if (vis < 0.01) continue
 
+              const rPx = c.r / 100 * W
               ctx.save()
               ctx.beginPath()
-              ctx.arc(cxPx, cyPx, c.r, 0, Math.PI * 2)
+              ctx.arc(cxPx, cyPx, rPx, 0, Math.PI * 2)
               ctx.lineWidth = c.strokeW
 
               if (c.mode === 'erase') {
