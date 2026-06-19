@@ -455,7 +455,7 @@ const MapReveal = () => {
   return (
     <div ref={containerRef} style={{ position: 'relative', width: '100%', userSelect: 'none' }}>
       {/* z:0 — Фон */}
-      <img src="./media/background.png" alt="Карта миров" draggable={false}
+      <img src="./media/background.jpg" alt="Карта миров" draggable={false}
         onLoad={() => document.dispatchEvent(new CustomEvent('mapReady'))}
         style={{ width: '100%', height: 'auto', display: 'block' }} />
 
