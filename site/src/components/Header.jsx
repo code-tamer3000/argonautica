@@ -1,9 +1,9 @@
-import { useState, useEffect, useRef } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { C, MEDIA, scrollTo } from './Shared'
 
 const NAV_ITEMS = [
-  { id: 'about',     label: 'О ЧЁМ' },
-  { id: 'karta',     label: 'КАРТА' },
+  { id: 'about', label: 'О ЧЁМ' },
+  { id: 'karta', label: 'КАРТА' },
   { id: 'manifesto', label: 'МАНИФЕСТ' },
 ]
 
@@ -12,7 +12,7 @@ const EqBars = ({ playing }) => (
   <svg width="16" height="14" viewBox="0 0 16 14" style={{ display: 'block' }}>
     {[0, 1, 2, 3].map((i) => {
       const heights = [6, 12, 8, 10]
-      const delays  = ['0s', '0.2s', '0.1s', '0.3s']
+      const delays = ['0s', '0.2s', '0.1s', '0.3s']
       const h = playing ? heights[i] : 3
       return (
         <rect
@@ -60,9 +60,9 @@ export default function Header({ activeSection }) {
   // Autoplay on first valid user gesture (scroll is NOT a valid gesture for audio on mobile)
   useEffect(() => {
     const removeListeners = () => {
-      window.removeEventListener('click',    start)
+      window.removeEventListener('click', start)
       window.removeEventListener('touchend', start)
-      window.removeEventListener('keydown',  start)
+      window.removeEventListener('keydown', start)
     }
     const start = () => {
       const audio = audioRef.current
@@ -70,11 +70,11 @@ export default function Header({ activeSection }) {
       audio.volume = 0.55
       audio.play()
         .then(() => { setPlaying(true); removeListeners() })
-        .catch(() => {}) // keep listeners alive if play was blocked
+        .catch(() => { }) // keep listeners alive if play was blocked
     }
-    window.addEventListener('click',    start, { passive: true })
+    window.addEventListener('click', start, { passive: true })
     window.addEventListener('touchend', start, { passive: true })
-    window.addEventListener('keydown',  start)
+    window.addEventListener('keydown', start)
     return removeListeners
   }, [])
 
@@ -94,7 +94,7 @@ export default function Header({ activeSection }) {
       setPlaying(false)
     } else {
       audio.volume = 0.55
-      audio.play().then(() => setPlaying(true)).catch(() => {})
+      audio.play().then(() => setPlaying(true)).catch(() => { })
     }
   }
 
@@ -116,7 +116,7 @@ export default function Header({ activeSection }) {
         }
       `}</style>
 
-      <audio ref={audioRef} src="./media/song.mp3" loop preload="auto" />
+      <audio ref={audioRef} src="./media/music_web.m4a" loop preload="auto" />
 
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
