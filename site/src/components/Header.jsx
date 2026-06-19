@@ -40,7 +40,16 @@ export default function Header({ activeSection }) {
   const [scrolled, setScrolled] = useState(false)
   const [playing, setPlaying] = useState(false)
   const [showHint, setShowHint] = useState(false)
+  const [isMobile, setIsMobile] = useState(false)
   const audioRef = useRef(null)
+
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 640px)')
+    setIsMobile(mq.matches)
+    const h = e => setIsMobile(e.matches)
+    mq.addEventListener('change', h)
+    return () => mq.removeEventListener('change', h)
+  }, [])
 
   useEffect(() => {
     const handler = () => setScrolled(window.scrollY > 60)
@@ -191,11 +200,10 @@ export default function Header({ activeSection }) {
                 WebkitBackdropFilter: 'blur(10px)',
                 border: '1px solid rgba(194,154,72,0.2)',
                 borderRadius: 6,
-                padding: '7px 11px',
+                padding: isMobile ? '5px 8px' : '7px 11px',
                 pointerEvents: 'none',
                 animation: 'hintIn 0.5s cubic-bezier(.22,.61,.36,1) forwards',
               }}>
-                {/* Стрелка вверх */}
                 <div style={{
                   position: 'absolute', top: -5, right: 13,
                   width: 8, height: 8,
@@ -206,8 +214,8 @@ export default function Header({ activeSection }) {
                 }} />
                 <span style={{
                   fontFamily: "'Lora', serif", fontStyle: 'italic',
-                  fontSize: 11, color: C.ghost, letterSpacing: 0.3,
-                }}>нажми · для погружения в атмосферу</span>
+                  fontSize: isMobile ? 9 : 11, color: C.ghost, letterSpacing: 0.3,
+                }}>{isMobile ? 'нажми · для атмосферы' : 'нажми · для погружения в атмосферу'}</span>
               </div>
             )}
           </div>

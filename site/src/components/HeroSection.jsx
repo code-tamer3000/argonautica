@@ -127,6 +127,15 @@ export default function HeroSection() {
         pointerEvents: 'none',
       }} />
 
+      {/* Сплошной серый фильтр для мобилы */}
+      {isMobile && (
+        <div style={{
+          position: 'absolute', inset: 0, zIndex: 3,
+          background: 'rgba(14, 20, 18, 0.32)',
+          pointerEvents: 'none',
+        }} />
+      )}
+
       <SeaShimmer />
       <WaveOverlay />
 
