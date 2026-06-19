@@ -30,6 +30,16 @@ input, textarea, button {
   font-family: inherit;
 }
 
+/* ── Splash screen ──────────────────────────────── */
+@keyframes splashPulse {
+  0%, 100% { transform: scale(1);    opacity: 0.6; }
+  50%       { transform: scale(1.18); opacity: 1;   }
+}
+@keyframes splashLine {
+  0%, 100% { opacity: 0.3; width: 30px; }
+  50%       { opacity: 0.9; width: 50px; }
+}
+
 /* ── Sea animations ─────────────────────────────── */
 @keyframes waveScroll {
   from { transform: translateX(0); }
@@ -87,6 +97,14 @@ input, textarea, button {
 @keyframes chapterIn {
   from { opacity: 0; transform: translateY(10px); }
   to   { opacity: 1; transform: none; }
+}
+
+/* Map scroll hint — appears once then disappears */
+@keyframes scrollHint {
+  0%   { opacity: 0; }
+  12%  { opacity: 1; }
+  72%  { opacity: 0.85; }
+  100% { opacity: 0; }
 }
 
 /* Scroll indicator arrow bob */

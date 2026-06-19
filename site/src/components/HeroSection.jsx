@@ -1,42 +1,17 @@
 import { useEffect, useRef, useState } from 'react'
-import { C, MEDIA, FadeSection, scrollTo, btnPrimary, btnGhost } from './Shared'
+import { btnGhost, btnPrimary, C, FadeSection, MEDIA, scrollTo } from './Shared'
 
-// ─── SVG turbulence filter — real-time wave distortion ───────────────────────
-// mobile: numOctaves=1, scale=12, updates every 3rd frame (~20fps) — safe for phones
-const SeaFilter = ({ mobile }) => {
-  const turbRef = useRef(null)
+// ─── Настройки видео ──────────────────────────────────────────────────────────
+const VIDEO_SPEED = 1  // замедлить: 0.5 = вдвое медленнее, 0.25 = вчетверо
 
-  useEffect(() => {
-    let t = 0, raf, frame = 0
-    const tick = () => {
-      frame++
-      if (!mobile || frame % 3 === 0) {
-        t += 0.0022
-        if (turbRef.current) {
-          const bx = (0.007 + Math.sin(t * 0.9)  * 0.004).toFixed(5)
-          const by = (0.012 + Math.cos(t * 0.65) * 0.005).toFixed(5)
-          turbRef.current.setAttribute('baseFrequency', `${bx} ${by}`)
-        }
-      }
-      raf = requestAnimationFrame(tick)
-    }
-    raf = requestAnimationFrame(tick)
-    return () => cancelAnimationFrame(raf)
-  }, [mobile])
-
-  return (
-    <svg style={{ position: 'absolute', width: 0, height: 0, overflow: 'hidden' }} aria-hidden="true">
-      <defs>
-        <filter id="sea-filter" x="-4%" y="-4%" width="108%" height="108%">
-          <feTurbulence ref={turbRef} type="turbulence" baseFrequency="0.007 0.012"
-            numOctaves={mobile ? 1 : 3} seed="7" result="noise" />
-          <feDisplacementMap in="SourceGraphic" in2="noise" scale={mobile ? 12 : 18}
-            xChannelSelector="R" yChannelSelector="G" />
-        </filter>
-      </defs>
-    </svg>
-  )
-}
+// ─── Video preload hint — fires as soon as component module loads ─────────────
+const preloadLink = typeof document !== 'undefined' && (() => {
+  const isMob = window.matchMedia('(hover: none)').matches
+  const link = document.createElement('link')
+  link.rel = 'preload'; link.as = 'video'
+  link.href = isMob ? MEDIA.seaVideo : MEDIA.seaVideoDesk
+  document.head.appendChild(link)
+})()
 
 // ─── Three scrolling wave layers ──────────────────────────────────────────────
 const WaveOverlay = () => (
@@ -44,8 +19,10 @@ const WaveOverlay = () => (
     position: 'absolute', bottom: 0, left: 0, right: 0, zIndex: 3,
     pointerEvents: 'none', overflow: 'hidden',
   }}>
-    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '200%', height: 120,
-      animation: 'waveScroll 11s linear infinite' }}>
+    <div style={{
+      position: 'absolute', bottom: 0, left: 0, width: '200%', height: 120,
+      animation: 'waveScroll 11s linear infinite'
+    }}>
       <svg width="100%" height="120" viewBox="0 0 2880 120" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0,60 C160,20 320,100 480,60 C640,20 800,100 960,60
                  C1120,20 1280,100 1440,60 C1600,20 1760,100 1920,60
@@ -54,8 +31,10 @@ const WaveOverlay = () => (
       </svg>
     </div>
 
-    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '200%', height: 84,
-      animation: 'waveScroll 7s linear infinite reverse' }}>
+    <div style={{
+      position: 'absolute', bottom: 0, left: 0, width: '200%', height: 84,
+      animation: 'waveScroll 7s linear infinite reverse'
+    }}>
       <svg width="100%" height="84" viewBox="0 0 2880 84" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0,42 C220,10 440,74 660,42 C880,10 1100,74 1320,42
                  C1540,10 1760,74 1980,42 C2200,10 2420,74 2640,42
@@ -64,8 +43,10 @@ const WaveOverlay = () => (
       </svg>
     </div>
 
-    <div style={{ position: 'absolute', bottom: 0, left: 0, width: '200%', height: 52,
-      animation: 'waveScroll 4.5s linear infinite' }}>
+    <div style={{
+      position: 'absolute', bottom: 0, left: 0, width: '200%', height: 52,
+      animation: 'waveScroll 4.5s linear infinite'
+    }}>
       <svg width="100%" height="52" viewBox="0 0 2880 52" preserveAspectRatio="none" aria-hidden="true">
         <path d="M0,26 C280,4 560,48 840,26 C1120,4 1400,48 1680,26
                  C1960,4 2240,48 2520,26 C2700,4 2880,48 2880,26
@@ -73,8 +54,10 @@ const WaveOverlay = () => (
       </svg>
     </div>
 
-    <div style={{ position: 'absolute', bottom: 0, left: 0, right: 0, height: 8,
-      background: '#0B100E' }} />
+    <div style={{
+      position: 'absolute', bottom: 0, left: 0, right: 0, height: 8,
+      background: '#0B100E'
+    }} />
   </div>
 )
 
@@ -90,10 +73,13 @@ const SeaShimmer = () => (
 
 // ─── HeroSection ─────────────────────────────────────────────────────────────
 export default function HeroSection() {
-  const [isMobile, setIsMobile] = useState(false)
+  const videoRef = useRef(null)
+  const [isMobile, setIsMobile] = useState(() =>
+    typeof window !== 'undefined' ? window.matchMedia('(hover: none)').matches : false
+  )
 
   useEffect(() => {
-    setIsMobile(window.matchMedia('(hover: none)').matches)
+    if (videoRef.current) videoRef.current.playbackRate = VIDEO_SPEED
   }, [])
 
   return (
@@ -102,18 +88,24 @@ export default function HeroSection() {
       display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center',
       overflow: 'hidden', background: C.tishina, paddingTop: 'clamp(56px,9vh,112px)',
     }}>
-      <SeaFilter mobile={isMobile} />
-
-      {/* Sea photo — static, breathing animation only */}
-      <div style={{
-        position: 'absolute', inset: '-6% 0', zIndex: 0,
-        backgroundImage: `url('${MEDIA.sea}')`,
-        backgroundSize: 'cover', backgroundPosition: 'center',
-        filter: 'url(#sea-filter)',
-        animation: isMobile
-          ? 'seaBreathe 8s ease-in-out infinite, seaMobileDrift 18s ease-in-out infinite'
-          : 'seaBreathe 8s ease-in-out infinite',
-      }} />
+      {/* Sea video */}
+      <video
+        ref={videoRef}
+        autoPlay
+        loop
+        muted
+        playsInline
+        preload="auto"
+        poster={MEDIA.seaPoster}
+        onCanPlay={() => document.dispatchEvent(new CustomEvent('videoReady'))}
+        style={{
+          position: 'absolute', inset: '-6% 0', zIndex: 0,
+          width: '100%', height: '112%',
+          objectFit: 'cover', objectPosition: 'center',
+        }}
+      >
+        <source src={isMobile ? MEDIA.seaVideo : MEDIA.seaVideoDesk} type="video/mp4" />
+      </video>
 
       {/* Radial tone */}
       <div style={{
@@ -177,17 +169,6 @@ export default function HeroSection() {
         </FadeSection>
       </div>
 
-      {/* Scroll hint */}
-      <FadeSection delay={1200} y={0} style={{ position: 'absolute', bottom: 48, left: 0, right: 0, zIndex: 5 }}>
-        <div style={{
-          display: 'flex', flexDirection: 'column', alignItems: 'center', gap: 8,
-          fontFamily: "'Onest', sans-serif", fontSize: 9.5, letterSpacing: 3.5,
-          textTransform: 'uppercase', color: C.ghost,
-        }}>
-          <span>Спуститься</span>
-          <span className="hero-arrow" style={{ fontSize: 14, lineHeight: 1 }}>↓</span>
-        </div>
-      </FadeSection>
     </section>
   )
 }

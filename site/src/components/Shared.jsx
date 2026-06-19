@@ -26,6 +26,9 @@ export const C = {
 // ─── MEDIA PATHS ──────────────────────────────────────────────────────────────
 export const MEDIA = {
   sea:       './media/sea.jpg',
+  seaVideo:  './media/waves_opt.mp4',
+  seaVideoDesk: './media/waves_desk.mp4',
+  seaPoster: './media/waves_poster.jpg',
   seaShip:   './media/sea_ship.jpg',
   argoLine:  './media/argo_lineart.jpg',
   monogram:  './media/monogram.png',

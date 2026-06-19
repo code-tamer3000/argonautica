@@ -6,11 +6,57 @@ import ManifestoSection from './components/ManifestoSection'
 import KartaSection from './components/KartaSection'
 import ExpeditionSection from './components/ExpeditionSection'
 import Footer from './components/Footer'
+import { WordMark, StarSpark, C } from './components/Shared'
 
-const SECTIONS = ['hero', 'about', 'manifesto', 'karta', 'expedition']
+const SECTIONS = ['hero', 'about', 'karta', 'manifesto', 'expedition']
+
+function SplashScreen({ fading }) {
+  return (
+    <div style={{
+      position: 'fixed', inset: 0, zIndex: 9999,
+      background: '#000',
+      display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: 28,
+      opacity: fading ? 0 : 1,
+      transition: fading ? 'opacity 0.9s cubic-bezier(.4,0,.2,1)' : 'none',
+      pointerEvents: fading ? 'none' : 'all',
+    }}>
+      <div style={{ animation: 'splashPulse 2.2s ease-in-out infinite' }}>
+        <StarSpark size={38} color={C.zoloto} />
+      </div>
+      <WordMark size={15} color={C.kostDim} gap={10} withStar={false}
+        style={{ letterSpacing: 6 }} />
+      <div style={{
+        marginTop: 8,
+        width: 40, height: 1,
+        background: `linear-gradient(90deg, transparent, ${C.zoloto}, transparent)`,
+        animation: 'splashLine 2.2s ease-in-out infinite',
+      }} />
+    </div>
+  )
+}
 
 export default function App() {
   const [activeSection, setActiveSection] = useState('hero')
+  const [splashFading, setSplashFading] = useState(false)
+  const [splashGone, setSplashGone] = useState(false)
+
+  useEffect(() => {
+    let videoOk = false, mapOk = false
+    const hide = () => {
+      setSplashFading(true)
+      setTimeout(() => setSplashGone(true), 950)
+    }
+    const onVideo = () => { videoOk = true; if (mapOk) hide() }
+    const onMap   = () => { mapOk   = true; if (videoOk) hide() }
+    document.addEventListener('videoReady', onVideo, { once: true })
+    document.addEventListener('mapReady',   onMap,   { once: true })
+    const fallback = setTimeout(hide, 6000)
+    return () => {
+      document.removeEventListener('videoReady', onVideo)
+      document.removeEventListener('mapReady',   onMap)
+      clearTimeout(fallback)
+    }
+  }, [])
 
   useEffect(() => {
     const observers = SECTIONS.map(id => {
@@ -29,12 +75,13 @@ export default function App() {
 
   return (
     <div style={{ background: '#0B100E', minHeight: '100vh' }}>
+      {!splashGone && <SplashScreen fading={splashFading} />}
       <Header activeSection={activeSection} />
       <main>
         <HeroSection />
         <AboutSection />
-        <ManifestoSection />
         <KartaSection />
+        <ManifestoSection />
         <ExpeditionSection />
       </main>
       <Footer />

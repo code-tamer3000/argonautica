@@ -3,8 +3,8 @@ import { C, MEDIA, scrollTo } from './Shared'
 
 const NAV_ITEMS = [
   { id: 'about',     label: 'О ЧЁМ' },
-  { id: 'manifesto', label: 'МАНИФЕСТ' },
   { id: 'karta',     label: 'КАРТА' },
+  { id: 'manifesto', label: 'МАНИФЕСТ' },
 ]
 
 // ─── Music equalizer bars animation ──────────────────────────────────────────
@@ -39,6 +39,7 @@ const EqBars = ({ playing }) => (
 export default function Header({ activeSection }) {
   const [scrolled, setScrolled] = useState(false)
   const [playing, setPlaying] = useState(false)
+  const [showHint, setShowHint] = useState(false)
   const audioRef = useRef(null)
 
   useEffect(() => {
@@ -68,6 +69,14 @@ export default function Header({ activeSection }) {
     return removeListeners
   }, [])
 
+  useEffect(() => {
+    const show = setTimeout(() => setShowHint(true), 3000)
+    const hide = setTimeout(() => setShowHint(false), 11000)
+    return () => { clearTimeout(show); clearTimeout(hide) }
+  }, [])
+
+  useEffect(() => { if (playing) setShowHint(false) }, [playing])
+
   const toggleMusic = () => {
     const audio = audioRef.current
     if (!audio) return
@@ -87,6 +96,14 @@ export default function Header({ activeSection }) {
         @keyframes eqBar {
           from { transform: scaleY(0.35); }
           to   { transform: scaleY(1); }
+        }
+        @keyframes hintIn {
+          from { opacity: 0; transform: translateY(10px); }
+          to   { opacity: 1; transform: translateY(0); }
+        }
+        @keyframes hintOut {
+          from { opacity: 1; transform: translateY(0); }
+          to   { opacity: 0; transform: translateY(10px); }
         }
       `}</style>
 
@@ -138,32 +155,62 @@ export default function Header({ activeSection }) {
             ))}
           </div>
 
-          {/* Music toggle */}
-          <button
-            onClick={toggleMusic}
-            title={playing ? 'Выключить музыку' : 'Включить музыку'}
-            style={{
-              background: 'none', border: '1px solid',
-              borderColor: playing ? 'rgba(194,154,72,0.55)' : 'rgba(194,154,72,0.22)',
-              borderRadius: 6, width: 36, height: 36, cursor: 'pointer',
-              display: 'flex', alignItems: 'center', justifyContent: 'center',
-              color: playing ? C.zolotoYar : C.stone,
-              transition: 'color 280ms ease, border-color 280ms ease, background 280ms ease',
-              flexShrink: 0,
-            }}
-            onMouseEnter={e => {
-              e.currentTarget.style.borderColor = 'rgba(194,154,72,0.6)'
-              e.currentTarget.style.color = C.zoloto
-              e.currentTarget.style.background = 'rgba(194,154,72,0.07)'
-            }}
-            onMouseLeave={e => {
-              e.currentTarget.style.borderColor = playing ? 'rgba(194,154,72,0.55)' : 'rgba(194,154,72,0.22)'
-              e.currentTarget.style.color = playing ? C.zolotoYar : C.stone
-              e.currentTarget.style.background = 'none'
-            }}
-          >
-            <EqBars playing={playing} />
-          </button>
+          {/* Music toggle + hint */}
+          <div style={{ position: 'relative', flexShrink: 0 }}>
+            <button
+              onClick={toggleMusic}
+              title={playing ? 'Выключить музыку' : 'Включить музыку'}
+              style={{
+                background: 'none', border: '1px solid',
+                borderColor: playing ? 'rgba(194,154,72,0.55)' : 'rgba(194,154,72,0.22)',
+                borderRadius: 6, width: 36, height: 36, cursor: 'pointer',
+                display: 'flex', alignItems: 'center', justifyContent: 'center',
+                color: playing ? C.zolotoYar : C.stone,
+                transition: 'color 280ms ease, border-color 280ms ease, background 280ms ease',
+              }}
+              onMouseEnter={e => {
+                e.currentTarget.style.borderColor = 'rgba(194,154,72,0.6)'
+                e.currentTarget.style.color = C.zoloto
+                e.currentTarget.style.background = 'rgba(194,154,72,0.07)'
+              }}
+              onMouseLeave={e => {
+                e.currentTarget.style.borderColor = playing ? 'rgba(194,154,72,0.55)' : 'rgba(194,154,72,0.22)'
+                e.currentTarget.style.color = playing ? C.zolotoYar : C.stone
+                e.currentTarget.style.background = 'none'
+              }}
+            >
+              <EqBars playing={playing} />
+            </button>
+
+            {showHint && !playing && (
+              <div style={{
+                position: 'absolute', top: 'calc(100% + 10px)', right: 0,
+                whiteSpace: 'nowrap',
+                background: 'rgba(7,11,9,0.82)',
+                backdropFilter: 'blur(10px)',
+                WebkitBackdropFilter: 'blur(10px)',
+                border: '1px solid rgba(194,154,72,0.2)',
+                borderRadius: 6,
+                padding: '7px 11px',
+                pointerEvents: 'none',
+                animation: 'hintIn 0.5s cubic-bezier(.22,.61,.36,1) forwards',
+              }}>
+                {/* Стрелка вверх */}
+                <div style={{
+                  position: 'absolute', top: -5, right: 13,
+                  width: 8, height: 8,
+                  background: 'rgba(7,11,9,0.82)',
+                  border: '1px solid rgba(194,154,72,0.2)',
+                  borderRight: 'none', borderBottom: 'none',
+                  transform: 'rotate(45deg)',
+                }} />
+                <span style={{
+                  fontFamily: "'Lora', serif", fontStyle: 'italic',
+                  fontSize: 11, color: C.ghost, letterSpacing: 0.3,
+                }}>нажми · для погружения в атмосферу</span>
+              </div>
+            )}
+          </div>
 
           <button
             onClick={() => scrollTo('expedition')}
