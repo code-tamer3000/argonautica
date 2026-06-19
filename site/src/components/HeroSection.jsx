@@ -102,7 +102,6 @@ export default function HeroSection() {
           position: 'absolute', inset: '-6% 0', zIndex: 0,
           width: '100%', height: '112%',
           objectFit: 'cover', objectPosition: 'center',
-          filter: 'blur(0.8px)',
         }}
       >
         <source src={isMobile ? MEDIA.seaVideo : MEDIA.seaVideoDesk} type="video/mp4" />
@@ -122,7 +121,9 @@ export default function HeroSection() {
       {/* Тёмный центральный вуаль — контраст под текст */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 2,
-        background: 'radial-gradient(ellipse 62% 52% at 50% 44%, rgba(5,7,6,0.55) 0%, rgba(5,7,6,0.22) 55%, transparent 80%)',
+        background: isMobile
+          ? 'radial-gradient(ellipse 62% 52% at 50% 44%, rgba(5,7,6,0.68) 0%, rgba(5,7,6,0.35) 55%, transparent 80%)'
+          : 'radial-gradient(ellipse 62% 52% at 50% 44%, rgba(5,7,6,0.55) 0%, rgba(5,7,6,0.22) 55%, transparent 80%)',
         pointerEvents: 'none',
       }} />
 
@@ -135,7 +136,6 @@ export default function HeroSection() {
           <div style={{
             fontFamily: "'Onest', sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: 3,
             textTransform: 'uppercase', color: C.kostDim, margin: '0 auto 56px', maxWidth: '34ch',
-            textShadow: '0 0 18px rgba(194,154,72,0.5), 0 0 40px rgba(194,154,72,0.2)',
           }}>
             СИСТЕМА ПРОЯВЛЕНИЯ ДЛЯ ЛЮДЕЙ С МИССИЕЙ
           </div>
@@ -147,7 +147,6 @@ export default function HeroSection() {
             fontSize: 'clamp(40px, 7.5vw, 86px)', lineHeight: 1.04,
             color: C.kostYar, letterSpacing: '-0.01em',
             margin: '0 auto 42px', maxWidth: '13em',
-            textShadow: '0 0 24px rgba(194,154,72,0.45), 0 0 60px rgba(194,154,72,0.2), 0 2px 8px rgba(0,0,0,0.4)',
           }}>
             Пиратская<br />экспедиция.
           </h1>
@@ -158,7 +157,6 @@ export default function HeroSection() {
             fontFamily: "'Lora', serif", fontStyle: 'italic',
             fontSize: 'clamp(16px,2vw,20px)', lineHeight: 1.7,
             color: C.kostDim, margin: '0 auto 62px', maxWidth: 520,
-            textShadow: '0 0 20px rgba(194,154,72,0.35), 0 1px 6px rgba(0,0,0,0.35)',
           }}>
             Аргонавты способны срезать углы и проходить сквозь стены системы.
           </p>
