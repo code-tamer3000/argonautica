@@ -116,7 +116,7 @@ export default function Header({ activeSection }) {
         }
       `}</style>
 
-      <audio ref={audioRef} src="./media/music_web.m4a" loop preload="auto" />
+      <audio ref={audioRef} src="./media/song.mp3" loop preload="auto" />
 
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
