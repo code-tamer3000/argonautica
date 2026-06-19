@@ -54,6 +54,8 @@ fi
 sshpass -p "$SSH_PASS" rsync -avz --delete \
   --exclude='.htaccess' \
   --exclude='config.php' \
+  --exclude='.argo.db' \
+  --exclude='.argo_offset' \
   -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
   dist/ \
   "$SSH_USER@$SSH_HOST:$SSH_REMOTE_PATH"
