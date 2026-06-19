@@ -1,6 +1,7 @@
 <?php
-// Скопируй этот файл в config.php и заполни значения.
-// config.php никогда не коммитится и не деплоится — только на сервере вручную.
+// Скопируй в config.php на сервере и заполни. Никогда не коммитится в git.
 
-define('BOT_TOKEN', 'ВАШ_BOT_TOKEN');   // токен от @BotFather
-define('CHAT_ID',   'ВАШ_CHAT_ID');     // chat_id группы или канала
+define('BOT_TOKEN',      'ВАШ_BOT_TOKEN');
+define('CHAT_ID',        'ВАШ_CHAT_ID');
+define('WEBHOOK_SECRET', 'придумай-длинную-случайную-строку-здесь');
+define('DB_PATH',        __DIR__ . '/.argo.db');

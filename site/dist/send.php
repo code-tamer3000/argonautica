@@ -95,7 +95,7 @@ $text .= "👤 *Контакт:* " . escapeMarkdown($contact) . "\n";
 if ($about !== '') {
     $text .= "\n📝 *О себе:*\n" . escapeMarkdown($about);
 }
-$text .= "\n\n🕐 " . escapeMarkdown(date('d.m.Y H:i')) . " (UTC)";
+$text .= "\n\n🕐 " . escapeMarkdown(date('d.m.Y H:i') . ' (UTC)');
 
 // ─── Отправляем в Telegram ────────────────────────────────────────────────────
 $url     = "https://api.telegram.org/bot" . BOT_TOKEN . "/sendMessage";
