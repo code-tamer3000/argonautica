@@ -128,7 +128,7 @@ export default function HeroSection() {
           <div style={{
             fontFamily: "'Onest', sans-serif", fontSize: 12, fontWeight: 600, letterSpacing: 3,
             textTransform: 'uppercase', color: C.kostDim, margin: '0 auto 56px', maxWidth: '34ch',
-            textShadow: '0 1px 8px rgba(0,0,0,0.8)',
+            textShadow: '0 0 18px rgba(194,154,72,0.5), 0 0 40px rgba(194,154,72,0.2)',
           }}>
             СИСТЕМА ПРОЯВЛЕНИЯ ДЛЯ ЛЮДЕЙ С МИССИЕЙ
           </div>
@@ -140,7 +140,7 @@ export default function HeroSection() {
             fontSize: 'clamp(40px, 7.5vw, 86px)', lineHeight: 1.04,
             color: C.kostYar, letterSpacing: '-0.01em',
             margin: '0 auto 42px', maxWidth: '13em',
-            textShadow: '0 1px 2px rgba(0,0,0,0.9), 0 4px 24px rgba(0,0,0,0.7), 0 8px 48px rgba(0,0,0,0.5)',
+            textShadow: '0 0 24px rgba(194,154,72,0.45), 0 0 60px rgba(194,154,72,0.2), 0 2px 8px rgba(0,0,0,0.4)',
           }}>
             Пиратская<br />экспедиция.
           </h1>
@@ -151,7 +151,7 @@ export default function HeroSection() {
             fontFamily: "'Lora', serif", fontStyle: 'italic',
             fontSize: 'clamp(16px,2vw,20px)', lineHeight: 1.7,
             color: C.kostDim, margin: '0 auto 62px', maxWidth: 520,
-            textShadow: '0 1px 12px rgba(0,0,0,0.75)',
+            textShadow: '0 0 20px rgba(194,154,72,0.35), 0 1px 6px rgba(0,0,0,0.35)',
           }}>
             Аргонавты способны срезать углы и проходить сквозь стены системы.
           </p>

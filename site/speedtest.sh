@@ -41,6 +41,6 @@ test_url "CSS"                     "$BASE_URL/$(curl -sL "$BASE_URL/" | grep -oP
 test_url "Видео десктоп (desk)"    "$BASE_URL/media/waves_desk.mp4"
 test_url "Видео мобайл (opt)"      "$BASE_URL/media/waves_opt.mp4"
 test_url "Постер видео"            "$BASE_URL/media/waves_poster.jpg"
-test_url "Карта (background.png)"  "$BASE_URL/media/background.png"
+test_url "Карта (background.jpg)"  "$BASE_URL/media/background.jpg"
 
 echo -e "${GREEN}=== Готово ===${NC}"
