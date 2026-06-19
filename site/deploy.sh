@@ -52,8 +52,8 @@ if ! command -v sshpass &>/dev/null; then
 fi
 
 sshpass -p "$SSH_PASS" rsync -avz --delete \
-  --exclude='send.php' \
   --exclude='.htaccess' \
+  --exclude='config.php' \
   -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \
   dist/ \
   "$SSH_USER@$SSH_HOST:$SSH_REMOTE_PATH"

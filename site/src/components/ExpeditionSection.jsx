@@ -5,7 +5,7 @@ import { C, MEDIA, FadeSection, SecLabel, StarSpark, MeanderRule, useParallax } 
 const SEND_URL = './send.php'
 
 // ─── Step-2 popup: расскажи о себе ───────────────────────────────────────────
-const AboutModal = ({ contact, onClose, onSuccess }) => {
+const AboutModal = ({ contact, honeypot, onClose, onSuccess }) => {
   const [about,   setAbout]   = useState('')
   const [loading, setLoading] = useState(false)
   const [err,     setErr]     = useState('')
@@ -22,7 +22,7 @@ const AboutModal = ({ contact, onClose, onSuccess }) => {
       const res = await fetch(SEND_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contact, about: about.trim() }),
+        body: JSON.stringify({ contact, about: about.trim(), website: honeypot }),
       })
       const data = await res.json()
       if (data.ok) { onSuccess(); onClose() }
@@ -121,6 +121,7 @@ const AboutModal = ({ contact, onClose, onSuccess }) => {
 // ─── ExpeditionSection ────────────────────────────────────────────────────────
 export default function ExpeditionSection() {
   const [contact,   setContact]   = useState('')
+  const [honeypot,  setHoneypot]  = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [sent,      setSent]      = useState(false)
   const [glowRef,   glowOffset]   = useParallax(0.08)
@@ -141,6 +142,7 @@ export default function ExpeditionSection() {
       {modalOpen && (
         <AboutModal
           contact={contact}
+          honeypot={honeypot}
           onClose={() => setModalOpen(false)}
           onSuccess={() => setSent(true)}
         />
@@ -213,6 +215,15 @@ export default function ExpeditionSection() {
             </div>
           ) : (
             <div style={{ maxWidth: 480, margin: '0 auto' }}>
+              {/* Honeypot: скрыто от людей, боты заполняют — на сервере блокируем */}
+              <input
+                type="text"
+                value={honeypot}
+                onChange={e => setHoneypot(e.target.value)}
+                tabIndex={-1}
+                autoComplete="off"
+                style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
+              />
               <div className="exp-form" style={{ display: 'flex', gap: 0 }}>
                 <input
                   type="text"
