@@ -102,12 +102,13 @@ export default function HeroSection() {
           position: 'absolute', inset: '-6% 0', zIndex: 0,
           width: '100%', height: '112%',
           objectFit: 'cover', objectPosition: 'center',
+          filter: 'blur(0.8px)',
         }}
       >
         <source src={isMobile ? MEDIA.seaVideo : MEDIA.seaVideoDesk} type="video/mp4" />
       </video>
 
-      {/* Radial tone */}
+      {/* Тёмные края */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 1,
         background: 'radial-gradient(ellipse 80% 70% at 50% 42%, rgba(11,16,14,0) 0%, rgba(8,12,10,0.50) 60%, rgba(5,7,6,0.90) 100%)',
@@ -116,6 +117,12 @@ export default function HeroSection() {
       <div style={{
         position: 'absolute', inset: 0, zIndex: 1,
         background: 'linear-gradient(to bottom, rgba(5,7,6,0.65) 0%, transparent 20%, transparent 55%, rgba(11,16,14,0.4) 80%)',
+        pointerEvents: 'none',
+      }} />
+      {/* Тёмный центральный вуаль — контраст под текст */}
+      <div style={{
+        position: 'absolute', inset: 0, zIndex: 2,
+        background: 'radial-gradient(ellipse 62% 52% at 50% 44%, rgba(5,7,6,0.55) 0%, rgba(5,7,6,0.22) 55%, transparent 80%)',
         pointerEvents: 'none',
       }} />
 
