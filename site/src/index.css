@@ -119,8 +119,9 @@ input, textarea, button {
   .hdr-links { display: none !important; }
 }
 @media (max-width: 720px) {
-  .about-grid  { grid-template-columns: 1fr !important; }
-  .arc-row     { grid-template-columns: repeat(2, 1fr) !important; }
+  .about-grid   { grid-template-columns: 1fr !important; }
+  .balance-grid { grid-template-columns: 1fr !important; }
+  .arc-row      { grid-template-columns: repeat(2, 1fr) !important; }
   .moves-grid  { grid-template-columns: 1fr !important; }
   .footer-row  { flex-direction: column !important; align-items: flex-start !important; }
 }

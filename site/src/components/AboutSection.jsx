@@ -1,5 +1,5 @@
 import { useEffect, useRef } from 'react'
-import { C, FadeSection, MeanderRule, MEDIA, MovementGlyph, SecLabel, StarSpark } from './Shared'
+import { C, FadeSection, MEDIA, SecLabel } from './Shared'
 
 // ─── Sword sparks canvas ──────────────────────────────────────────────────────
 const SwordSparks = () => {
@@ -86,18 +86,118 @@ const SwordSparks = () => {
   )
 }
 
-const ARC = [
-  { k: 'Чужие сценарии', s: 'где ты сейчас' },
-  { k: 'Своя опора', s: 'плотное Ядро' },
-  { k: 'Призвание', s: 'твоё Дело' },
-  { k: 'Легендарность', s: 'наследие' },
+// ─── Brand star-spark shape (canvas) ─────────────────────────────────────────
+const drawStarShape = (ctx, x, y, size, color) => {
+  ctx.save()
+  ctx.fillStyle = color
+  ctx.translate(x, y)
+  const s = size
+  ctx.beginPath()
+  ctx.moveTo(0, -s)
+  ctx.bezierCurveTo(s * .15, -s * .3, s * .3, -s * .15, s, 0)
+  ctx.bezierCurveTo(s * .3, s * .15, s * .15, s * .3, 0, s)
+  ctx.bezierCurveTo(-s * .15, s * .3, -s * .3, s * .15, -s, 0)
+  ctx.bezierCurveTo(-s * .3, -s * .15, -s * .15, -s * .3, 0, -s)
+  ctx.closePath()
+  ctx.fill()
+  ctx.restore()
+}
+
+// ─── Четыре концентрических золотых ореола (внешний→внутренний) ───────────────
+// Бронза (внешний) → белое золото (ядро). Каждый: радиус, пик прозрачности,
+// цвет, амплитуда пульсации, частота пульсации.
+const BALANCE_HALOS = [
+  { r: 196, a: 0.07, rgb: [140, 96, 22], pAmp: 0.42, pFreq: 0.00088 }, // латунь-бронза
+  { r: 102, a: 0.20, rgb: [175, 132, 40], pAmp: 0.33, pFreq: 0.00145 }, // тёмное золото
+  { r: 50, a: 0.46, rgb: [214, 172, 64], pAmp: 0.24, pFreq: 0.00230 }, // золото
+  { r: 20, a: 0.88, rgb: [252, 238, 155], pAmp: 0.15, pFreq: 0.00380 }, // белое золото, ядро
 ]
 
-const MOVES = [
-  { glyph: 'yav', big: 'Внутрь', label: 'ЯВЬ', color: C.kost, desc: 'Освобождение внимания. Опора.' },
-  { glyph: 'nav', big: 'Вглубь', label: 'НАВЬ', color: C.krovYar, desc: 'Погружение за самой большой силой.' },
-  { glyph: 'prav', big: 'Наверх', label: 'ПРАВЬ', color: C.zoloto, desc: 'Проявленность. Дело — в мир.' },
-]
+// ─── Точка баланса: звезда + 4 ореола, дрейфующая ambient-анимация ────────────
+const BalanceHalos = () => {
+  const containerRef = useRef(null)
+  const canvasRef = useRef(null)
+
+  useEffect(() => {
+    const canvas = canvasRef.current
+    const el = containerRef.current
+    if (!canvas || !el) return
+    const ctx = canvas.getContext('2d')
+    let W = 0, H = 0
+
+    const resize = () => {
+      W = el.offsetWidth; H = el.offsetHeight
+      if (!W || !H) return
+      canvas.width = W; canvas.height = H
+      ctx.fillStyle = 'black'
+      ctx.fillRect(0, 0, W, H)
+    }
+    resize()
+    const ro = new ResizeObserver(resize)
+    ro.observe(el)
+
+    let isVisible = true
+    const visObs = new IntersectionObserver(
+      entries => { isVisible = entries[0].isIntersecting },
+      { threshold: 0 }
+    )
+    visObs.observe(el)
+
+    let raf
+
+    const draw = () => {
+      raf = requestAnimationFrame(draw)
+      if (!isVisible || !W || !H) return
+
+      // Звезда стоит в центре и пульсирует — никакого дрейфа
+      ctx.clearRect(0, 0, W, H)
+      const px = W / 2, py = H / 2
+      const now = Date.now()
+
+      // Внешний → внутренний, чтобы ядро рисовалось поверх
+      for (let i = 0; i < BALANCE_HALOS.length; i++) {
+        const h = BALANCE_HALOS[i]
+        const pulse = 1 + Math.sin(now * h.pFreq + i * 1.45) * h.pAmp
+        const r = h.r * pulse
+        const [cr, cg, cb] = h.rgb
+
+        const grd = ctx.createRadialGradient(px, py, 0, px, py, r)
+        grd.addColorStop(0, `rgba(${cr},${cg},${cb},${+(h.a * pulse).toFixed(3)})`)
+        grd.addColorStop(0.42, `rgba(${cr},${cg},${cb},${+(h.a * pulse * 0.25).toFixed(3)})`)
+        grd.addColorStop(1, `rgba(${cr},${cg},${cb},0)`)
+
+        ctx.beginPath()
+        ctx.arc(px, py, r, 0, Math.PI * 2)
+        ctx.fillStyle = grd
+        ctx.fill()
+      }
+
+      // Звезда-искра поверх — мягко дышит вместе с ядром
+      const starPulse = 1 + Math.sin(now * 0.0026) * 0.16
+      drawStarShape(ctx, px, py, 7 * starPulse, 'rgba(245,215,105,0.93)')
+      drawStarShape(ctx, px, py, 2.8 * starPulse, 'rgba(255,252,228,0.82)')
+    }
+    draw()
+
+    return () => {
+      cancelAnimationFrame(raf)
+      ro.disconnect()
+      visObs.disconnect()
+    }
+  }, [])
+
+  return (
+    <div ref={containerRef} style={{
+      position: 'relative', width: '100%', aspectRatio: '4 / 5',
+    }}>
+      <canvas ref={canvasRef} style={{
+        position: 'absolute', inset: 0,
+        width: '100%', height: '100%',
+        pointerEvents: 'none', mixBlendMode: 'screen',
+      }} />
+    </div>
+  )
+}
 
 export default function AboutSection() {
   return (
@@ -131,6 +231,8 @@ export default function AboutSection() {
                 fontFamily: "'Lora', serif", fontSize: 18, lineHeight: 1.78, color: C.kostDim,
                 maxWidth: '52ch', marginBottom: 18,
               }}>
+                Всё лучшее в тебе существует изначально. Убери лишнее и оно расцветет.
+                <br /><br />
                 Племя тех, кто различает живое от неживого. Для аргонавтов тьма — не враг,
                 а строительный материал. Через негатив происходит настоящее проявление,
                 а не попытки проявиться.
@@ -159,71 +261,45 @@ export default function AboutSection() {
           </FadeSection>
         </div>
 
-        {/* Arc */}
-        <FadeSection delay={120}>
-          <div style={{
-            fontFamily: "'Onest', sans-serif", fontSize: 10.5, fontWeight: 500, letterSpacing: 3,
-            textTransform: 'uppercase', color: C.ghost, marginBottom: 26,
-          }}>Дуга превращения</div>
-        </FadeSection>
-        <FadeSection delay={180}>
-          <div className="arc-row" style={{
-            display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: 0,
-            position: 'relative', marginBottom: 'clamp(56px,8vw,96px)',
-          }}>
-            <div style={{
-              position: 'absolute', top: 5, left: '12.5%', right: '12.5%', height: 1,
-              background: `linear-gradient(to right, ${C.stone}, ${C.zoloto})`, opacity: 0.55,
-            }} />
-            {ARC.map((a, i) => (
-              <div key={i} style={{ position: 'relative', paddingTop: 24, paddingRight: 16 }}>
-                <div style={{ position: 'absolute', top: 0, left: 0 }}>
-                  <StarSpark
-                    size={i === ARC.length - 1 ? 12 : 9}
-                    color={i === ARC.length - 1 ? C.zolotoYar : (i === 0 ? C.stone : C.latun)}
-                  />
-                </div>
-                <div style={{
-                  fontFamily: "'Prata', serif", fontSize: 'clamp(15px,1.7vw,20px)',
-                  color: i === ARC.length - 1 ? C.zolotoYar : C.kost, marginBottom: 6, lineHeight: 1.2,
-                }}>{a.k}</div>
-                <div style={{
-                  fontFamily: "'Onest', sans-serif", fontSize: 10, letterSpacing: 1.5,
-                  textTransform: 'uppercase', color: C.ghost,
-                }}>{a.s}</div>
-              </div>
-            ))}
-          </div>
-        </FadeSection>
-
-        {/* Three movements */}
-        <FadeSection delay={120}><MeanderRule style={{ marginBottom: 48 }} opacity={0.35} /></FadeSection>
-        <div className="moves-grid" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: 1, background: C.frame }}>
-          {MOVES.map((m, i) => (
-            <FadeSection key={i} delay={140 + i * 120} style={{ background: C.bezdna }}>
-              <div style={{ padding: 'clamp(28px,4vw,40px) clamp(20px,3vw,34px)' }}>
-                <MovementGlyph kind={m.glyph} size={44} color={m.color} />
-                <div style={{ marginTop: 24, display: 'flex', alignItems: 'baseline', gap: 12 }}>
-                  <span style={{ fontFamily: "'Prata', serif", fontSize: 'clamp(22px,2.6vw,30px)', color: C.kostYar }}>{m.big}</span>
-                  <span style={{ fontFamily: "'Onest', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: 3, textTransform: 'uppercase', color: m.color }}>{m.label}</span>
-                </div>
-                <p style={{ fontFamily: "'Lora', serif", fontSize: 15.5, lineHeight: 1.65, color: C.kostMuted, marginTop: 12 }}>{m.desc}</p>
-              </div>
+        {/* Точка баланса — текст + ambient-анимация (звезда + 4 ореола) */}
+        <div className="balance-grid" style={{
+          display: 'grid', gridTemplateColumns: '1fr clamp(240px,34vw,420px)',
+          gap: 'clamp(32px,5vw,64px)', alignItems: 'center',
+        }}>
+          <div>
+            <FadeSection delay={80}>
+              <h2 style={{
+                fontFamily: "'Prata', serif", fontWeight: 400,
+                fontSize: 'clamp(26px,3.4vw,42px)', lineHeight: 1.16, color: C.kostYar,
+                letterSpacing: '-0.01em', marginBottom: 24, maxWidth: '14ch',
+              }}>
+                Точка <span style={{ color: C.zolotoYar }}>баланса</span>.
+              </h2>
             </FadeSection>
-          ))}
-        </div>
+            <FadeSection delay={180}>
+              <p style={{
+                fontFamily: "'Lora', serif", fontSize: 18, lineHeight: 1.78, color: C.kostDim,
+                maxWidth: '52ch',
+              }}>
+                Исходное явление Аргонавтики — Точка Баланса. Аргонавт — носитель баланса,
+                самой большой силы в&nbsp;мире.
+                <br /><br />
+                Сейчас ситуация такова, что в&nbsp;результате выливания в&nbsp;мир множества знаний
+                появилось большое количество «пробуждённых» и&nbsp;«просветлённых», не&nbsp;заземливших
+                понимание в&nbsp;теле. Это душнота, мающаяся в&nbsp;концепциях и&nbsp;не&nbsp;переходящая
+                к&nbsp;делу. Фитобоярство.
+                <br /><br />
+                Аргонавт не&nbsp;ведётся на&nbsp;лень и&nbsp;малодушие внутреннего фитобоярина, когда тот
+                начинает петь свою однообразную песню&nbsp;— поэтому обретает свободу от&nbsp;внешней
+                душноты, оживляя пространство, в&nbsp;котором находится.
+              </p>
+            </FadeSection>
+          </div>
 
-        <FadeSection delay={200}>
-          <p style={{
-            fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 'clamp(16px,1.7vw,19px)',
-            lineHeight: 1.65, color: C.kostDim, maxWidth: '44ch',
-            margin: 'clamp(56px,8vw,90px) auto 0', textAlign: 'center',
-          }}>
-            Идти сразу наверх — духовная ловушка, так люди отлетают и становятся репликаторами
-            эгрегоров.<br />Настоящая реализация происходит через углубление и проявление
-            глубины в&nbsp;мир.
-          </p>
-        </FadeSection>
+          <FadeSection delay={260} y={20}>
+            <BalanceHalos />
+          </FadeSection>
+        </div>
       </div>
     </section>
   )

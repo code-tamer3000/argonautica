@@ -63,26 +63,45 @@ function handleCallback(array $cq, PDO $db): void {
 function handleCommand(array $msg, PDO $db): void {
     if ((string)$msg['chat']['id'] !== (string)CHAT_ID) return;
     $text = trim($msg['text'] ?? '');
+    if ($text === '') return;
+
+    // Кнопки клавиатуры → команды
+    $btnMap = [
+        '📊 статистика'   => '/stats',
+        '⏳ новые заявки' => '/pending',
+        '✅ принятые'     => '/accepted',
+        '❌ отклонённые'  => '/rejected',
+    ];
+    $lower = mb_strtolower($text);
+    if (isset($btnMap[$lower])) $text = $btnMap[$lower];
+
     if (substr($text, 0, 1) !== '/') return;
     $cmd = strtolower(strtok($text, ' @'));
 
     switch ($cmd) {
         case '/start':
         case '/help':
-            sendMsg(CHAT_ID, implode("\n", [
-                '⚓ <b>Аргонавтика — заявки</b>',
-                '',
-                '/stats — статистика',
-                '/pending — новые заявки',
-                '/accepted — принятые',
-                '/rejected — отклонённые',
-            ]));
+            sendMsg(CHAT_ID,
+                "⚓ <b>Аргонавтика — заявки</b>\n\nВыбери действие на клавиатуре внизу:",
+                mainKeyboard()
+            );
             break;
-        case '/stats':    sendStats($db);                           break;
-        case '/pending':  sendList($db, 'pending',  '⏳ Новые');   break;
-        case '/accepted': sendList($db, 'accepted', '✅ Принятые'); break;
+        case '/stats':    sendStats($db);                              break;
+        case '/pending':  sendList($db, 'pending',  '⏳ Новые');      break;
+        case '/accepted': sendList($db, 'accepted', '✅ Принятые');   break;
         case '/rejected': sendList($db, 'rejected', '❌ Отклонённые'); break;
     }
+}
+
+function mainKeyboard(): array {
+    return [
+        'keyboard' => [
+            [['text' => '📊 Статистика'], ['text' => '⏳ Новые заявки']],
+            [['text' => '✅ Принятые'],   ['text' => '❌ Отклонённые']],
+        ],
+        'resize_keyboard'  => true,
+        'persistent'       => true,
+    ];
 }
 
 function sendStats(PDO $db): void {
