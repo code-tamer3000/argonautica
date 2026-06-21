@@ -122,7 +122,8 @@ input, textarea, button {
   .about-grid   { grid-template-columns: 1fr !important; }
   .balance-grid { grid-template-columns: 1fr !important; }
   .arc-row      { grid-template-columns: repeat(2, 1fr) !important; }
-  .moves-grid  { grid-template-columns: 1fr !important; }
+  /* мобила: порядок миров III → II → I (на компе остаётся I → II → III) */
+  .moves-grid  { display: flex !important; flex-direction: column-reverse !important; }
   .footer-row  { flex-direction: column !important; align-items: flex-start !important; }
 }
 @media (max-width: 860px) {

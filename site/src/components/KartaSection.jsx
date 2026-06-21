@@ -1,12 +1,12 @@
 import { useEffect, useRef, useState } from 'react'
 import { C, FadeSection, MeanderRule, MovementGlyph, SecLabel, StarSpark } from './Shared'
 
-// ─── Дуга превращения ─────────────────────────────────────────────────────────
+// ─── Дуга превращения — Путь Аргонавта · путь Славы ──────────────────────────
 const ARC = [
-  { k: 'Чужие сценарии', s: 'где ты сейчас' },
-  { k: 'Своя опора', s: 'плотное Ядро' },
-  { k: 'Призвание', s: 'твоё Дело' },
-  { k: 'Легендарность', s: 'наследие' },
+  { stage: 'точка сейчас', k: 'Чужие сценарии', note: 'Фитобоярство' },
+  { stage: 'I этап', k: 'Искусство посылания на хер', result: 'Своя опора', trans: 'от чужих сценариев к своей опоре' },
+  { stage: 'II этап', k: 'Исчезнуть, чтобы появиться', result: 'Призвание', trans: 'от опоры к призванию' },
+  { stage: 'III этап', k: 'Легендарность', result: 'Наследие', trans: 'от призвания к легендарности' },
 ]
 
 // ─── Три мира — движения по вертикали ────────────────────────────────────────
@@ -659,12 +659,12 @@ export default function KartaSection() {
           </p>
         </FadeSection>
 
-        {/* Дуга превращения */}
+        {/* Дуга превращения — Путь Аргонавта · путь Славы */}
         <FadeSection delay={120}>
           <div style={{
             fontFamily: "'Onest', sans-serif", fontSize: 10.5, fontWeight: 500, letterSpacing: 3,
             textTransform: 'uppercase', color: C.ghost, marginBottom: 26,
-          }}>Дуга превращения</div>
+          }}>Путь Аргонавта&nbsp;· путь Славы</div>
         </FadeSection>
         <FadeSection delay={180}>
           <div className="arc-row" style={{
@@ -675,24 +675,43 @@ export default function KartaSection() {
               position: 'absolute', top: 5, left: '12.5%', right: '12.5%', height: 1,
               background: `linear-gradient(to right, ${C.stone}, ${C.zoloto})`, opacity: 0.55,
             }} />
-            {ARC.map((a, i) => (
-              <div key={i} style={{ position: 'relative', paddingTop: 24, paddingRight: 16 }}>
-                <div style={{ position: 'absolute', top: 0, left: 0 }}>
-                  <StarSpark
-                    size={i === ARC.length - 1 ? 12 : 9}
-                    color={i === ARC.length - 1 ? C.zolotoYar : (i === 0 ? C.stone : C.latun)}
-                  />
+            {ARC.map((a, i) => {
+              const last = i === ARC.length - 1
+              const accent = last ? C.zolotoYar : (i === 0 ? C.stone : C.latun)
+              return (
+                <div key={i} style={{ position: 'relative', paddingTop: 24, paddingRight: 16 }}>
+                  <div style={{ position: 'absolute', top: 0, left: 0 }}>
+                    <StarSpark size={last ? 12 : 9} color={accent} />
+                  </div>
+                  <div style={{
+                    fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: 1.8,
+                    textTransform: 'uppercase', color: accent, marginBottom: 10,
+                  }}>{a.stage}</div>
+                  <div style={{
+                    fontFamily: "'Prata', serif", fontSize: 'clamp(15px,1.7vw,20px)',
+                    color: last ? C.zolotoYar : C.kost, marginBottom: 6, lineHeight: 1.25,
+                  }}>{a.k}</div>
+                  {a.note && (
+                    <div style={{
+                      fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 13.5,
+                      color: C.kostMuted, marginBottom: 6,
+                    }}>{a.note}</div>
+                  )}
+                  {a.result && (
+                    <div style={{
+                      fontFamily: "'Onest', sans-serif", fontSize: 11, fontWeight: 600, letterSpacing: 1.2,
+                      textTransform: 'uppercase', color: C.kostDim, marginTop: 8, marginBottom: 6,
+                    }}>{a.result}</div>
+                  )}
+                  {a.trans && (
+                    <div style={{
+                      fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 13,
+                      lineHeight: 1.4, color: C.ghost,
+                    }}>{a.trans}</div>
+                  )}
                 </div>
-                <div style={{
-                  fontFamily: "'Prata', serif", fontSize: 'clamp(15px,1.7vw,20px)',
-                  color: i === ARC.length - 1 ? C.zolotoYar : C.kost, marginBottom: 6, lineHeight: 1.2,
-                }}>{a.k}</div>
-                <div style={{
-                  fontFamily: "'Onest', sans-serif", fontSize: 10, letterSpacing: 1.5,
-                  textTransform: 'uppercase', color: C.ghost,
-                }}>{a.s}</div>
-              </div>
-            ))}
+              )
+            })}
           </div>
         </FadeSection>
       </div>
