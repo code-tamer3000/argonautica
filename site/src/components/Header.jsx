@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { C, MEDIA, scrollTo } from './Shared'
 
+// ▼ Громкость музыки: 0 = тихо, 1 = максимум (сейчас 55%)
+const MUSIC_VOLUME = 0.1
+
 const NAV_ITEMS = [
   { id: 'about', label: 'О ЧЁМ' },
   { id: 'balance', label: 'ТОЧКА БАЛАНСА' },
@@ -67,7 +70,7 @@ export default function Header({ activeSection }) {
     const start = () => {
       const audio = audioRef.current
       if (!audio) return
-      audio.volume = 0.55
+      audio.volume = MUSIC_VOLUME
       audio.play()
         .then(() => { setPlaying(true); removeListeners() })
         .catch(() => { }) // keep listeners alive if play was blocked
@@ -93,7 +96,7 @@ export default function Header({ activeSection }) {
       audio.pause()
       setPlaying(false)
     } else {
-      audio.volume = 0.55
+      audio.volume = MUSIC_VOLUME
       audio.play().then(() => setPlaying(true)).catch(() => { })
     }
   }
@@ -116,7 +119,7 @@ export default function Header({ activeSection }) {
         }
       `}</style>
 
-      <audio ref={audioRef} src="./media/music_web.m4a" loop preload="auto" />
+      <audio ref={audioRef} src="./media/music.mp3" loop preload="auto" />
 
       <header style={{
         position: 'fixed', top: 0, left: 0, right: 0, zIndex: 100,
