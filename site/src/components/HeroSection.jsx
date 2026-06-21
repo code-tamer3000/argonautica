@@ -112,20 +112,9 @@ export default function HeroSection() {
       {/* Тёмный центральный вуаль — контраст под текст */}
       <div style={{
         position: 'absolute', inset: 0, zIndex: 2,
-        background: isMobile
-          ? 'radial-gradient(ellipse 62% 52% at 50% 44%, rgba(5,7,6,0.68) 0%, rgba(5,7,6,0.35) 55%, transparent 80%)'
-          : 'radial-gradient(ellipse 62% 52% at 50% 44%, rgba(5,7,6,0.55) 0%, rgba(5,7,6,0.22) 55%, transparent 80%)',
+        background: 'radial-gradient(ellipse 62% 52% at 50% 44%, rgba(5,7,6,0.55) 0%, rgba(5,7,6,0.22) 55%, transparent 80%)',
         pointerEvents: 'none',
       }} />
-
-      {/* Сплошной серый фильтр для мобилы */}
-      {isMobile && (
-        <div style={{
-          position: 'absolute', inset: 0, zIndex: 3,
-          background: 'rgba(14, 20, 18, 0.32)',
-          pointerEvents: 'none',
-        }} />
-      )}
 
       <SeaShimmer />
       <WaveOverlay />

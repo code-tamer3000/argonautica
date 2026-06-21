@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react'
 import { createPortal } from 'react-dom'
-import { C, MEDIA, FadeSection, SecLabel, StarSpark, MeanderRule, useParallax } from './Shared'
+import { C, MEDIA, FadeSection, SecLabel, StarSpark, MeanderRule } from './Shared'
 
 const SEND_URL = './send.php'
 
@@ -137,7 +137,6 @@ export default function ExpeditionSection() {
   const [honeypot,  setHoneypot]  = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [sent,      setSent]      = useState(false)
-  const [glowRef,   glowOffset]   = useParallax(0.08)
 
   const handleNext = () => {
     if (!contact.trim()) return
@@ -177,9 +176,8 @@ export default function ExpeditionSection() {
         </FadeSection>
 
         <FadeSection delay={140} y={22}>
-          <figure ref={glowRef} style={{
+          <figure style={{
             margin: '0 auto 40px', width: 'clamp(240px,34vw,360px)',
-            transform: `translateY(${glowOffset}px)`,
             filter: 'drop-shadow(0 0 70px rgba(194,154,72,0.22))',
             borderRadius: 12, overflow: 'hidden',
             border: '1px solid rgba(194,154,72,0.28)',
