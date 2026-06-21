@@ -656,8 +656,16 @@ export default function KartaSection() {
         <FadeSection delay={120}>
           <div style={{
             fontFamily: "'Onest', sans-serif", fontSize: 10.5, fontWeight: 500, letterSpacing: 3,
-            textTransform: 'uppercase', color: C.ghost, marginBottom: 26,
-          }}>Путь Аргонавта&nbsp;· путь Славы</div>
+            textTransform: 'uppercase', color: C.ghost, marginBottom: 14,
+          }}>Дуга превращения</div>
+          <h2 style={{
+            fontFamily: "'Prata', serif", fontWeight: 400,
+            fontSize: 'clamp(26px,3.6vw,44px)', lineHeight: 1.12, color: C.kostYar,
+            letterSpacing: '-0.01em', marginBottom: 'clamp(38px,5vw,56px)',
+          }}>
+            Путь Аргонавта&nbsp;—{' '}
+            <span style={{ color: C.zolotoYar, textShadow: '0 0 24px rgba(214,172,64,0.45)' }}>путь Славы</span>
+          </h2>
         </FadeSection>
         <FadeSection delay={180}>
           <div className="arc-row" style={{
@@ -673,9 +681,15 @@ export default function KartaSection() {
               const accent = last ? C.zolotoYar : (i === 0 ? C.stone : C.latun)
               return (
                 <div key={i} style={{ position: 'relative', paddingTop: 24, paddingRight: 16 }}>
-                  <div style={{ position: 'absolute', top: 0, left: 0 }}>
+                  <span
+                    className={i === 0 ? undefined : 'arc-star'}
+                    style={{
+                      position: 'absolute', top: 0, left: 0,
+                      ...(i === 0 ? {} : { '--glow': accent, '--gb': `${6 + i * 3.5}px`, animationDelay: `${i * 0.5}s` }),
+                    }}
+                  >
                     <StarSpark size={last ? 12 : 9} color={accent} />
-                  </div>
+                  </span>
                   <div style={{
                     fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: 1.8,
                     textTransform: 'uppercase', color: accent, marginBottom: 10,

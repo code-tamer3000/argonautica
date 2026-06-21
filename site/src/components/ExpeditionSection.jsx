@@ -4,6 +4,19 @@ import { C, MEDIA, FadeSection, SecLabel, StarSpark, MeanderRule, useParallax } 
 
 const SEND_URL = './send.php'
 
+// ─── Экспедиция — формат и программа ─────────────────────────────────────────
+const EXP_FACTS = [
+  ['Старт', '1 июля'],
+  ['Длительность', '28 дней'],
+  ['Стоимость', '9000 ₽', 'растёт каждый раз, когда Аргат ходит купаться'],
+]
+
+const EXP_PROGRAM = [
+  '5 миров — 5 онлайн-встреч',
+  'Тензор-расчёт твоей карты блокировок, разбор замков',
+  'Задания, практики, ежедневная работа, обратная связь',
+]
+
 // ─── Step-2 popup: расскажи о себе ───────────────────────────────────────────
 const AboutModal = ({ contact, honeypot, onClose, onSuccess }) => {
   const [about,   setAbout]   = useState('')
@@ -165,36 +178,77 @@ export default function ExpeditionSection() {
 
         <FadeSection delay={140} y={22}>
           <figure ref={glowRef} style={{
-            margin: '0 auto 40px', width: 'clamp(260px,40vw,420px)',
+            margin: '0 auto 40px', width: 'clamp(240px,34vw,360px)',
             transform: `translateY(${glowOffset}px)`,
             filter: 'drop-shadow(0 0 70px rgba(194,154,72,0.22))',
+            borderRadius: 12, overflow: 'hidden',
+            border: '1px solid rgba(194,154,72,0.28)',
           }}>
-            <img src={MEDIA.argoBoat} alt="Арго — корабль"
-              style={{ width: '100%', display: 'block', aspectRatio: '3/2', objectFit: 'contain' }} />
+            <img src={MEDIA.warrior} alt="Воин против Матрицы"
+              style={{ width: '100%', display: 'block', aspectRatio: '3/4', objectFit: 'cover' }} />
           </figure>
         </FadeSection>
 
         <FadeSection delay={220}>
           <h2 style={{
             fontFamily: "'Prata', serif", fontWeight: 400,
-            fontSize: 'clamp(30px,4.6vw,56px)', lineHeight: 1.1, color: C.kostYar,
-            letterSpacing: '-0.01em', margin: '0 auto 30px', maxWidth: '14ch',
+            fontSize: 'clamp(28px,4.2vw,50px)', lineHeight: 1.1, color: C.kostYar,
+            letterSpacing: '-0.01em', margin: '0 auto 30px', maxWidth: '16ch',
           }}>
-            Экспедиция посылания{' '}
-            <span style={{ color: C.zolotoYar }}>на&nbsp;хер</span>.
+            Экспедиция «Искусство посылания{' '}
+            <span style={{ color: C.zolotoYar }}>на&nbsp;Хер</span>»
           </h2>
         </FadeSection>
 
         <FadeSection delay={300}>
-          <p style={{
-            fontFamily: "'Lora', serif", fontSize: 'clamp(16px,1.9vw,19px)', lineHeight: 1.78,
-            color: C.kostDim, margin: '0 auto 18px', maxWidth: '50ch',
-          }}>Герой встречает чудище и посылает его нахер.</p>
+          <div className="exp-details" style={{
+            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(24px,4vw,48px)',
+            textAlign: 'left', maxWidth: 660, margin: '0 auto clamp(36px,5vw,52px)',
+            padding: 'clamp(24px,3.5vw,36px)', borderRadius: 10,
+            border: '1px solid rgba(194,154,72,0.18)',
+            background: 'linear-gradient(160deg, rgba(194,154,72,0.06), rgba(194,154,72,0.01))',
+          }}>
+            {/* Формат */}
+            <div>
+              {EXP_FACTS.map(([k, v, note], i) => (
+                <div key={i} style={{ marginBottom: i === EXP_FACTS.length - 1 ? 0 : 18 }}>
+                  <div style={{
+                    fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: 2,
+                    textTransform: 'uppercase', color: C.latun, marginBottom: 4,
+                  }}>{k}</div>
+                  <div style={{ fontFamily: "'Prata', serif", fontSize: 'clamp(17px,2vw,21px)', color: C.kostYar }}>{v}</div>
+                  {note && (
+                    <div style={{
+                      fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 12.5,
+                      lineHeight: 1.4, color: C.stone, marginTop: 4,
+                    }}>{note}</div>
+                  )}
+                </div>
+              ))}
+            </div>
+
+            {/* Что внутри */}
+            <div>
+              {EXP_PROGRAM.map((line, i) => (
+                <div key={i} style={{
+                  display: 'flex', gap: 10, alignItems: 'flex-start',
+                  marginBottom: i === EXP_PROGRAM.length - 1 ? 0 : 14,
+                }}>
+                  <span style={{
+                    display: 'flex', alignItems: 'center', flexShrink: 0,
+                    height: '1.55em', fontSize: 'clamp(14.5px,1.7vw,16px)',
+                  }}><StarSpark size={7} color={C.latun} /></span>
+                  <span style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(14.5px,1.7vw,16px)', lineHeight: 1.55, color: C.kostDim }}>{line}</span>
+                </div>
+              ))}
+            </div>
+          </div>
+
           <p style={{
             fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 17, lineHeight: 1.7,
-            color: C.kostMuted, margin: '0 auto 48px', maxWidth: '40ch',
+            color: C.kostMuted, margin: '0 auto 32px', maxWidth: '40ch',
           }}>
-            Оставь контакт — мы свяжемся и расскажем как попасть на борт.
+            Оставь контакт — мы свяжемся и расскажем, как попасть на борт.
           </p>
         </FadeSection>
 
@@ -254,7 +308,7 @@ export default function ExpeditionSection() {
                   }}
                   onMouseEnter={e => { if (contact.trim()) e.currentTarget.style.background = C.zolotoYar }}
                   onMouseLeave={e => { e.currentTarget.style.background = C.zoloto }}
-                >Встать в строй</button>
+                >Записаться</button>
               </div>
               <div style={{ fontFamily: "'Onest', sans-serif", fontSize: 10.5, letterSpacing: 1, color: C.stone, marginTop: 12 }}>
                 Заявка = предварительный отбор. Не гарантирует участия.

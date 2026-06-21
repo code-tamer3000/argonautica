@@ -41,6 +41,7 @@ export const MEDIA = {
   helmet:    './media/helmet_meander.jpg',
   vase:      './media/argonaut_vase.jpg',
   worldsMap: './media/worlds_map.jpg',
+  warrior:   './media/warrior_against_matrix.jpg',
 }
 
 // ─── STAR SPARK ───────────────────────────────────────────────────────────────

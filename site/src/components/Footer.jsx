@@ -32,7 +32,7 @@ export default function Footer() {
               }}
               onMouseEnter={e => { e.currentTarget.style.color = C.zolotoYar }}
               onMouseLeave={e => { e.currentTarget.style.color = C.kostMuted }}
-            >t.me/argonautica_systems</a>
+            >База Аргонавтики в Тг</a>
             <span style={{
               fontFamily: "'Onest', sans-serif", fontSize: 11.5, letterSpacing: 1, color: C.ghost,
             }}>Аргат</span>
@@ -42,7 +42,7 @@ export default function Footer() {
         <div style={{
           marginTop: 30, fontFamily: "'Onest', sans-serif", fontSize: 10, letterSpacing: 1.5,
           textTransform: 'uppercase', color: C.stone,
-        }}>MMXXVI · СИСТЕМА ПРОЯВЛЕНИЯ ДЛЯ ЛЮДЕЙ С МИССИЕЙ</div>
+        }}>СИСТЕМА ПРОЯВЛЕНИЯ ДЛЯ ЛЮДЕЙ С МИССИЕЙ</div>
       </div>
     </footer>
   )

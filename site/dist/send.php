@@ -30,23 +30,18 @@ if (!is_array($data)) { http_response_code(400); echo json_encode(['ok' => false
 // ─── Honeypot ─────────────────────────────────────────────────────────────────
 if (!empty($data['website'])) { echo json_encode(['ok' => true]); exit; }
 
-// ─── Валидация ────────────────────────────────────────────────────────────────
+// ─── Контакт ──────────────────────────────────────────────────────────────────
+// Никакой проверки формата — это может быть @username, username, e-mail, телефон
+// или любой другой текст. Требуем только непустое и разумной длины значение.
 $contact = trim($data['contact'] ?? '');
 if ($contact === '') {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => 'Поле контакта обязательно']);
     exit;
 }
-if (mb_strlen($contact) > 100) {
+if (mb_strlen($contact) > 200) {
     http_response_code(400);
     echo json_encode(['ok' => false, 'error' => 'Контакт слишком длинный']);
-    exit;
-}
-$isPhone = preg_match('/^[\+\d][\d\s\-\(\)]{6,19}$/', $contact);
-$isTg    = preg_match('/^@[\w]{3,32}$/', $contact);
-if (!$isPhone && !$isTg) {
-    http_response_code(400);
-    echo json_encode(['ok' => false, 'error' => 'Введи номер телефона или @username в Telegram']);
     exit;
 }
 $about = trim($data['about'] ?? '');
@@ -58,24 +53,16 @@ $stmt = $db->prepare("INSERT INTO applications (contact, about, ip) VALUES (?, ?
 $stmt->execute([$contact, $about, $ip]);
 $appId = (int)$db->lastInsertId();
 
-// ─── Отправляем в Telegram ────────────────────────────────────────────────────
+// ─── Уведомление в Telegram (best-effort: заявка уже в БД) ─────────────────────
 $text = buildAppText(['id' => $appId, 'contact' => $contact, 'about' => $about, 'created_at' => date('Y-m-d H:i:s')]);
-$res  = tgRequest('sendMessage', [
-    'chat_id'      => CHAT_ID,
-    'text'         => $text,
-    'parse_mode'   => 'HTML',
-    'reply_markup' => makeKeyboard($appId),
+tgRequest('sendMessage', [
+    'chat_id'    => CHAT_ID,
+    'text'       => $text,
+    'parse_mode' => 'HTML',
 ]);
 
-if (!empty($res['ok'])) {
-    $msgId = $res['result']['message_id'] ?? 0;
-    $db->prepare("UPDATE applications SET message_id = ? WHERE id = ?")
-       ->execute([$msgId, $appId]);
-    echo json_encode(['ok' => true]);
-} else {
-    http_response_code(502);
-    echo json_encode(['ok' => false, 'error' => $res['description'] ?? 'Ошибка Telegram']);
-}
+// Заявка сохранена — для пользователя это успех, даже если Telegram недоступен
+echo json_encode(['ok' => true]);
 
 // ─── Helpers ──────────────────────────────────────────────────────────────────
 function getDB(): PDO {
@@ -102,13 +89,6 @@ function buildAppText(array $app): string {
     if ($about !== '') $lines[] = "\n📝 <b>О себе:</b>\n{$about}";
     $lines[] = "\n🕐 {$date}";
     return implode("\n", $lines);
-}
-
-function makeKeyboard(int $appId): array {
-    return ['inline_keyboard' => [[
-        ['text' => '✅ Принять',    'callback_data' => "accept:{$appId}"],
-        ['text' => '❌ Отклонить', 'callback_data' => "reject:{$appId}"],
-    ]]];
 }
 
 function tgRequest(string $method, array $payload): ?array {
