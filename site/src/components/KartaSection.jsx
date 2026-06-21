@@ -1,9 +1,6 @@
 import { useEffect, useRef, useState } from 'react'
 import { C, FadeSection, MeanderRule, MovementGlyph, SecLabel, StarSpark } from './Shared'
 
-// Выделение в тексте — как жирный на картинке
-const emph = { color: C.kostYar, fontWeight: 600 }
-
 // ─── Дуга превращения — Путь Аргонавта · путь Славы ──────────────────────────
 const ARC = [
   { stage: 'точка сейчас', k: 'Чужие сценарии', note: 'Фитобоярство' },
@@ -603,10 +600,17 @@ export default function KartaSection() {
       {/* Заголовок + описание (перед картой) */}
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 clamp(22px,6vw,80px)', marginBottom: 'clamp(48px,6vw,72px)' }}>
         <FadeSection>
-          <SecLabel num="03" text="Карта 12 мiров Аргонавтики" />
+          <SecLabel num="03" text="Карта миров" />
+          <h2 style={{
+            fontFamily: "'Prata', serif", fontWeight: 400,
+            fontSize: 'clamp(28px,3.6vw,46px)', lineHeight: 1.16, color: C.kostYar,
+            letterSpacing: '-0.01em', maxWidth: '15ch', marginBottom: 18,
+          }}>
+            Карта <span style={{ color: C.zolotoYar }}>12&nbsp;мiров</span> Аргонавтики
+          </h2>
           <p style={{
-            fontFamily: "'Lora', serif", fontSize: 'clamp(18px,2.1vw,23px)', lineHeight: 1.5,
-            color: C.kostYar, maxWidth: '24ch', marginBottom: 24,
+            fontFamily: "'Lora', serif", fontSize: 'clamp(16px,1.8vw,18.5px)', lineHeight: 1.7,
+            color: C.kostDim, maxWidth: '46ch', marginBottom: 24,
           }}>
             Карта помогает держать твоё внимание, чтобы ты дошёл до&nbsp;конца.
           </p>
@@ -617,7 +621,7 @@ export default function KartaSection() {
             fontSize: 'clamp(16px,1.8vw,18.5px)', lineHeight: 1.78,
             color: C.kostDim, maxWidth: '64ch',
           }}>
-            12&nbsp;мiров — <strong style={emph}>это 12&nbsp;частотных диапазонов</strong> на&nbsp;пути
+            12&nbsp;мiров — это 12&nbsp;частотных диапазонов на&nbsp;пути
             аргонавта к&nbsp;Славе. Их не&nbsp;5, не&nbsp;7, не&nbsp;8. Именно 12&nbsp;запрограммированных
             Матрицей сфер жизни, каждый из&nbsp;которых аргонавт освобождает шаг за&nbsp;шагом. Оживая
             и&nbsp;укрепляясь в&nbsp;своём уникальном и&nbsp;неповторимом стиле жизни. Искусство посылания
@@ -664,7 +668,7 @@ export default function KartaSection() {
             letterSpacing: '-0.01em', marginBottom: 'clamp(38px,5vw,56px)',
           }}>
             Путь Аргонавта&nbsp;—{' '}
-            <span style={{ color: C.zolotoYar, textShadow: '0 0 24px rgba(214,172,64,0.45)' }}>путь Славы</span>
+            <span style={{ color: C.zolotoYar, textShadow: '0 0 24px rgba(214,172,64,0.45)' }}>путь Славы</span>.
           </h2>
         </FadeSection>
         <FadeSection delay={180}>

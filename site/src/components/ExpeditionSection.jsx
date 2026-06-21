@@ -5,11 +5,12 @@ import { C, MEDIA, FadeSection, SecLabel, StarSpark, MeanderRule } from './Share
 const SEND_URL = './send.php'
 
 // ─── Экспедиция — формат и программа ─────────────────────────────────────────
-const EXP_FACTS = [
+const EXP_FACTS_BASE = [
   ['Старт', '1 июля'],
   ['Длительность', '28 дней'],
-  ['Стоимость', '9000 ₽', 'растёт каждый раз, когда Аргат ходит купаться'],
 ]
+const PRICE_NOTE = 'растёт каждый раз, когда Аргат ходит купаться'
+const DEFAULT_PRICE = '9000 ₽'   // фолбэк, пока цена грузится с сервера
 
 const EXP_PROGRAM = [
   '5 миров — 5 онлайн-встреч',
@@ -18,7 +19,7 @@ const EXP_PROGRAM = [
 ]
 
 // ─── Step-2 popup: расскажи о себе ───────────────────────────────────────────
-const AboutModal = ({ contact, honeypot, onClose, onSuccess }) => {
+const AboutModal = ({ contact, price, honeypot, onClose, onSuccess }) => {
   const [about,   setAbout]   = useState('')
   const [loading, setLoading] = useState(false)
   const [err,     setErr]     = useState('')
@@ -35,7 +36,7 @@ const AboutModal = ({ contact, honeypot, onClose, onSuccess }) => {
       const res = await fetch(SEND_URL, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ contact, about: about.trim(), website: honeypot }),
+        body: JSON.stringify({ contact, about: about.trim(), price, website: honeypot }),
       })
       const data = await res.json()
       if (data.ok) { onSuccess(); onClose() }
@@ -137,6 +138,17 @@ export default function ExpeditionSection() {
   const [honeypot,  setHoneypot]  = useState('')
   const [modalOpen, setModalOpen] = useState(false)
   const [sent,      setSent]      = useState(false)
+  const [price,     setPrice]     = useState(DEFAULT_PRICE)
+
+  // Цена задаётся из Telegram (/price) и хранится на сервере
+  useEffect(() => {
+    fetch('./price.php', { cache: 'no-store' })
+      .then(r => r.json())
+      .then(d => { if (d && d.price) setPrice(d.price) })
+      .catch(() => {})
+  }, [])
+
+  const facts = [...EXP_FACTS_BASE, ['Стоимость', price, PRICE_NOTE]]
 
   const handleNext = () => {
     if (!contact.trim()) return
@@ -154,6 +166,7 @@ export default function ExpeditionSection() {
       {modalOpen && (
         <AboutModal
           contact={contact}
+          price={price}
           honeypot={honeypot}
           onClose={() => setModalOpen(false)}
           onSuccess={() => setSent(true)}
@@ -199,120 +212,121 @@ export default function ExpeditionSection() {
         </FadeSection>
 
         <FadeSection delay={300}>
-          <div className="exp-details" style={{
-            display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(24px,4vw,48px)',
-            textAlign: 'left', maxWidth: 660, margin: '0 auto clamp(36px,5vw,52px)',
+          <div className="exp-card" style={{
+            textAlign: 'left', maxWidth: 660, margin: '0 auto',
             padding: 'clamp(24px,3.5vw,36px)', borderRadius: 10,
             border: '1px solid rgba(194,154,72,0.18)',
             background: 'linear-gradient(160deg, rgba(194,154,72,0.06), rgba(194,154,72,0.01))',
           }}>
-            {/* Формат */}
-            <div>
-              {EXP_FACTS.map(([k, v, note], i) => (
-                <div key={i} style={{ marginBottom: i === EXP_FACTS.length - 1 ? 0 : 18 }}>
-                  <div style={{
-                    fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: 2,
-                    textTransform: 'uppercase', color: C.latun, marginBottom: 4,
-                  }}>{k}</div>
-                  <div style={{ fontFamily: "'Prata', serif", fontSize: 'clamp(17px,2vw,21px)', color: C.kostYar }}>{v}</div>
-                  {note && (
+            <div className="exp-details" style={{
+              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(24px,4vw,48px)',
+            }}>
+              {/* Формат */}
+              <div>
+                {facts.map(([k, v, note], i) => (
+                  <div key={i} style={{ marginBottom: i === facts.length - 1 ? 0 : 18 }}>
                     <div style={{
-                      fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 12.5,
-                      lineHeight: 1.4, color: C.stone, marginTop: 4,
-                    }}>{note}</div>
-                  )}
-                </div>
-              ))}
+                      fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: 2,
+                      textTransform: 'uppercase', color: C.latun, marginBottom: 4,
+                    }}>{k}</div>
+                    <div style={{ fontFamily: "'Prata', serif", fontSize: 'clamp(17px,2vw,21px)', color: C.kostYar }}>{v}</div>
+                    {note && (
+                      <div style={{
+                        fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 12.5,
+                        lineHeight: 1.4, color: C.stone, marginTop: 4,
+                      }}>{note}</div>
+                    )}
+                  </div>
+                ))}
+              </div>
+
+              {/* Что внутри */}
+              <div>
+                {EXP_PROGRAM.map((line, i) => (
+                  <div key={i} style={{
+                    display: 'flex', gap: 10, alignItems: 'flex-start',
+                    marginBottom: i === EXP_PROGRAM.length - 1 ? 0 : 14,
+                  }}>
+                    <span style={{
+                      display: 'flex', alignItems: 'center', flexShrink: 0,
+                      height: '1.55em', fontSize: 'clamp(14.5px,1.7vw,16px)',
+                    }}><StarSpark size={7} color={C.latun} /></span>
+                    <span style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(14.5px,1.7vw,16px)', lineHeight: 1.55, color: C.kostDim }}>{line}</span>
+                  </div>
+                ))}
+              </div>
             </div>
 
-            {/* Что внутри */}
-            <div>
-              {EXP_PROGRAM.map((line, i) => (
-                <div key={i} style={{
-                  display: 'flex', gap: 10, alignItems: 'flex-start',
-                  marginBottom: i === EXP_PROGRAM.length - 1 ? 0 : 14,
-                }}>
-                  <span style={{
-                    display: 'flex', alignItems: 'center', flexShrink: 0,
-                    height: '1.55em', fontSize: 'clamp(14.5px,1.7vw,16px)',
-                  }}><StarSpark size={7} color={C.latun} /></span>
-                  <span style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(14.5px,1.7vw,16px)', lineHeight: 1.55, color: C.kostDim }}>{line}</span>
+            {/* Форма записи — внутри карточки */}
+            <div style={{
+              marginTop: 'clamp(26px,3.5vw,36px)', paddingTop: 'clamp(26px,3.5vw,36px)',
+              borderTop: '1px solid rgba(194,154,72,0.18)',
+            }}>
+              {sent ? (
+                <div style={{ textAlign: 'center' }}>
+                  <StarSpark size={20} color={C.zolotoYar} style={{ marginBottom: 16 }} />
+                  <div style={{ fontFamily: "'Prata', serif", fontSize: 22, color: C.kostYar, marginBottom: 10 }}>
+                    Заявка принята.
+                  </div>
+                  <div style={{ fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 15.5, color: C.kostMuted, lineHeight: 1.6 }}>
+                    Свяжемся, когда Экспедиция откроется. Ты — среди Первых.
+                  </div>
                 </div>
-              ))}
+              ) : (
+                <>
+                  <div style={{
+                    fontFamily: "'Onest', sans-serif", fontSize: 10.5, fontWeight: 600, letterSpacing: 2,
+                    textTransform: 'uppercase', color: C.latun, marginBottom: 14,
+                  }}>Записаться на Экспедицию</div>
+
+                  {/* Honeypot: скрыто от людей, боты заполняют — на сервере блокируем */}
+                  <input
+                    type="text"
+                    value={honeypot}
+                    onChange={e => setHoneypot(e.target.value)}
+                    tabIndex={-1}
+                    autoComplete="off"
+                    style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
+                  />
+                  <div className="exp-form" style={{ display: 'flex', gap: 0 }}>
+                    <input
+                      type="text"
+                      value={contact}
+                      onChange={e => setContact(e.target.value)}
+                      onKeyDown={handleKey}
+                      placeholder="e-mail / telegram"
+                      style={{
+                        flex: 1, fontFamily: "'Onest', sans-serif", fontSize: 14, color: C.kostYar,
+                        background: 'rgba(255,255,255,0.02)',
+                        border: `1px solid ${C.frameDeep}`, borderRight: 'none',
+                        borderRadius: '6px 0 0 6px', padding: '15px 18px',
+                        outline: 'none', caretColor: C.zoloto,
+                      }}
+                      onFocus={e => { e.currentTarget.style.borderColor = 'rgba(194,154,72,0.55)' }}
+                      onBlur={e => { e.currentTarget.style.borderColor = C.frameDeep }}
+                    />
+                    <button
+                      onClick={handleNext}
+                      disabled={!contact.trim()}
+                      style={{
+                        fontFamily: "'Onest', sans-serif", fontSize: 12.5, fontWeight: 600, letterSpacing: 1,
+                        textTransform: 'uppercase', padding: '15px 26px',
+                        background: C.zoloto, color: '#0B0E0C',
+                        border: 'none', borderRadius: '0 6px 6px 0', cursor: 'pointer',
+                        whiteSpace: 'nowrap', transition: 'background 220ms ease',
+                        opacity: !contact.trim() ? 0.5 : 1,
+                      }}
+                      onMouseEnter={e => { if (contact.trim()) e.currentTarget.style.background = C.zolotoYar }}
+                      onMouseLeave={e => { e.currentTarget.style.background = C.zoloto }}
+                    >Записаться</button>
+                  </div>
+                  <div style={{ fontFamily: "'Onest', sans-serif", fontSize: 10.5, letterSpacing: 1, color: C.stone, marginTop: 12 }}>
+                    Заявка = предварительный отбор. Не гарантирует участия.
+                  </div>
+                </>
+              )}
             </div>
           </div>
-
-          <p style={{
-            fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 17, lineHeight: 1.7,
-            color: C.kostMuted, margin: '0 auto 32px', maxWidth: '40ch',
-          }}>
-            Оставь контакт — мы свяжемся и расскажем, как попасть на борт.
-          </p>
-        </FadeSection>
-
-        <FadeSection delay={380}>
-          {sent ? (
-            <div style={{
-              maxWidth: 480, margin: '0 auto', padding: '40px 32px', borderRadius: 8,
-              border: '1px solid rgba(194,154,72,0.4)',
-              background: 'linear-gradient(160deg, rgba(194,154,72,0.08), rgba(194,154,72,0.01))',
-            }}>
-              <StarSpark size={20} color={C.zolotoYar} style={{ marginBottom: 18 }} />
-              <div style={{ fontFamily: "'Prata', serif", fontSize: 22, color: C.kostYar, marginBottom: 10 }}>
-                Заявка принята.
-              </div>
-              <div style={{ fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 15.5, color: C.kostMuted, lineHeight: 1.6 }}>
-                Свяжемся, когда Экспедиция откроется. Ты — среди Первых.
-              </div>
-            </div>
-          ) : (
-            <div style={{ maxWidth: 480, margin: '0 auto' }}>
-              {/* Honeypot: скрыто от людей, боты заполняют — на сервере блокируем */}
-              <input
-                type="text"
-                value={honeypot}
-                onChange={e => setHoneypot(e.target.value)}
-                tabIndex={-1}
-                autoComplete="off"
-                style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
-              />
-              <div className="exp-form" style={{ display: 'flex', gap: 0 }}>
-                <input
-                  type="text"
-                  value={contact}
-                  onChange={e => setContact(e.target.value)}
-                  onKeyDown={handleKey}
-                  placeholder="e-mail / telegram"
-                  style={{
-                    flex: 1, fontFamily: "'Onest', sans-serif", fontSize: 14, color: C.kostYar,
-                    background: 'rgba(255,255,255,0.02)',
-                    border: `1px solid ${C.frameDeep}`, borderRight: 'none',
-                    borderRadius: '6px 0 0 6px', padding: '15px 18px',
-                    outline: 'none', caretColor: C.zoloto,
-                  }}
-                  onFocus={e => { e.currentTarget.style.borderColor = 'rgba(194,154,72,0.55)' }}
-                  onBlur={e => { e.currentTarget.style.borderColor = C.frameDeep }}
-                />
-                <button
-                  onClick={handleNext}
-                  disabled={!contact.trim()}
-                  style={{
-                    fontFamily: "'Onest', sans-serif", fontSize: 12.5, fontWeight: 600, letterSpacing: 1,
-                    textTransform: 'uppercase', padding: '15px 26px',
-                    background: C.zoloto, color: '#0B0E0C',
-                    border: 'none', borderRadius: '0 6px 6px 0', cursor: 'pointer',
-                    whiteSpace: 'nowrap', transition: 'background 220ms ease',
-                    opacity: !contact.trim() ? 0.5 : 1,
-                  }}
-                  onMouseEnter={e => { if (contact.trim()) e.currentTarget.style.background = C.zolotoYar }}
-                  onMouseLeave={e => { e.currentTarget.style.background = C.zoloto }}
-                >Записаться</button>
-              </div>
-              <div style={{ fontFamily: "'Onest', sans-serif", fontSize: 10.5, letterSpacing: 1, color: C.stone, marginTop: 12 }}>
-                Заявка = предварительный отбор. Не гарантирует участия.
-              </div>
-            </div>
-          )}
         </FadeSection>
       </div>
     </section>

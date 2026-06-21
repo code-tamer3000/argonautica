@@ -1,0 +1,50 @@
+# ── Аргонавтика — защита служебных файлов ────────────────────────────────────
+# Только запреты доступа. Никаких rewrite — сайту они не нужны, ничего не ломают.
+# Совместимо с Apache 2.2 и 2.4.
+
+# База данных (контакты людей) — запрет на скачивание
+<FilesMatch "\.(db|sqlite|sqlite3)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Конфиг с токеном бота — напрямую недоступен (PHP подключает его внутри, это работает)
+<FilesMatch "^config.*\.php$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Файлы, начинающиеся с точки (.argo.db, .argo_offset, .htaccess, .git…)
+<FilesMatch "^\.">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Прочие служебные расширения
+<FilesMatch "\.(md|json|lock|sh|log|ini|sql)$">
+  <IfModule mod_authz_core.c>
+    Require all denied
+  </IfModule>
+  <IfModule !mod_authz_core.c>
+    Order allow,deny
+    Deny from all
+  </IfModule>
+</FilesMatch>
+
+# Запрет листинга директорий
+Options -Indexes

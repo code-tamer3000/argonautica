@@ -52,7 +52,6 @@ if ! command -v sshpass &>/dev/null; then
 fi
 
 sshpass -p "$SSH_PASS" rsync -avz --delete \
-  --exclude='.htaccess' \
   --exclude='config.php' \
   --exclude='.argo.db' \
   --exclude='.argo_offset' \

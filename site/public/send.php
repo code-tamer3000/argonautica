@@ -1,6 +1,8 @@
 <?php
 require_once __DIR__ . '/config.php';
 
+const DEFAULT_PRICE = '9000 ₽';   // если в настройках цена ещё не задана
+
 header('Content-Type: application/json; charset=utf-8');
 header('Access-Control-Allow-Origin: https://argonautica-systems.ru');
 header('Access-Control-Allow-Methods: POST, OPTIONS');
@@ -48,13 +50,14 @@ $about = trim($data['about'] ?? '');
 if (mb_strlen($about) > 1000) $about = mb_substr($about, 0, 1000) . '…';
 
 // ─── Сохраняем в БД ───────────────────────────────────────────────────────────
-$db   = getDB();
-$stmt = $db->prepare("INSERT INTO applications (contact, about, ip) VALUES (?, ?, ?)");
-$stmt->execute([$contact, $about, $ip]);
+$db    = getDB();
+$price = getPrice($db);   // авторитетная цена с сервера (задаётся через /price в Telegram)
+$stmt = $db->prepare("INSERT INTO applications (contact, about, price, ip) VALUES (?, ?, ?, ?)");
+$stmt->execute([$contact, $about, $price, $ip]);
 $appId = (int)$db->lastInsertId();
 
 // ─── Уведомление в Telegram (best-effort: заявка уже в БД) ─────────────────────
-$text = buildAppText(['id' => $appId, 'contact' => $contact, 'about' => $about, 'created_at' => date('Y-m-d H:i:s')]);
+$text = buildAppText(['id' => $appId, 'contact' => $contact, 'about' => $about, 'price' => $price, 'created_at' => date('Y-m-d H:i:s')]);
 tgRequest('sendMessage', [
     'chat_id'    => CHAT_ID,
     'text'       => $text,
@@ -72,20 +75,35 @@ function getDB(): PDO {
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
         contact    TEXT    NOT NULL,
         about      TEXT    DEFAULT '',
+        price      TEXT    DEFAULT '',
         status     TEXT    DEFAULT 'pending',
         ip         TEXT    DEFAULT '',
         message_id INTEGER DEFAULT 0,
         created_at TEXT    DEFAULT (datetime('now')),
         updated_at TEXT
     )");
+    // Миграция для старых баз: добавляем price, если колонки ещё нет
+    try { $pdo->exec("ALTER TABLE applications ADD COLUMN price TEXT DEFAULT ''"); } catch (Exception $e) {}
+    // Настройки (key/value) — здесь хранится текущая цена
+    $pdo->exec("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)");
     return $pdo;
+}
+
+function getPrice(PDO $db): string {
+    try {
+        $row = $db->query("SELECT value FROM settings WHERE key = 'price'")->fetch(PDO::FETCH_ASSOC);
+        if ($row && $row['value'] !== '') return $row['value'];
+    } catch (Exception $e) {}
+    return DEFAULT_PRICE;
 }
 
 function buildAppText(array $app): string {
     $date    = date('d.m.Y H:i', strtotime($app['created_at']));
     $contact = htmlspecialchars($app['contact'], ENT_QUOTES);
     $about   = htmlspecialchars($app['about'],   ENT_QUOTES);
+    $price   = htmlspecialchars($app['price'] ?? '', ENT_QUOTES);
     $lines   = ["📥 <b>Заявка #{$app['id']}</b>", "👤 <b>Контакт:</b> <code>{$contact}</code>"];
+    if ($price !== '') $lines[] = "💰 <b>Цена на сайте:</b> {$price}";
     if ($about !== '') $lines[] = "\n📝 <b>О себе:</b>\n{$about}";
     $lines[] = "\n🕐 {$date}";
     return implode("\n", $lines);
