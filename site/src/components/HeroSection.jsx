@@ -4,13 +4,6 @@ import { btnPrimary, C, FadeSection, MEDIA, scrollTo } from './Shared'
 // ─── Настройки видео ──────────────────────────────────────────────────────────
 const VIDEO_SPEED = 1  // замедлить: 0.5 = вдвое медленнее, 0.25 = вчетверо
 
-// ─── Video preload hint — fires as soon as component module loads ─────────────
-const preloadLink = typeof document !== 'undefined' && (() => {
-  const link = document.createElement('link')
-  link.rel = 'preload'; link.as = 'video'
-  link.href = MEDIA.back
-  document.head.appendChild(link)
-})()
 
 // ─── Three scrolling wave layers ──────────────────────────────────────────────
 const WaveOverlay = () => (
