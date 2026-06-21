@@ -10,6 +10,7 @@ $price = DEFAULT_PRICE;
 try {
     $pdo = new PDO('sqlite:' . DB_PATH);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->exec('PRAGMA busy_timeout=5000');
     $pdo->exec("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)");
     $row = $pdo->query("SELECT value FROM settings WHERE key = 'price'")->fetch(PDO::FETCH_ASSOC);
     if ($row && $row['value'] !== '') $price = $row['value'];
