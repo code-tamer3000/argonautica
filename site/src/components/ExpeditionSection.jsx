@@ -279,14 +279,17 @@ export default function ExpeditionSection() {
                     textTransform: 'uppercase', color: C.latun, marginBottom: 14,
                   }}>Записаться на Экспедицию</div>
 
-                  {/* Honeypot: скрыто от людей, боты заполняют — на сервере блокируем */}
+                  {/* Honeypot: display:none — автозаполнение браузера его не трогает,
+                      а наивные боты, заполняющие все поля DOM, по-прежнему попадаются */}
                   <input
                     type="text"
+                    name="hp_zone"
                     value={honeypot}
                     onChange={e => setHoneypot(e.target.value)}
                     tabIndex={-1}
                     autoComplete="off"
-                    style={{ position: 'absolute', left: '-9999px', opacity: 0, pointerEvents: 'none' }}
+                    aria-hidden="true"
+                    style={{ display: 'none' }}
                   />
                   <div className="exp-form" style={{ display: 'flex', gap: 0 }}>
                     <input
