@@ -33,6 +33,16 @@ export default function Footer() {
               onMouseEnter={e => { e.currentTarget.style.color = C.zolotoYar }}
               onMouseLeave={e => { e.currentTarget.style.color = C.kostMuted }}
             >База Аргонавтики в Тг</a>
+            <a
+              href="https://web.tribute.tg/s/YQU"
+              target="_blank" rel="noopener noreferrer"
+              style={{
+                fontFamily: "'Onest', sans-serif", fontSize: 11.5, letterSpacing: 1,
+                color: C.kostMuted, textDecoration: 'none', transition: 'color 200ms ease',
+              }}
+              onMouseEnter={e => { e.currentTarget.style.color = C.zolotoYar }}
+              onMouseLeave={e => { e.currentTarget.style.color = C.kostMuted }}
+            >Манифест Аргонавтов</a>
             <span style={{
               fontFamily: "'Onest', sans-serif", fontSize: 11.5, letterSpacing: 1, color: C.ghost,
             }}>Аргат</span>
