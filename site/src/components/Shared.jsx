@@ -29,6 +29,7 @@ export const MEDIA = {
   seaVideo:  './media/waves_opt.mp4',
   seaVideoDesk: './media/waves_desk.mp4',
   seaPoster: './media/waves_poster.jpg',
+  back:      './media/back.mp4',
   seaShip:   './media/sea_ship.jpg',
   argoLine:  './media/argo_lineart.jpg',
   monogram:  './media/monogram.png',

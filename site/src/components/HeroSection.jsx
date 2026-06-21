@@ -6,10 +6,9 @@ const VIDEO_SPEED = 1  // замедлить: 0.5 = вдвое медленне�
 
 // ─── Video preload hint — fires as soon as component module loads ─────────────
 const preloadLink = typeof document !== 'undefined' && (() => {
-  const isMob = window.matchMedia('(hover: none)').matches
   const link = document.createElement('link')
   link.rel = 'preload'; link.as = 'video'
-  link.href = isMob ? MEDIA.seaVideo : MEDIA.seaVideoDesk
+  link.href = MEDIA.back
   document.head.appendChild(link)
 })()
 
@@ -96,15 +95,14 @@ export default function HeroSection() {
         muted
         playsInline
         preload="auto"
-        poster={MEDIA.seaPoster}
         onCanPlay={() => document.dispatchEvent(new CustomEvent('videoReady'))}
         style={{
-          position: 'absolute', inset: '-6% 0', zIndex: 0,
-          width: '100%', height: '112%',
+          position: 'absolute', inset: 0, zIndex: 0,
+          width: '100%', height: '100%',
           objectFit: 'cover', objectPosition: 'center',
         }}
       >
-        <source src={isMobile ? MEDIA.seaVideo : MEDIA.seaVideoDesk} type="video/mp4" />
+        <source src={MEDIA.back} type="video/mp4" />
       </video>
 
       {/* Тёмные края */}
