@@ -1,5 +1,5 @@
 import { useEffect, useRef, useState } from 'react'
-import { btnGhost, btnPrimary, C, FadeSection, MEDIA, scrollTo } from './Shared'
+import { btnPrimary, C, FadeSection, MEDIA, scrollTo } from './Shared'
 
 // ─── Настройки видео ──────────────────────────────────────────────────────────
 const VIDEO_SPEED = 1  // замедлить: 0.5 = вдвое медленнее, 0.25 = вчетверо
@@ -173,13 +173,9 @@ export default function HeroSection() {
 
         <FadeSection delay={860} y={14}>
           <div style={{ display: 'flex', gap: 16, justifyContent: 'center', flexWrap: 'wrap' }}>
-            <button onClick={() => scrollTo('manifesto')} style={btnPrimary}
+            <button onClick={() => scrollTo('about')} style={btnPrimary}
               onMouseEnter={e => { e.currentTarget.style.background = C.kostYar }}
               onMouseLeave={e => { e.currentTarget.style.background = C.kost }}
-            >Читать Манифест</button>
-            <button onClick={() => scrollTo('about')} style={btnGhost}
-              onMouseEnter={e => { e.currentTarget.style.borderColor = 'rgba(194,154,72,0.5)'; e.currentTarget.style.color = C.kostDim }}
-              onMouseLeave={e => { e.currentTarget.style.borderColor = C.frameDeep; e.currentTarget.style.color = C.kostMuted }}
             >О чём это</button>
           </div>
         </FadeSection>

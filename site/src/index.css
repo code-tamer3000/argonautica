@@ -77,28 +77,6 @@ input, textarea, button {
   50%       { transform: translate(-50%,-50%) scale(1.6); opacity: 0.06; }
 }
 
-/* ── Manifesto scroll pane + modal nav ───────────── */
-.manifesto-scroll::-webkit-scrollbar,
-.manifesto-nav-scroll::-webkit-scrollbar        { width: 3px; }
-.manifesto-scroll::-webkit-scrollbar-track,
-.manifesto-nav-scroll::-webkit-scrollbar-track  { background: transparent; }
-.manifesto-scroll::-webkit-scrollbar-thumb,
-.manifesto-nav-scroll::-webkit-scrollbar-thumb  { background: rgba(194,154,72,0.30); border-radius: 2px; }
-.manifesto-scroll::-webkit-scrollbar-thumb:hover,
-.manifesto-nav-scroll::-webkit-scrollbar-thumb:hover { background: rgba(194,154,72,0.55); }
-.manifesto-scroll  { scrollbar-width: thin; scrollbar-color: rgba(194,154,72,0.30) transparent; }
-.manifesto-nav-scroll { scrollbar-width: thin; scrollbar-color: rgba(194,154,72,0.30) transparent; }
-
-/* ── Manifesto chapter fade-in ───────────────────── */
-/* Manifesto chapter fade-in */
-.chapter-fade {
-  animation: chapterIn 0.45s cubic-bezier(.22,.61,.36,1) both;
-}
-@keyframes chapterIn {
-  from { opacity: 0; transform: translateY(10px); }
-  to   { opacity: 1; transform: none; }
-}
-
 /* Map scroll hint — appears once then disappears */
 @keyframes scrollHint {
   0%   { opacity: 0; }
@@ -127,9 +105,6 @@ input, textarea, button {
   .footer-row  { flex-direction: column !important; align-items: flex-start !important; }
 }
 @media (max-width: 860px) {
-  .manifesto-grid { grid-template-columns: 1fr !important; }
-  .thread-rail    { display: none !important; }
-  .ch-nav         { display: none !important; }
   .exp-form       { flex-direction: column !important; }
   .exp-form input,
   .exp-form button {
