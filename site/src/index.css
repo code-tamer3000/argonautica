@@ -105,8 +105,16 @@ input, textarea, button {
 }
 @media (max-width: 720px) {
   .about-grid   { grid-template-columns: 1fr !important; }
-  /* мобила: анимация (последний потомок) идёт перед текстом */
-  .balance-grid { display: flex !important; flex-direction: column-reverse !important; }
+  /* мобила: анимация между заголовком и текстом */
+  .balance-grid {
+    grid-template-columns: 1fr !important;
+    grid-template-areas: "head" "anim" "body" !important;
+    /* ▼ РЫЧАГ 1 — расстояние между блоками (заголовок / звезда / текст) */
+    row-gap: 10px !important;
+  }
+  /* ▼ РЫЧАГ 2 — высота поля анимации: меньше число → звезда ближе к тексту
+     (пустое прозрачное поле вокруг звезды уменьшается) */
+  .balance-anim { aspect-ratio: auto !important; height: 240px !important; }
   .arc-row      { grid-template-columns: repeat(2, 1fr) !important; }
   .moves-grid  { grid-template-columns: 1fr !important; }
   .footer-row  { flex-direction: column !important; align-items: flex-start !important; }

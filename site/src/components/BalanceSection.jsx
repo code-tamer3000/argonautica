@@ -101,7 +101,7 @@ const BalanceHalos = () => {
   }, [])
 
   return (
-    <div ref={containerRef} style={{
+    <div ref={containerRef} className="balance-anim" style={{
       position: 'relative', width: '100%', aspectRatio: '4 / 5',
     }}>
       <canvas ref={canvasRef} style={{
@@ -125,44 +125,46 @@ export default function BalanceSection() {
       <div style={{ maxWidth: 1080, margin: '0 auto' }}>
         <FadeSection><SecLabel num="02" text="Точка баланса" /></FadeSection>
 
-        {/* Текст + ambient-анимация (звезда + 4 ореола) */}
+        {/* Десктоп: текст слева, анимация справа. Мобила: анимация между заголовком и текстом */}
         <div className="balance-grid" style={{
-          display: 'grid', gridTemplateColumns: '1fr clamp(240px,34vw,420px)',
-          gap: 'clamp(32px,5vw,64px)', alignItems: 'center',
+          display: 'grid',
+          gridTemplateColumns: '1fr clamp(240px,34vw,420px)',
+          gridTemplateAreas: '"head anim" "body anim"',
+          columnGap: 'clamp(32px,5vw,64px)', rowGap: 'clamp(18px,2.4vw,26px)',
+          alignItems: 'center',
         }}>
-          <div>
-            <FadeSection delay={80}>
-              <h2 style={{
-                fontFamily: "'Prata', serif", fontWeight: 400,
-                fontSize: 'clamp(26px,3.4vw,42px)', lineHeight: 1.16, color: C.kostYar,
-                letterSpacing: '-0.01em', marginBottom: 24, maxWidth: '16ch',
-              }}>
-                Исходное явление Аргонавтики — <span style={{ color: C.zolotoYar }}>Точка Баланса</span>.
-              </h2>
-            </FadeSection>
-            <FadeSection delay={180}>
-              <p style={{
-                fontFamily: "'Lora', serif", fontSize: 18, lineHeight: 1.78, color: C.kostDim,
-                maxWidth: '52ch',
-              }}>
-                Точка Баланса — это Хер (буквица, обозначающая мировое равновесие
-                и&nbsp;космический порядок). <strong style={emph}>Послать на&nbsp;Хер</strong> —
-                значит направить силы Баланса на&nbsp;корректировку посылаемой сущности.
-                <br /><br />
-                Аргонавт — носитель Баланса, самой большой силы в&nbsp;мире. Сейчас ситуация
-                такова, что в&nbsp;результате выливания в&nbsp;мир множества знаний появилось большое
-                количество «пробуждённых» и&nbsp;«просветлённых», не&nbsp;заземливших понимание
-                в&nbsp;теле. Это душнота, мающаяся в&nbsp;концепциях и&nbsp;не&nbsp;переходящая
-                к&nbsp;делу. <strong style={emph}>Фитобоярство</strong>. Аргонавт не&nbsp;ведётся
-                на&nbsp;лень и&nbsp;малодушие внутреннего фитобоярина, когда тот начинает петь свою
-                однообразную песню&nbsp;— поэтому обретает свободу от&nbsp;внешней душноты, оживляя
-                пространство, в&nbsp;котором находится.
-              </p>
-            </FadeSection>
-          </div>
+          <FadeSection delay={80} style={{ gridArea: 'head' }}>
+            <h2 style={{
+              fontFamily: "'Prata', serif", fontWeight: 400,
+              fontSize: 'clamp(26px,3.4vw,42px)', lineHeight: 1.16, color: C.kostYar,
+              letterSpacing: '-0.01em', maxWidth: '16ch',
+            }}>
+              Исходное явление Аргонавтики — <span style={{ color: C.zolotoYar }}>Точка Баланса</span>.
+            </h2>
+          </FadeSection>
 
-          <FadeSection delay={260} y={20}>
+          <FadeSection delay={140} y={20} style={{ gridArea: 'anim' }}>
             <BalanceHalos />
+          </FadeSection>
+
+          <FadeSection delay={180} style={{ gridArea: 'body' }}>
+            <p style={{
+              fontFamily: "'Lora', serif", fontSize: 18, lineHeight: 1.78, color: C.kostDim,
+              maxWidth: '52ch',
+            }}>
+              Точка Баланса — это Хер (буквица, обозначающая мировое равновесие
+              и&nbsp;космический порядок). <strong style={emph}>Послать на&nbsp;Хер</strong> —
+              значит направить силы Баланса на&nbsp;корректировку посылаемой сущности.
+              <br /><br />
+              Аргонавт — носитель Баланса, самой большой силы в&nbsp;мире. Сейчас ситуация
+              такова, что в&nbsp;результате выливания в&nbsp;мир множества знаний появилось большое
+              количество «пробуждённых» и&nbsp;«просветлённых», не&nbsp;заземливших понимание
+              в&nbsp;теле. Это душнота, мающаяся в&nbsp;концепциях и&nbsp;не&nbsp;переходящая
+              к&nbsp;делу. <strong style={emph}>Фитобоярство</strong>. Аргонавт не&nbsp;ведётся
+              на&nbsp;лень и&nbsp;малодушие внутреннего фитобоярина, когда тот начинает петь свою
+              однообразную песню&nbsp;— поэтому обретает свободу от&nbsp;внешней душноты, оживляя
+              пространство, в&nbsp;котором находится.
+            </p>
           </FadeSection>
         </div>
       </div>
