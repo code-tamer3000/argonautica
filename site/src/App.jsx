@@ -2,13 +2,14 @@ import { useState, useEffect } from 'react'
 import Header from './components/Header'
 import HeroSection from './components/HeroSection'
 import AboutSection from './components/AboutSection'
+import BalanceSection from './components/BalanceSection'
 import ManifestoSection from './components/ManifestoSection'
 import KartaSection from './components/KartaSection'
 import ExpeditionSection from './components/ExpeditionSection'
 import Footer from './components/Footer'
 import { WordMark, StarSpark, C } from './components/Shared'
 
-const SECTIONS = ['hero', 'about', 'karta', 'manifesto', 'expedition']
+const SECTIONS = ['hero', 'about', 'balance', 'karta', 'manifesto', 'expedition']
 
 function SplashScreen({ fading }) {
   return (
@@ -80,6 +81,7 @@ export default function App() {
       <main>
         <HeroSection />
         <AboutSection />
+        <BalanceSection />
         <KartaSection />
         <ManifestoSection />
         <ExpeditionSection />

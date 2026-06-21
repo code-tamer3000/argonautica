@@ -3,6 +3,7 @@ import { C, MEDIA, scrollTo } from './Shared'
 
 const NAV_ITEMS = [
   { id: 'about', label: 'О ЧЁМ' },
+  { id: 'balance', label: 'БАЛАНС' },
   { id: 'karta', label: 'КАРТА' },
   { id: 'manifesto', label: 'МАНИФЕСТ' },
 ]

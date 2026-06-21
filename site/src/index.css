@@ -120,10 +120,10 @@ input, textarea, button {
 }
 @media (max-width: 720px) {
   .about-grid   { grid-template-columns: 1fr !important; }
-  .balance-grid { grid-template-columns: 1fr !important; }
+  /* мобила: анимация (последний потомок) идёт перед текстом */
+  .balance-grid { display: flex !important; flex-direction: column-reverse !important; }
   .arc-row      { grid-template-columns: repeat(2, 1fr) !important; }
-  /* мобила: порядок миров III → II → I (на компе остаётся I → II → III) */
-  .moves-grid  { display: flex !important; flex-direction: column-reverse !important; }
+  .moves-grid  { grid-template-columns: 1fr !important; }
   .footer-row  { flex-direction: column !important; align-items: flex-start !important; }
 }
 @media (max-width: 860px) {

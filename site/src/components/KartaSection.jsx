@@ -1,6 +1,9 @@
 import { useEffect, useRef, useState } from 'react'
 import { C, FadeSection, MeanderRule, MovementGlyph, SecLabel, StarSpark } from './Shared'
 
+// Выделение в тексте — как жирный на картинке
+const emph = { color: C.kostYar, fontWeight: 600 }
+
 // ─── Дуга превращения — Путь Аргонавта · путь Славы ──────────────────────────
 const ARC = [
   { stage: 'точка сейчас', k: 'Чужие сценарии', note: 'Фитобоярство' },
@@ -597,46 +600,36 @@ export default function KartaSection() {
       padding: 'clamp(98px,12vw,172px) 0 clamp(90px,11vw,150px)',
       borderTop: '1px solid rgba(194,154,72,0.08)',
     }}>
-      {/* Заголовок */}
+      {/* Заголовок + описание (перед картой) */}
       <div style={{ maxWidth: 1100, margin: '0 auto', padding: '0 clamp(22px,6vw,80px)', marginBottom: 'clamp(48px,6vw,72px)' }}>
         <FadeSection>
-          <SecLabel num="02" text="Карта миров" />
-          <h2 style={{
-            fontFamily: "'Prata', serif", fontWeight: 400,
-            fontSize: 'clamp(28px,3.6vw,46px)', lineHeight: 1.16,
-            color: C.kostYar, maxWidth: '15ch', marginBottom: 20,
-          }}>Три мира по вертикали.</h2>
+          <SecLabel num="03" text="Карта 12 мiров Аргонавтики" />
           <p style={{
-            fontFamily: "'Lora', serif", fontSize: 17.5, lineHeight: 1.78,
-            color: C.kostDim, maxWidth: '52ch',
+            fontFamily: "'Lora', serif", fontSize: 'clamp(18px,2.1vw,23px)', lineHeight: 1.5,
+            color: C.kostYar, maxWidth: '24ch', marginBottom: 24,
           }}>
-            Карта собирает твоё внимание, чтобы ты дошёл до конца.
+            Карта помогает держать твоё внимание, чтобы ты дошёл до&nbsp;конца.
+          </p>
+        </FadeSection>
+        <FadeSection delay={100}>
+          <p style={{
+            fontFamily: "'Lora', serif",
+            fontSize: 'clamp(16px,1.8vw,18.5px)', lineHeight: 1.78,
+            color: C.kostDim, maxWidth: '64ch',
+          }}>
+            12&nbsp;мiров — <strong style={emph}>это 12&nbsp;частотных диапазонов</strong> на&nbsp;пути
+            аргонавта к&nbsp;Славе. Их не&nbsp;5, не&nbsp;7, не&nbsp;8. Именно 12&nbsp;запрограммированных
+            Матрицей сфер жизни, каждый из&nbsp;которых аргонавт освобождает шаг за&nbsp;шагом. Оживая
+            и&nbsp;укрепляясь в&nbsp;своём уникальном и&nbsp;неповторимом стиле жизни. Искусство посылания
+            на&nbsp;Хер. Это основа и&nbsp;база, с&nbsp;которой начинается путь аргонавта к&nbsp;Славе.
+            С&nbsp;самого начала мы&nbsp;попадаем в&nbsp;точку ноль, Хер&nbsp;— Точку Баланса, шаг
+            за&nbsp;шагом расширяя её на&nbsp;12&nbsp;миров. Принести баланс в&nbsp;каждый мир — значит
+            послать на&nbsp;Хер программу-искажение, через которую Матрица съедает твою энергию.
           </p>
         </FadeSection>
       </div>
 
       <FadeSection delay={80} y={20}><MapReveal /></FadeSection>
-
-      {/* Описание карты — 12 миров */}
-      <FadeSection delay={100}>
-        <div style={{ maxWidth: 760, margin: 'clamp(56px,7vw,88px) auto 0', padding: '0 clamp(22px,6vw,80px)' }}>
-          <p style={{
-            fontFamily: "'Lora', serif",
-            fontSize: 'clamp(16px,1.8vw,18.5px)', lineHeight: 1.78,
-            color: C.kostDim,
-          }}>
-            Карта 12&nbsp;миров Аргонавтики — это 12&nbsp;частотных диапазонов, в&nbsp;которых живёт
-            человек. Их не&nbsp;5, не&nbsp;7, не&nbsp;8. Именно 12&nbsp;запрограммированных Матрицей сфер
-            жизни, каждую из&nbsp;которых аргонавт освобождает шаг за&nbsp;шагом. Оживая и&nbsp;укрепляясь
-            в&nbsp;своём уникальном и&nbsp;неповторимом стиле жизни. Искусство посылания на&nbsp;Хер.
-            <br /><br />
-            Это основа и&nbsp;база, с&nbsp;которой начинается путь аргонавта к&nbsp;Славе. С&nbsp;самого
-            начала мы&nbsp;попадаем в&nbsp;точку ноль, Хер&nbsp;— Точку Баланса, шаг за&nbsp;шагом
-            расширяя её на&nbsp;12&nbsp;миров. Принести баланс в&nbsp;каждый мир — значит послать
-            на&nbsp;Хер программу-искажение, через которую Матрица съедает твою энергию.
-          </p>
-        </div>
-      </FadeSection>
 
       {/* Три мира — движения по вертикали */}
       <div style={{ maxWidth: 1080, margin: 'clamp(56px,8vw,96px) auto 0', padding: '0 clamp(22px,6vw,80px)' }}>
