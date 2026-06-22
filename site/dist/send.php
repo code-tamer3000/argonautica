@@ -71,6 +71,9 @@ echo json_encode(['ok' => true]);
 function getDB(): PDO {
     $pdo = new PDO('sqlite:' . DB_PATH);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    // Параллелизм: ждать блокировку до 5с (а не падать "database is locked") + WAL
+    $pdo->exec('PRAGMA busy_timeout=5000');
+    $pdo->exec('PRAGMA journal_mode=WAL');
     $pdo->exec("CREATE TABLE IF NOT EXISTS applications (
         id         INTEGER PRIMARY KEY AUTOINCREMENT,
         contact    TEXT    NOT NULL,
@@ -116,7 +119,8 @@ function tgRequest(string $method, array $payload): ?array {
         CURLOPT_POSTFIELDS     => json_encode($payload),
         CURLOPT_RETURNTRANSFER => true,
         CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
-        CURLOPT_TIMEOUT        => 10,
+        CURLOPT_CONNECTTIMEOUT => 4,
+        CURLOPT_TIMEOUT        => 6,   // под нагрузкой быстрее освобождаем PHP-процесс
     ]);
     $res = curl_exec($ch);
     curl_close($ch);

@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react'
+import { useEffect, useState } from 'react'
 import { createPortal } from 'react-dom'
-import { C, MEDIA, FadeSection, SecLabel, StarSpark, MeanderRule } from './Shared'
+import { C, FadeSection, MeanderRule, MEDIA, SecLabel, StarSpark } from './Shared'
 
 const SEND_URL = './send.php'
 
@@ -20,9 +20,9 @@ const EXP_PROGRAM = [
 
 // ─── Step-2 popup: расскажи о себе ───────────────────────────────────────────
 const AboutModal = ({ contact, price, honeypot, onClose, onSuccess }) => {
-  const [about,   setAbout]   = useState('')
+  const [about, setAbout] = useState('')
   const [loading, setLoading] = useState(false)
-  const [err,     setErr]     = useState('')
+  const [err, setErr] = useState('')
 
   useEffect(() => {
     const handler = e => { if (e.key === 'Escape') onClose() }
@@ -40,7 +40,7 @@ const AboutModal = ({ contact, price, honeypot, onClose, onSuccess }) => {
       })
       const data = await res.json()
       if (data.ok) { onSuccess(); onClose() }
-      else          { setErr(data.error || 'Что-то пошло не так. Попробуй позже.') }
+      else { setErr(data.error || 'Что-то пошло не так. Попробуй позже.') }
     } catch {
       setErr('Ошибка соединения. Попробуй позже.')
     }
@@ -134,18 +134,18 @@ const AboutModal = ({ contact, price, honeypot, onClose, onSuccess }) => {
 
 // ─── ExpeditionSection ────────────────────────────────────────────────────────
 export default function ExpeditionSection() {
-  const [contact,   setContact]   = useState('')
-  const [honeypot,  setHoneypot]  = useState('')
+  const [contact, setContact] = useState('')
+  const [honeypot, setHoneypot] = useState('')
   const [modalOpen, setModalOpen] = useState(false)
-  const [sent,      setSent]      = useState(false)
-  const [price,     setPrice]     = useState(DEFAULT_PRICE)
+  const [sent, setSent] = useState(false)
+  const [price, setPrice] = useState(DEFAULT_PRICE)
 
   // Цена задаётся из Telegram (/price) и хранится на сервере
   useEffect(() => {
     fetch('./price.php', { cache: 'no-store' })
       .then(r => r.json())
       .then(d => { if (d && d.price) setPrice(d.price) })
-      .catch(() => {})
+      .catch(() => { })
   }, [])
 
   const facts = [...EXP_FACTS_BASE, ['Стоимость', price, PRICE_NOTE]]
@@ -277,7 +277,7 @@ export default function ExpeditionSection() {
                   <div style={{
                     fontFamily: "'Onest', sans-serif", fontSize: 10.5, fontWeight: 600, letterSpacing: 2,
                     textTransform: 'uppercase', color: C.latun, marginBottom: 14,
-                  }}>Записаться на Экспедицию</div>
+                  }}>Записаться в Экспедицию</div>
 
                   {/* Honeypot: display:none — автозаполнение браузера его не трогает,
                       а наивные боты, заполняющие все поля DOM, по-прежнему попадаются */}

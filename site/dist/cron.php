@@ -75,6 +75,8 @@ function handleCommand(array $msg, PDO $db): void {
 function getDB(): PDO {
     $pdo = new PDO('sqlite:' . DB_PATH);
     $pdo->setAttribute(PDO::ATTR_ERRMODE, PDO::ERRMODE_EXCEPTION);
+    $pdo->exec('PRAGMA busy_timeout=5000');
+    $pdo->exec('PRAGMA journal_mode=WAL');
     $pdo->exec("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)");
     return $pdo;
 }

@@ -1,8 +1,10 @@
 import { useEffect, useRef, useState } from 'react'
 import { C, MEDIA, scrollTo } from './Shared'
 
-// ▼ Громкость музыки: 0 = тихо, 1 = максимум (сейчас 55%)
+// ▼ Громкость музыки: 0 = тихо, 1 = максимум
 const MUSIC_VOLUME = 0.1
+const FADE_OUT_SEC = 15   // плавное затухание на последних N секундах трека
+const FADE_IN_SEC = 2     // плавный вход после зацикливания (чтобы не было скачка с тишины)
 
 const NAV_ITEMS = [
   { id: 'about', label: 'О ЧЁМ' },
@@ -79,6 +81,24 @@ export default function Header({ activeSection }) {
     window.addEventListener('touchend', start, { passive: true })
     window.addEventListener('keydown', start)
     return removeListeners
+  }, [])
+
+  // Плавное затухание в конце трека + плавный вход после зацикливания
+  useEffect(() => {
+    const audio = audioRef.current
+    if (!audio) return
+    const onTime = () => {
+      const d = audio.duration
+      if (!isFinite(d) || d === 0) return
+      const t = audio.currentTime
+      const remaining = d - t
+      let factor = 1
+      if (remaining < FADE_OUT_SEC) factor = Math.max(0, remaining / FADE_OUT_SEC)
+      else if (t < FADE_IN_SEC) factor = Math.max(0, t / FADE_IN_SEC)
+      audio.volume = MUSIC_VOLUME * factor
+    }
+    audio.addEventListener('timeupdate', onTime)
+    return () => audio.removeEventListener('timeupdate', onTime)
   }, [])
 
   useEffect(() => {
