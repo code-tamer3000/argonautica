@@ -139,9 +139,6 @@ export default function ExpeditionSection() {
                 onMouseEnter={e => { e.currentTarget.style.background = C.zolotoYar }}
                 onMouseLeave={e => { e.currentTarget.style.background = C.zoloto }}
               >Записаться в Telegram →</a>
-              <div style={{ fontFamily: "'Onest', sans-serif", fontSize: 10.5, letterSpacing: 1, color: C.stone, marginTop: 14 }}>
-                Откроется бот — расскажешь о себе, и мы свяжемся.
-              </div>
             </div>
           </div>
         </FadeSection>
