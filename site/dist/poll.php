@@ -6,6 +6,7 @@
 // Секреты в config_test.php.
 
 require __DIR__ . '/config_test.php';
+$TEXTS = loadTexts();   // тексты бота из bot_texts.md
 @set_time_limit(0);
 @ignore_user_abort(true);
 
@@ -56,24 +57,19 @@ function handleMessage(array $msg, PDO $db): void {
         $name  = trim(($msg['from']['first_name'] ?? '') . ' ' . ($msg['from']['last_name'] ?? ''));
         $uname = $msg['from']['username'] ?? '';
         upsertLead($db, $chatId, $name, $uname);
-        sendMsg($chatId,
-            "⚓️ <b>Экспедиция «Искусство посылания на Хер»</b>\n\n" .
-            "Путь Аргонавта: 28 дней, 5 миров, освобождение внимания и проявление своего Дела.\n\n" .
-            "Чтобы попасть на борт — расскажи о себе одним сообщением: <b>кто ты, в какой точке сейчас и что хочешь изменить.</b> 👇");
+        sendMsg($chatId, t('start'));
         return;
     }
 
     $lead = getLead($db, $chatId);
-    if (!$lead) { sendMsg($chatId, "Чтобы начать — напиши /start."); return; }
+    if (!$lead) { sendMsg($chatId, t('need_start')); return; }
 
     switch ($lead['status']) {
         case 'await_about':
-            if ($text === '') { sendMsg($chatId, "Расскажи о себе текстом — одним сообщением. ⭐️"); return; }
+            if ($text === '') { sendMsg($chatId, t('ask_about')); return; }
             setLead($db, $lead['id'], ['about' => $text, 'status' => 'pending_accept']);
             mirrorLead($db, $lead['id']);
-            sendMsg($chatId,
-                "✦ <b>Заявка принята к рассмотрению.</b>\n\n" .
-                "Мы читаем каждую анкету лично. Как прочитаем — ответим. Жди весточку. ⚓️");
+            sendMsg($chatId, t('submitted'));
             sendMsg(ADMIN_CHAT, leadCard($lead, $text), [[
                 ['text' => '✅ Принять', 'callback_data' => "accept:{$lead['id']}"],
             ]]);
@@ -86,15 +82,15 @@ function handleMessage(array $msg, PDO $db): void {
                     [[ ['text' => '✅ Подтвердить оплату', 'callback_data' => "confirm:{$lead['id']}"] ]]);
                 setLead($db, $lead['id'], ['status' => 'pending_confirm']);
                 mirrorLead($db, $lead['id']);
-                sendMsg($chatId, "✦ Чек получен. Проверяем оплату — это недолго.");
+                sendMsg($chatId, t('receipt_got'));
             } else {
-                sendMsg($chatId, "Чтобы подтвердить место — пришли чек об оплате: PDF-файлом или скриншотом. 🧾");
+                sendMsg($chatId, t('need_receipt'));
             }
             break;
 
-        case 'pending_accept':  sendMsg($chatId, "Твоя заявка на рассмотрении. Вернёмся с решением — жди здесь. ⚓"); break;
-        case 'pending_confirm': sendMsg($chatId, "Проверяем оплату. Скоро подтвердим. ✦");                          break;
-        case 'done':            sendMsg($chatId, "Ты уже на борту Экспедиции 🎉 Следи за этим чатом — пришлём детали старта."); break;
+        case 'pending_accept':  sendMsg($chatId, t('wait_decision'));      break;
+        case 'pending_confirm': sendMsg($chatId, t('wait_payment_check')); break;
+        case 'done':            sendMsg($chatId, t('already_done'));       break;
     }
 }
 
@@ -112,17 +108,13 @@ function handleCallback(array $cq, PDO $db): void {
     if ($action === 'accept') {
         setLead($db, $leadId, ['status' => 'await_payment']);
         mirrorLead($db, $leadId);
-        sendMsg($lead['chat_id'],
-            "✦ <b>Тебя приняли в Экспедицию.</b>\n\n" . PAYMENT_TEXT .
-            "\n\nПосле оплаты пришли сюда чек — PDF-файлом или скриншотом. Как получим — подтвердим место. ⚓️");
+        sendMsg($lead['chat_id'], t('accepted', ['price' => bookPrice($db)]));
         editText($admChat, $admMsgId, leadCard($lead, $lead['about']) . "\n\n✔ <b>Принят</b>");
         answerCb($cqId, 'Принято ✓');
     } elseif ($action === 'confirm') {
         setLead($db, $leadId, ['status' => 'done']);
         mirrorLead($db, $leadId);
-        sendMsg($lead['chat_id'],
-            "🎉 <b>Оплата подтверждена. Ты в команде Экспедиции.</b>\n\n" .
-            "Добро пожаловать на борт, Аргонавт. Детали старта и доступы вышлем тебе отдельно. До встречи! ⚓️");
+        sendMsg($lead['chat_id'], t('confirmed'));
         editCaption($admChat, $admMsgId, "🧾 Чек по заявке #{$lead['id']} — " . leadWho($lead) . "\n\n✔ <b>Подтверждён</b>");
         answerCb($cqId, 'Подтверждено ✓');
     } else {
@@ -165,6 +157,38 @@ function mirrorLead(PDO $db, int $id): void {
     @curl_exec($ch); curl_close($ch);
 }
 
+// ─── Тексты из bot_texts.md (блоки "## ключ") ────────────────────────────────
+function loadTexts(): array {
+    $raw = @file_get_contents(__DIR__ . '/bot_texts.md');
+    if ($raw === false) return [];
+    $out = [];
+    foreach (preg_split('/^##\s+/m', $raw) as $block) {
+        $block = trim($block);
+        if ($block === '') continue;
+        $nl   = strpos($block, "\n");
+        $key  = trim($nl === false ? $block : substr($block, 0, $nl));
+        $body = $nl === false ? '' : trim(substr($block, $nl + 1));
+        if ($key !== '') $out[$key] = $body;
+    }
+    return $out;
+}
+function t(string $key, array $repl = []): string {
+    global $TEXTS;
+    $s = $TEXTS[$key] ?? '';
+    foreach ($repl as $k => $v) $s = str_replace('{' . $k . '}', $v, $s);
+    return $s;
+}
+// Цена брони = актуальная цена сайта (settings.price); для "{price} руб." — только число
+function bookPrice(PDO $db): string {
+    $p = defined('DEFAULT_PRICE') ? DEFAULT_PRICE : '';
+    try {
+        $row = $db->query("SELECT value FROM settings WHERE key='price'")->fetch(PDO::FETCH_ASSOC);
+        if ($row && $row['value'] !== '') $p = $row['value'];
+    } catch (Throwable $e) {}
+    $digits = trim(preg_replace('/[^\d ]/u', '', $p));
+    return $digits !== '' ? $digits : $p;
+}
+
 // ─── БД (leads) ──────────────────────────────────────────────────────────────
 function getDB(): PDO {
     $pdo = new PDO('sqlite:' . DB_PATH);
@@ -181,6 +205,7 @@ function getDB(): PDO {
         created_at TEXT    DEFAULT (datetime('now')),
         updated_at TEXT
     )");
+    $pdo->exec("CREATE TABLE IF NOT EXISTS settings (key TEXT PRIMARY KEY, value TEXT)");
     return $pdo;
 }
 function upsertLead(PDO $db, string $chatId, string $name, string $uname): void {
