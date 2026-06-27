@@ -259,10 +259,14 @@ function getDB(): PDO {
     return $pdo;
 }
 function upsertLead(PDO $db, string $chatId, string $name, string $uname): void {
-    $db->prepare("INSERT INTO leads (chat_id, name, username, status) VALUES (?, ?, ?, 'await_about')
-                  ON CONFLICT(chat_id) DO UPDATE SET name=excluded.name, username=excluded.username,
-                  about='', status='await_about', updated_at=datetime('now')")
-       ->execute([$chatId, $name, $uname]);
+    // SELECT-then-write: повторный /start не «съедает» autoincrement → нет дыр в нумерации
+    if (getLead($db, $chatId)) {
+        $db->prepare("UPDATE leads SET name=?, username=?, about='', status='await_about', updated_at=datetime('now') WHERE chat_id=?")
+           ->execute([$name, $uname, $chatId]);
+    } else {
+        $db->prepare("INSERT INTO leads (chat_id, name, username, status) VALUES (?, ?, ?, 'await_about')")
+           ->execute([$chatId, $name, $uname]);
+    }
 }
 function getLead(PDO $db, string $chatId): ?array {
     $s = $db->prepare("SELECT * FROM leads WHERE chat_id = ?"); $s->execute([$chatId]);
