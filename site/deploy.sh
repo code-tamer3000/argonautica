@@ -53,6 +53,7 @@ fi
 
 sshpass -p "$SSH_PASS" rsync -avz --delete \
   --exclude='config.php' \
+  --exclude='config_test.php' \
   --exclude='.argo.db*' \
   --exclude='.argo_offset' \
   -e "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null" \

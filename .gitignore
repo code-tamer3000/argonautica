@@ -2,3 +2,5 @@ site/.env
 site/node_modules/
 site/config.php
 *:Zone.Identifier
+site/public/config_test.php
+site/dist/config_test.php
