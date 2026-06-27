@@ -18,9 +18,14 @@ tgApi('deleteWebhook', []);   // на случай, если когда-то с�
 $offsetFile = __DIR__ . '/.argo_test_offset';
 $offset = file_exists($offsetFile) ? (int)file_get_contents($offsetFile) : 0;
 
-$deadline = time() + 50;
-while (time() < $deadline) {
-    $res = tgApi('getUpdates', ['offset' => $offset, 'timeout' => 20, 'limit' => 50], 30);
+// Держим процесс ~58с (почти всю минуту до следующего крона), отвечая мгновенно.
+// Длину long-poll привязываем к остатку времени, чтобы не вылезти за дедлайн.
+$deadline = time() + 58;
+while (true) {
+    $remaining = $deadline - time();
+    if ($remaining <= 1) break;
+    $pollTimeout = min(20, $remaining - 1);
+    $res = tgApi('getUpdates', ['offset' => $offset, 'timeout' => $pollTimeout, 'limit' => 50], $pollTimeout + 10);
     if (!($res['ok'] ?? false)) { sleep(2); continue; }
     foreach ($res['result'] as $upd) {
         try {
