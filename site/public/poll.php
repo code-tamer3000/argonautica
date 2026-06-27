@@ -43,12 +43,17 @@ while (true) {
     if ($remaining <= 1) break;
     $pollTimeout = min(20, $remaining - 1);
     $res = tgApi('getUpdates', ['offset' => $offset, 'timeout' => $pollTimeout, 'limit' => 50], $pollTimeout + 10);
-    if (!($res['ok'] ?? false)) { sleep(2); continue; }
+    if (!($res['ok'] ?? false)) {
+        plog('getUpdates FAIL: ' . json_encode($res, JSON_UNESCAPED_UNICODE));
+        sleep(2); continue;
+    }
     foreach ($res['result'] as $upd) {
         try {
             if (isset($upd['callback_query'])) handleCallback($upd['callback_query'], $db);
             elseif (isset($upd['message']))    handleMessage($upd['message'], $db);
-        } catch (Throwable $e) { /* один битый апдейт не роняет цикл */ }
+        } catch (Throwable $e) {
+            plog('HANDLER ERR: ' . $e->getMessage() . ' @ ' . basename($e->getFile()) . ':' . $e->getLine());
+        }
         $offset = $upd['update_id'] + 1;
         file_put_contents($offsetFile, $offset);
     }
@@ -166,6 +171,11 @@ function mirrorLead(PDO $db, int $id): void {
         CURLOPT_CONNECTTIMEOUT => 4, CURLOPT_TIMEOUT => 8,
     ]);
     @curl_exec($ch); curl_close($ch);
+}
+
+// Лог ошибок воронки (для диагностики) → .poll_err.log
+function plog(string $line): void {
+    @file_put_contents(__DIR__ . '/.poll_err.log', date('Y-m-d H:i:s') . ' ' . $line . "\n", FILE_APPEND);
 }
 
 // ─── Тексты из bot_texts.md (блоки "## ключ") ────────────────────────────────
