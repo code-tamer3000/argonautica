@@ -7,8 +7,17 @@
 
 require __DIR__ . '/config_test.php';
 @set_time_limit(0);
+@ignore_user_abort(true);
 
-// Не даём двум кронам опрашивать одновременно (иначе Telegram отдаёт 409)
+// Вызов по URL (cron-job.org): сразу отдаём 200 и продолжаем опрос в фоне,
+// чтобы внешний крон не ждал и не считал таймаут.
+if (php_sapi_name() !== 'cli') {
+    if (!headers_sent()) header('Content-Type: text/plain; charset=utf-8');
+    echo "ok\n";
+    if (function_exists('fastcgi_finish_request')) @fastcgi_finish_request();
+}
+
+// Не даём двум вызовам опрашивать одновременно (иначе Telegram отдаёт 409)
 $lock = fopen(__DIR__ . '/.argo_test_lock', 'c');
 if (!$lock || !flock($lock, LOCK_EX | LOCK_NB)) { exit; }
 
