@@ -1,8 +1,8 @@
 import { useEffect, useState } from 'react'
 import { C, FadeSection, MeanderRule, MEDIA, SecLabel, StarSpark } from './Shared'
 
-// Кнопка ведёт сразу в Telegram-бота (сейчас — тест-бот; для прода поменять на боевого).
-const BOT_DEEPLINK = 'https://t.me/temka123test_bot?start=expedition'
+// Кнопка ведёт сразу в Telegram-бота (боевой). Воронку тестируем через @temka123test_bot напрямую.
+const BOT_DEEPLINK = 'https://t.me/argonautica_requests_bot?start=expedition'
 
 // ─── Экспедиция — формат и программа ─────────────────────────────────────────
 const EXP_FACTS_BASE = [

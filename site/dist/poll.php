@@ -5,7 +5,14 @@
 // Воронка: анкета → [Принять] → реквизиты → чек → [Подтвердить] → «Вы приняты».
 // Секреты в config_test.php.
 
-require __DIR__ . '/config_test.php';
+// Авто-конфиг: если рядом есть config_test.php — тест-бот; иначе боевой config.php
+if (file_exists(__DIR__ . '/config_test.php')) require __DIR__ . '/config_test.php';
+else                                           require __DIR__ . '/config.php';
+// Унифицируем имена констант для обеих сред
+if (!defined('BOT_TOKEN'))     define('BOT_TOKEN',     defined('TEST_BOT_TOKEN') ? TEST_BOT_TOKEN : '');
+if (!defined('ADMIN_CHAT'))    define('ADMIN_CHAT',    defined('CHAT_ID') ? CHAT_ID : '');
+if (!defined('DEFAULT_PRICE')) define('DEFAULT_PRICE', '9000 ₽');
+
 $TEXTS = loadTexts();   // тексты бота из bot_texts.md
 @set_time_limit(0);
 @ignore_user_abort(true);
@@ -51,6 +58,10 @@ while (true) {
 function handleMessage(array $msg, PDO $db): void {
     $chatId = (string)($msg['chat']['id'] ?? '');
     if ($chatId === '') return;
+
+    // Сообщения в админ-чате — это команды админа (/price), не воронка
+    if ($chatId === (string)ADMIN_CHAT) { handleAdmin($msg, $db); return; }
+
     $text = trim($msg['text'] ?? '');
 
     if (strncmp($text, '/start', 6) === 0) {
@@ -189,6 +200,38 @@ function bookPrice(PDO $db): string {
     return $digits !== '' ? $digits : $p;
 }
 
+// ─── Команды админа в админ-чате (/price) ────────────────────────────────────
+function handleAdmin(array $msg, PDO $db): void {
+    $text = trim($msg['text'] ?? '');
+    if ($text === '' || $text[0] !== '/') return;
+    $parts = preg_split('/\s+/', $text, 2);
+    $cmd   = strtolower(strtok($parts[0], '@'));
+    $arg   = trim($parts[1] ?? '');
+
+    if ($cmd === '/price') {
+        if ($arg === '') {
+            sendMsg(ADMIN_CHAT, "Текущая цена на сайте: <b>" . htmlspecialchars(getPrice($db), ENT_QUOTES) . "</b>\n\nИзменить: <code>/price 12000</code>");
+            return;
+        }
+        $val = preg_match('/^\d[\d\s]*$/u', $arg) ? preg_replace('/\s+/', ' ', $arg) . ' ₽' : $arg;
+        if (mb_strlen($val) > 50) $val = mb_substr($val, 0, 50);
+        setPrice($db, $val);
+        sendMsg(ADMIN_CHAT, "✅ Новая цена на сайте: <b>" . htmlspecialchars($val, ENT_QUOTES) . "</b>");
+    }
+}
+function getPrice(PDO $db): string {
+    try {
+        $row = $db->query("SELECT value FROM settings WHERE key='price'")->fetch(PDO::FETCH_ASSOC);
+        if ($row && $row['value'] !== '') return $row['value'];
+    } catch (Throwable $e) {}
+    return DEFAULT_PRICE;
+}
+function setPrice(PDO $db, string $value): void {
+    $db->prepare("INSERT INTO settings (key, value) VALUES ('price', ?)
+                  ON CONFLICT(key) DO UPDATE SET value = excluded.value")
+       ->execute([$value]);
+}
+
 // ─── БД (leads) ──────────────────────────────────────────────────────────────
 function getDB(): PDO {
     $pdo = new PDO('sqlite:' . DB_PATH);
@@ -253,7 +296,7 @@ function answerCb(string $cqId, string $text): void {
     tgApi('answerCallbackQuery', ['callback_query_id' => $cqId, 'text' => $text]);
 }
 function tgApi(string $method, array $payload, int $timeout = 10): ?array {
-    $ch = curl_init('https://api.telegram.org/bot' . TEST_BOT_TOKEN . '/' . $method);
+    $ch = curl_init('https://api.telegram.org/bot' . BOT_TOKEN . '/' . $method);
     curl_setopt_array($ch, [
         CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($payload),
         CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
