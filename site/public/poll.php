@@ -57,9 +57,9 @@ function handleMessage(array $msg, PDO $db): void {
         $uname = $msg['from']['username'] ?? '';
         upsertLead($db, $chatId, $name, $uname);
         sendMsg($chatId,
-            "⚓ <b>Экспедиция «Искусство посылания на Хер»</b>\n\n" .
+            "⚓️ <b>Экспедиция «Искусство посылания на Хер»</b>\n\n" .
             "Путь Аргонавта: 28 дней, 5 миров, освобождение внимания и проявление своего Дела.\n\n" .
-            "Чтобы выйти на борт — расскажи о себе одним сообщением: <b>кто ты, в какой точке сейчас и что хочешь изменить.</b> 👇");
+            "Чтобы попасть на борт — расскажи о себе одним сообщением: <b>кто ты, в какой точке сейчас и что хочешь изменить.</b> 👇");
         return;
     }
 
@@ -68,12 +68,12 @@ function handleMessage(array $msg, PDO $db): void {
 
     switch ($lead['status']) {
         case 'await_about':
-            if ($text === '') { sendMsg($chatId, "Расскажи о себе текстом — одним сообщением. 🙏"); return; }
+            if ($text === '') { sendMsg($chatId, "Расскажи о себе текстом — одним сообщением. ⭐️"); return; }
             setLead($db, $lead['id'], ['about' => $text, 'status' => 'pending_accept']);
             mirrorLead($db, $lead['id']);
             sendMsg($chatId,
                 "✦ <b>Заявка принята к рассмотрению.</b>\n\n" .
-                "Мы читаем каждую анкету лично. Как решим — вернёмся сюда. Жди весточку. ⚓");
+                "Мы читаем каждую анкету лично. Как прочитаем — ответим. Жди весточку. ⚓️");
             sendMsg(ADMIN_CHAT, leadCard($lead, $text), [[
                 ['text' => '✅ Принять', 'callback_data' => "accept:{$lead['id']}"],
             ]]);
@@ -114,7 +114,7 @@ function handleCallback(array $cq, PDO $db): void {
         mirrorLead($db, $leadId);
         sendMsg($lead['chat_id'],
             "✦ <b>Тебя приняли в Экспедицию.</b>\n\n" . PAYMENT_TEXT .
-            "\n\nПосле оплаты пришли сюда чек — PDF-файлом или скриншотом. Как получим — подтвердим место. ⚓");
+            "\n\nПосле оплаты пришли сюда чек — PDF-файлом или скриншотом. Как получим — подтвердим место. ⚓️");
         editText($admChat, $admMsgId, leadCard($lead, $lead['about']) . "\n\n✔ <b>Принят</b>");
         answerCb($cqId, 'Принято ✓');
     } elseif ($action === 'confirm') {
@@ -122,7 +122,7 @@ function handleCallback(array $cq, PDO $db): void {
         mirrorLead($db, $leadId);
         sendMsg($lead['chat_id'],
             "🎉 <b>Оплата подтверждена. Ты в команде Экспедиции.</b>\n\n" .
-            "Добро пожаловать на борт, Аргонавт. Детали старта и доступы пришлём отдельно — следи за этим чатом. ⚓");
+            "Добро пожаловать на борт, Аргонавт. Детали старта и доступы вышлем тебе отдельно. До встречи! ⚓️");
         editCaption($admChat, $admMsgId, "🧾 Чек по заявке #{$lead['id']} — " . leadWho($lead) . "\n\n✔ <b>Подтверждён</b>");
         answerCb($cqId, 'Подтверждено ✓');
     } else {
