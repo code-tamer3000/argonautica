@@ -56,18 +56,24 @@ function handleMessage(array $msg, PDO $db): void {
         $name  = trim(($msg['from']['first_name'] ?? '') . ' ' . ($msg['from']['last_name'] ?? ''));
         $uname = $msg['from']['username'] ?? '';
         upsertLead($db, $chatId, $name, $uname);
-        sendMsg($chatId, "Привет! Это вход в Экспедицию «Искусство посылания на Хер».\n\nРасскажи о себе: кто ты, в какой точке сейчас и что хочешь изменить.");
+        sendMsg($chatId,
+            "⚓ <b>Экспедиция «Искусство посылания на Хер»</b>\n\n" .
+            "Путь Аргонавта: 28 дней, 5 миров, освобождение внимания и проявление своего Дела.\n\n" .
+            "Чтобы выйти на борт — расскажи о себе одним сообщением: <b>кто ты, в какой точке сейчас и что хочешь изменить.</b> 👇");
         return;
     }
 
     $lead = getLead($db, $chatId);
-    if (!$lead) { sendMsg($chatId, "Напиши /start, чтобы начать."); return; }
+    if (!$lead) { sendMsg($chatId, "Чтобы начать — напиши /start."); return; }
 
     switch ($lead['status']) {
         case 'await_about':
-            if ($text === '') { sendMsg($chatId, "Напиши о себе текстом, пожалуйста."); return; }
+            if ($text === '') { sendMsg($chatId, "Расскажи о себе текстом — одним сообщением. 🙏"); return; }
             setLead($db, $lead['id'], ['about' => $text, 'status' => 'pending_accept']);
-            sendMsg($chatId, "Заявка отправлена ✦ Ждём решения — скоро вернёмся.");
+            mirrorLead($db, $lead['id']);
+            sendMsg($chatId,
+                "✦ <b>Заявка принята к рассмотрению.</b>\n\n" .
+                "Мы читаем каждую анкету лично. Как решим — вернёмся сюда. Жди весточку. ⚓");
             sendMsg(ADMIN_CHAT, leadCard($lead, $text), [[
                 ['text' => '✅ Принять', 'callback_data' => "accept:{$lead['id']}"],
             ]]);
@@ -79,15 +85,16 @@ function handleMessage(array $msg, PDO $db): void {
                     "🧾 Чек по заявке #{$lead['id']} — " . leadWho($lead),
                     [[ ['text' => '✅ Подтвердить оплату', 'callback_data' => "confirm:{$lead['id']}"] ]]);
                 setLead($db, $lead['id'], ['status' => 'pending_confirm']);
-                sendMsg($chatId, "Чек получен ✦ Проверяем оплату.");
+                mirrorLead($db, $lead['id']);
+                sendMsg($chatId, "✦ Чек получен. Проверяем оплату — это недолго.");
             } else {
-                sendMsg($chatId, "Пришли чек об оплате — PDF-файлом или скриншотом.");
+                sendMsg($chatId, "Чтобы подтвердить место — пришли чек об оплате: PDF-файлом или скриншотом. 🧾");
             }
             break;
 
-        case 'pending_accept':  sendMsg($chatId, "Заявка на рассмотрении, ждём решения."); break;
-        case 'pending_confirm': sendMsg($chatId, "Проверяем твою оплату, скоро ответим.");  break;
-        case 'done':            sendMsg($chatId, "Ты уже в команде Экспедиции 🎉");          break;
+        case 'pending_accept':  sendMsg($chatId, "Твоя заявка на рассмотрении. Вернёмся с решением — жди здесь. ⚓"); break;
+        case 'pending_confirm': sendMsg($chatId, "Проверяем оплату. Скоро подтвердим. ✦");                          break;
+        case 'done':            sendMsg($chatId, "Ты уже на борту Экспедиции 🎉 Следи за этим чатом — пришлём детали старта."); break;
     }
 }
 
@@ -104,12 +111,18 @@ function handleCallback(array $cq, PDO $db): void {
 
     if ($action === 'accept') {
         setLead($db, $leadId, ['status' => 'await_payment']);
-        sendMsg($lead['chat_id'], "Тебя приняли ✦\n\n" . PAYMENT_TEXT . "\n\nПосле оплаты пришли сюда чек — PDF-файлом или скриншотом.");
+        mirrorLead($db, $leadId);
+        sendMsg($lead['chat_id'],
+            "✦ <b>Тебя приняли в Экспедицию.</b>\n\n" . PAYMENT_TEXT .
+            "\n\nПосле оплаты пришли сюда чек — PDF-файлом или скриншотом. Как получим — подтвердим место. ⚓");
         editText($admChat, $admMsgId, leadCard($lead, $lead['about']) . "\n\n✔ <b>Принят</b>");
         answerCb($cqId, 'Принято ✓');
     } elseif ($action === 'confirm') {
         setLead($db, $leadId, ['status' => 'done']);
-        sendMsg($lead['chat_id'], "Оплата подтверждена 🎉\nТы в команде Экспедиции! Детали старта пришлём отдельно.");
+        mirrorLead($db, $leadId);
+        sendMsg($lead['chat_id'],
+            "🎉 <b>Оплата подтверждена. Ты в команде Экспедиции.</b>\n\n" .
+            "Добро пожаловать на борт, Аргонавт. Детали старта и доступы пришлём отдельно — следи за этим чатом. ⚓");
         editCaption($admChat, $admMsgId, "🧾 Чек по заявке #{$lead['id']} — " . leadWho($lead) . "\n\n✔ <b>Подтверждён</b>");
         answerCb($cqId, 'Подтверждено ✓');
     } else {
@@ -127,6 +140,29 @@ function leadWho(array $lead): string {
     if (!empty($lead['username'])) return '@' . htmlspecialchars($lead['username'], ENT_QUOTES);
     $name = trim($lead['name'] ?? '');
     return $name !== '' ? htmlspecialchars($name, ENT_QUOTES) : "id {$lead['chat_id']}";
+}
+
+// ─── Бэкап заявки в основную базу сайта (если задан INGEST_URL в конфиге) ─────
+function mirrorLead(PDO $db, int $id): void {
+    if (!defined('INGEST_URL') || INGEST_URL === '') return;
+    $lead = getLeadById($db, $id);
+    if (!$lead) return;
+    $ch = curl_init(INGEST_URL);
+    curl_setopt_array($ch, [
+        CURLOPT_POST => true,
+        CURLOPT_POSTFIELDS => json_encode([
+            'key'      => defined('INGEST_KEY') ? INGEST_KEY : '',
+            'chat_id'  => $lead['chat_id'],
+            'name'     => $lead['name'],
+            'username' => $lead['username'],
+            'about'    => $lead['about'],
+            'status'   => $lead['status'],
+        ]),
+        CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+        CURLOPT_RETURNTRANSFER => true,
+        CURLOPT_CONNECTTIMEOUT => 4, CURLOPT_TIMEOUT => 8,
+    ]);
+    @curl_exec($ch); curl_close($ch);
 }
 
 // ─── БД (leads) ──────────────────────────────────────────────────────────────
