@@ -130,6 +130,7 @@ export default function ExpeditionSection() {
               <a
                 href={BOT_DEEPLINK}
                 target="_blank" rel="noopener noreferrer"
+                onClick={() => { try { window.ym && window.ym(110223480, 'reachGoal', 'bot_click') } catch (e) {} }}
                 style={{
                   display: 'inline-block', fontFamily: "'Onest', sans-serif",
                   fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase',
