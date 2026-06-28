@@ -17,6 +17,8 @@ rsync -avz --delete \
   --exclude='.argo.db*' \
   --exclude='.argo_test_offset' \
   --exclude='.argo_test_lock' \
+  --exclude='.poll_err.log' \
+  --exclude='.bot.log' \
   --exclude='config.php' \
   --exclude='.well-known' \
   -e ssh \
