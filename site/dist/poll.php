@@ -45,6 +45,7 @@ while (true) {
         sleep(2); continue;
     }
     foreach ($res['result'] as $upd) {
+        logIncoming($upd);
         try {
             if (isset($upd['callback_query'])) handleCallback($upd['callback_query'], $db);
             elseif (isset($upd['message']))    handleMessage($upd['message'], $db);
@@ -173,6 +174,33 @@ function mirrorLead(PDO $db, int $id): void {
 // Лог ошибок воронки (для диагностики) → .poll_err.log
 function plog(string $line): void {
     @file_put_contents(__DIR__ . '/.poll_err.log', date('Y-m-d H:i:s') . ' ' . $line . "\n", FILE_APPEND);
+}
+
+// Лог всех сообщений бота (входящие + исходящие с результатом) → .bot.log
+function mlog(string $dir, $chatId, string $tag, string $content, $ok = null): void {
+    $content = mb_substr(str_replace(["\n", "\r"], ' ', $content), 0, 300);
+    $okStr = $ok === null ? '    ' : ($ok ? 'ok  ' : 'FAIL');
+    $line = date('Y-m-d H:i:s') . ' ' . strtoupper($dir) . ' ' . $okStr
+          . ' chat=' . $chatId . ' ' . $tag . ' | ' . $content;
+    @file_put_contents(__DIR__ . '/.bot.log', $line . "\n", FILE_APPEND);
+}
+function logIncoming(array $upd): void {
+    if (isset($upd['callback_query'])) {
+        $cq  = $upd['callback_query'];
+        $cid = $cq['message']['chat']['id'] ?? '';
+        $who = '@' . ($cq['from']['username'] ?? ($cq['from']['first_name'] ?? '?'));
+        mlog('in', $cid, $who, 'callback: ' . ($cq['data'] ?? ''));
+    } elseif (isset($upd['message'])) {
+        $m   = $upd['message'];
+        $cid = $m['chat']['id'] ?? '';
+        $who = '@' . ($m['from']['username'] ?? ($m['from']['first_name'] ?? '?'));
+        if      (isset($m['text']))     $content = 'text: ' . $m['text'];
+        elseif  (isset($m['document'])) $content = 'document: ' . ($m['document']['file_name'] ?? 'file');
+        elseif  (isset($m['photo']))    $content = 'photo';
+        elseif  (isset($m['voice']))    $content = 'voice';
+        else                            $content = 'other';
+        mlog('in', $cid, $who, $content);
+    }
 }
 
 // ─── Тексты из bot_texts.md (блоки "## ключ") ────────────────────────────────
@@ -314,5 +342,14 @@ function tgApi(string $method, array $payload, int $timeout = 10): ?array {
         CURLOPT_CONNECTTIMEOUT => 5, CURLOPT_TIMEOUT => $timeout,
     ]);
     $res = curl_exec($ch); curl_close($ch);
-    return json_decode($res, true);
+    $d = json_decode($res, true);
+
+    // Лог исходящих сообщений (только методы отправки/правки), с результатом доставки
+    if (in_array($method, ['sendMessage', 'copyMessage', 'editMessageText', 'editMessageCaption'], true)) {
+        $ok  = (isset($d['ok']) && $d['ok']) ? 1 : 0;
+        $txt = $payload['text'] ?? ($payload['caption'] ?? '');
+        if (!$ok) $txt .= ' :: ' . (isset($d['description']) ? $d['description'] : 'нет ответа');
+        mlog('out', $payload['chat_id'] ?? '', $method, $txt, $ok);
+    }
+    return $d;
 }

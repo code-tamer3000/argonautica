@@ -335,21 +335,40 @@ function answerCb(string $cqId, string $text): void {
     tgApi('answerCallbackQuery', ['callback_query_id' => $cqId, 'text' => $text]);
 }
 function tgApi(string $method, array $payload, int $timeout = 10): ?array {
-    $ch = curl_init('https://api.telegram.org/bot' . BOT_TOKEN . '/' . $method);
-    curl_setopt_array($ch, [
-        CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($payload),
-        CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
-        CURLOPT_CONNECTTIMEOUT => 5, CURLOPT_TIMEOUT => $timeout,
-    ]);
-    $res = curl_exec($ch); curl_close($ch);
-    $d = json_decode($res, true);
+    // Отправку сообщений переотправляем при сбое (сетевые блипы / 429), до 3 попыток
+    $isSend   = in_array($method, ['sendMessage', 'copyMessage', 'editMessageText', 'editMessageCaption'], true);
+    $attempts = $isSend ? 3 : 1;
+    $d = null;
 
-    // Лог исходящих сообщений (только методы отправки/правки), с результатом доставки
-    if (in_array($method, ['sendMessage', 'copyMessage', 'editMessageText', 'editMessageCaption'], true)) {
+    for ($i = 1; $i <= $attempts; $i++) {
+        $ch = curl_init('https://api.telegram.org/bot' . BOT_TOKEN . '/' . $method);
+        curl_setopt_array($ch, [
+            CURLOPT_POST => true, CURLOPT_POSTFIELDS => json_encode($payload),
+            CURLOPT_RETURNTRANSFER => true, CURLOPT_HTTPHEADER => ['Content-Type: application/json'],
+            CURLOPT_CONNECTTIMEOUT => 5, CURLOPT_TIMEOUT => $timeout,
+        ]);
+        $res = curl_exec($ch); curl_close($ch);
+        $d = json_decode($res, true);
+
+        if (!$isSend) return $d;
+        if (isset($d['ok']) && $d['ok']) break;   // доставлено
+
+        // Постоянные ошибки — повтор не поможет, не тратим попытки
+        $desc = isset($d['description']) ? $d['description'] : '';
+        if ($desc !== '' && preg_match('/blocked|deactivated|chat not found|kicked|parse entities|not enough rights/i', $desc)) break;
+
+        if ($i < $attempts) {
+            $wait = isset($d['parameters']['retry_after']) ? min(5, (int)$d['parameters']['retry_after']) : 1;
+            sleep($wait);   // пауза перед переотправкой
+        }
+    }
+
+    // Лог исходящего с финальным результатом (для FAIL помечаем, что было N попыток)
+    if ($isSend) {
         $ok  = (isset($d['ok']) && $d['ok']) ? 1 : 0;
         $txt = $payload['text'] ?? ($payload['caption'] ?? '');
-        if (!$ok) $txt .= ' :: ' . (isset($d['description']) ? $d['description'] : 'нет ответа');
-        mlog('out', $payload['chat_id'] ?? '', $method, $txt, $ok);
+        if (!$ok) $txt .= ' :: ' . (isset($d['description']) ? $d['description'] : 'нет ответа (сеть)');
+        mlog('out', $payload['chat_id'] ?? '', $method . ($ok ? '' : ' x' . $attempts), $txt, $ok);
     }
     return $d;
 }
