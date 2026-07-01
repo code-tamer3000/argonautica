@@ -6,7 +6,7 @@ const BOT_DEEPLINK = 'https://t.me/argonautica_requests_bot?start=expedition'
 
 // ─── Экспедиция — формат и программа ─────────────────────────────────────────
 const EXP_FACTS_BASE = [
-  ['Старт', '1 июля'],
+  ['Старт', '2 июля'],
   ['Длительность', '28 дней'],
 ]
 const PRICE_NOTE = 'растёт каждый раз, когда Аргат ходит купаться'
@@ -130,7 +130,7 @@ export default function ExpeditionSection() {
               <a
                 href={BOT_DEEPLINK}
                 target="_blank" rel="noopener noreferrer"
-                onClick={() => { try { window.ym && window.ym(110223480, 'reachGoal', 'bot_click') } catch (e) {} }}
+                onClick={() => { try { window.ym && window.ym(110223480, 'reachGoal', 'bot_click') } catch (e) { } }}
                 style={{
                   display: 'inline-block', fontFamily: "'Onest', sans-serif",
                   fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase',
