@@ -1,12 +1,12 @@
 import { useEffect, useState } from 'react'
 import { C, FadeSection, MeanderRule, MEDIA, SecLabel, StarSpark } from './Shared'
 
-// Кнопка ведёт сразу в Telegram-бота (боевой). Воронку тестируем через @temka123test_bot напрямую.
-const BOT_DEEPLINK = 'https://t.me/argonautica_requests_bot?start=expedition'
+// Кнопка ведёт в Telegram-канал Аргонавтики (тот же, что в футере)
+const TG_CHANNEL = 'https://t.me/argonautica_systems'
 
 // ─── Экспедиция — формат и программа ─────────────────────────────────────────
 const EXP_FACTS_BASE = [
-  ['Старт', '2 июля'],
+  ['Старт', 'Корабль «Арго» уже отплыл'],
   ['Длительность', '28 дней'],
 ]
 const PRICE_NOTE = 'растёт каждый раз, когда Аргат ходит купаться'
@@ -122,13 +122,17 @@ export default function ExpeditionSection() {
               </div>
             </div>
 
-            {/* Запись — кнопка ведёт сразу в бота */}
+            {/* О следующей экспедиции — объявление в Telegram-канале */}
             <div style={{
               marginTop: 'clamp(26px,3.5vw,36px)', paddingTop: 'clamp(26px,3.5vw,36px)',
               borderTop: '1px solid rgba(194,154,72,0.18)', textAlign: 'center',
             }}>
+              <p style={{
+                fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 14,
+                lineHeight: 1.5, color: C.kostDim, margin: '0 auto 20px', maxWidth: 460,
+              }}>О следующей экспедиции будет объявлено в Telegram-канале Аргонавтики</p>
               <a
-                href={BOT_DEEPLINK}
+                href={TG_CHANNEL}
                 target="_blank" rel="noopener noreferrer"
                 onClick={() => { try { window.ym && window.ym(110223480, 'reachGoal', 'bot_click') } catch (e) { } }}
                 style={{
@@ -139,7 +143,7 @@ export default function ExpeditionSection() {
                 }}
                 onMouseEnter={e => { e.currentTarget.style.background = C.zolotoYar }}
                 onMouseLeave={e => { e.currentTarget.style.background = C.zoloto }}
-              >Записаться в Telegram →</a>
+              >Следить в Telegram →</a>
             </div>
           </div>
         </FadeSection>
