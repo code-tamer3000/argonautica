@@ -1,37 +1,10 @@
-import { useEffect, useState } from 'react'
-import { C, FadeSection, MeanderRule, MEDIA, SecLabel, StarSpark } from './Shared'
+import { C, FadeSection, MeanderRule, MEDIA, SecLabel } from './Shared'
 
 // Кнопка ведёт в Telegram-канал Аргонавтики (тот же, что в футере)
 const TG_CHANNEL = 'https://t.me/argonautica_systems'
 
-// ─── Экспедиция — формат и программа ─────────────────────────────────────────
-const EXP_FACTS_BASE = [
-  ['Старт', 'Корабль «Арго» уже отплыл'],
-  ['Длительность', '28 дней'],
-]
-const PRICE_NOTE = 'растёт каждый раз, когда Аргат ходит купаться'
-const DEFAULT_PRICE = '9000 ₽'   // фолбэк, пока цена грузится с сервера
-
-const EXP_PROGRAM = [
-  '5 миров — 5 онлайн-встреч',
-  'Тензор-расчёт твоей карты блокировок, разбор замков',
-  'Задания, практики, ежедневная работа, обратная связь',
-]
-
 // ─── ExpeditionSection ────────────────────────────────────────────────────────
 export default function ExpeditionSection() {
-  const [price, setPrice] = useState(DEFAULT_PRICE)
-
-  // Цена задаётся из Telegram (/price) и хранится на сервере
-  useEffect(() => {
-    fetch('./price.php', { cache: 'no-store' })
-      .then(r => r.json())
-      .then(d => { if (d && d.price) setPrice(d.price) })
-      .catch(() => { })
-  }, [])
-
-  const facts = [...EXP_FACTS_BASE, ['Стоимость', price, PRICE_NOTE]]
-
   return (
     <section id="expedition" style={{
       background: C.tishina, position: 'relative', overflow: 'hidden',
@@ -83,43 +56,10 @@ export default function ExpeditionSection() {
             border: '1px solid rgba(194,154,72,0.18)',
             background: 'linear-gradient(160deg, rgba(194,154,72,0.06), rgba(194,154,72,0.01))',
           }}>
-            <div className="exp-details" style={{
-              display: 'grid', gridTemplateColumns: '1fr 1fr', gap: 'clamp(24px,4vw,48px)',
-            }}>
-              {/* Формат */}
-              <div>
-                {facts.map(([k, v, note], i) => (
-                  <div key={i} style={{ marginBottom: i === facts.length - 1 ? 0 : 18 }}>
-                    <div style={{
-                      fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: 2,
-                      textTransform: 'uppercase', color: C.latun, marginBottom: 4,
-                    }}>{k}</div>
-                    <div style={{ fontFamily: "'Prata', serif", fontSize: 'clamp(17px,2vw,21px)', color: C.kostYar }}>{v}</div>
-                    {note && (
-                      <div style={{
-                        fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 12.5,
-                        lineHeight: 1.4, color: C.stone, marginTop: 4,
-                      }}>{note}</div>
-                    )}
-                  </div>
-                ))}
-              </div>
-
-              {/* Что внутри */}
-              <div>
-                {EXP_PROGRAM.map((line, i) => (
-                  <div key={i} style={{
-                    display: 'flex', gap: 10, alignItems: 'flex-start',
-                    marginBottom: i === EXP_PROGRAM.length - 1 ? 0 : 14,
-                  }}>
-                    <span style={{
-                      display: 'flex', alignItems: 'center', flexShrink: 0,
-                      height: '1.55em', fontSize: 'clamp(14.5px,1.7vw,16px)',
-                    }}><StarSpark size={7} color={C.latun} /></span>
-                    <span style={{ fontFamily: "'Lora', serif", fontSize: 'clamp(14.5px,1.7vw,16px)', lineHeight: 1.55, color: C.kostDim }}>{line}</span>
-                  </div>
-                ))}
-              </div>
+            <div style={{ textAlign: 'center' }}>
+              <div style={{
+                fontFamily: "'Prata', serif", fontSize: 'clamp(19px,2.4vw,24px)', color: C.kostYar,
+              }}>Корабль аргонавтов уже отплыл и находится в экспедиции</div>
             </div>
 
             {/* О следующей экспедиции — объявление в Telegram-канале */}
