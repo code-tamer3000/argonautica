@@ -43,6 +43,9 @@ export const MEDIA = {
   vase:      './media/argonaut_vase.jpg',
   worldsMap: './media/worlds_map.jpg',
   warrior:   './media/warrior_against_matrix.jpg',
+  platformCalendar: './media/platform_calendar.png',
+  platformGenes:    './media/platform_genes.png',
+  platformKnowledge:'./media/platform_knowledge.png',
 }
 
 // ─── STAR SPARK ───────────────────────────────────────────────────────────────
@@ -230,6 +233,128 @@ export const MeanderRule = ({ color = C.zoloto, opacity = 0.5, style }) => (
       <path d="M1,11 V4 H8 V8 H5 V6 M14,11 V4 H21 V8 H18 V6 M27,11 V4 H34 V8 H31 V6 M40,11 V4 H47 V8 H44 V6 M53,11 V4 H60 V8 H57 V6 M66,11 V4 H73 V8 H70 V6" />
     </svg>
     <div style={{ flex: 1, borderTop: `1px solid ${color}`, opacity: opacity * 0.5 }} />
+  </div>
+)
+
+// ─── FLOATING QUOTE (scroll-linked) ───────────────────────────────────────────
+// Голоса участников прошлого потока. Просто текст, без карточки и рамки —
+// всплывает снизу вверх по ходу скролла: пока анкер ещё ниже центра экрана,
+// реплика мельче и смещена вниз, к центру наливается и уплотняется, нарочно
+// наезжая на текст под ней, дальше — истончается и уходит выше. Если человек
+// перестаёт скроллить, реплика гаснет, но прогресс не сбрасывается — стоит
+// продолжить скролл, и она подхватывается с того же места.
+export const QuoteRail = ({ text, author, side = 'left', top = 50 }) => {
+  const ref = useRef(null)
+  const [progress, setProgress] = useState(0)
+  const [rise, setRise] = useState(40)
+  const [idle, setIdle] = useState(false)
+  const [narrow, setNarrow] = useState(false)
+  const idleTimer = useRef(null)
+
+  // На узких экранах нет полей сбоку контента — цитата не прячется,
+  // а центрируется и всплывает поверх текста, как и было задумано.
+  useEffect(() => {
+    const mq = window.matchMedia('(max-width: 1300px)')
+    setNarrow(mq.matches)
+    const h = e => setNarrow(e.matches)
+    mq.addEventListener('change', h)
+    return () => mq.removeEventListener('change', h)
+  }, [])
+
+  useEffect(() => {
+    let raf = null
+    const update = () => {
+      raf = null
+      const el = ref.current
+      if (!el) return
+      const rect = el.getBoundingClientRect()
+      const vh = window.innerHeight || 800
+      const signed = (rect.top + rect.height / 2) - vh / 2
+      setProgress(Math.max(0, 1 - Math.abs(signed) / (vh * 0.95)))
+      setRise(Math.max(-46, Math.min(46, signed * 0.14)))
+    }
+    const onScroll = () => {
+      setIdle(false)
+      clearTimeout(idleTimer.current)
+      idleTimer.current = setTimeout(() => setIdle(true), 1100)
+      if (raf == null) raf = requestAnimationFrame(update)
+    }
+    update()
+    window.addEventListener('scroll', onScroll, { passive: true })
+    window.addEventListener('resize', onScroll)
+    return () => {
+      window.removeEventListener('scroll', onScroll)
+      window.removeEventListener('resize', onScroll)
+      clearTimeout(idleTimer.current)
+      if (raf) cancelAnimationFrame(raf)
+    }
+  }, [])
+
+  const scale = 0.68 + progress * 0.6        // 0.68 → 1.28
+  const baseOpacity = 0.08 + progress * 0.92 // 0.08 → 1.0
+  const opacity = idle ? baseOpacity * 0.16 : baseOpacity
+
+  // На узких экранах полей сбоку контента нет, а перекрывать текст здесь
+  // ни к чему — вместо этого цитаты идут отдельным блоком напутствий
+  // (см. QuoteList ниже). Overlay-механика — только на широких экранах.
+  if (narrow) return null
+
+  return (
+    <div ref={ref} style={{ position: 'relative', height: 1 }}>
+      <figure
+        className="quote-rail"
+        style={{
+          position: 'fixed', top: `${top}%`, margin: 0, zIndex: 20, pointerEvents: 'none',
+          [side]: 'clamp(6px, 2.6vw, 54px)', width: 'min(250px, 18vw)',
+          textAlign: side === 'left' ? 'left' : 'right',
+          opacity,
+          transform: `translateY(calc(-50% + ${rise}px)) scale(${scale})`,
+          transformOrigin: side === 'left' ? 'left center' : 'right center',
+          transition: 'opacity 0.7s ease, transform 0.35s ease-out',
+          willChange: 'transform, opacity',
+        }}
+      >
+        <span aria-hidden="true" style={{
+          display: 'block', fontFamily: "'Prata', serif", fontSize: 28, lineHeight: 0.6,
+          color: C.zoloto, opacity: 0.65, marginBottom: 9,
+          textShadow: '0 2px 10px rgba(0,0,0,0.7)',
+        }}>{side === 'left' ? '“' : '”'}</span>
+        <blockquote style={{
+          margin: 0, fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 13.5,
+          lineHeight: 1.55, color: C.kostYar,
+          textShadow: '0 2px 14px rgba(0,0,0,0.85), 0 0 2px rgba(0,0,0,0.6)',
+        }}>{text}</blockquote>
+        <figcaption style={{
+          marginTop: 10, fontFamily: "'Onest', sans-serif", fontSize: 10, letterSpacing: 1,
+          textTransform: 'uppercase', color: C.zoloto,
+          textShadow: '0 2px 10px rgba(0,0,0,0.7)',
+        }}>— {author}</figcaption>
+      </figure>
+    </div>
+  )
+}
+
+// ─── QUOTE LIST (mobile) ──────────────────────────────────────────────────────
+// На узких экранах QuoteRail ничего не рендерит — вместо всплывающей
+// механики те же голоса участников идут горизонтальной каруселью, одна
+// реплика в кадре, листается свайпом. Показывается только на мобиле через CSS.
+export const QuoteList = ({ quotes, style }) => (
+  <div className="quote-list" style={{ display: 'none', ...style }}>
+    {quotes.map(q => (
+      <figure key={q.author} className="quote-list-item" style={{
+        margin: 0, textAlign: 'center', flex: '0 0 100%',
+        scrollSnapAlign: 'center', padding: '0 30px',
+      }}>
+        <blockquote style={{
+          margin: 0, fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 15,
+          lineHeight: 1.6, color: C.kostDim,
+        }}>{q.text}</blockquote>
+        <figcaption style={{
+          marginTop: 10, fontFamily: "'Onest', sans-serif", fontSize: 10.5, letterSpacing: 1,
+          textTransform: 'uppercase', color: C.zoloto,
+        }}>— {q.author}</figcaption>
+      </figure>
+    ))}
   </div>
 )
 

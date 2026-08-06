@@ -95,8 +95,45 @@ input, textarea, button {
 @media (max-width: 640px) {
   .hdr-links { display: none !important; }
 }
+/* Точки-пагинатор карусели тарифов — видны только там, где карусель и есть (мобила) */
+.tariff-dots { display: none; justify-content: center; align-items: center; gap: 6px; margin: -8px 0 40px; }
+/* Стрелки карусели тарифов — подсказка, что карточки листаются свайпом (мобила) */
+.tariff-arrow {
+  display: none; position: absolute; top: 50%; transform: translateY(-50%);
+  width: 38px; height: 38px; border-radius: 50%; z-index: 5;
+  align-items: center; justify-content: center;
+  background: rgba(11,16,14,0.72); border: 1px solid rgba(194,154,72,0.32);
+  color: var(--color-kost-yar, #F4F1E9); font-size: 20px; line-height: 1;
+  font-family: 'Onest', sans-serif;
+}
+.tariff-arrow-left  { left: 4px; }
+.tariff-arrow-right { right: 4px; }
+/* Напутствия участников — на мобиле вместо всплывающих цитат по бокам,
+   горизонтальная карусель со свайпом, одна реплика в кадре */
+@media (max-width: 1300px) {
+  .quote-list {
+    display: flex !important; flex-direction: row; gap: 0;
+    overflow-x: auto; scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch; scrollbar-width: none;
+  }
+  .quote-list::-webkit-scrollbar { display: none; }
+}
+@media (max-width: 980px) {
+  .tariff-grid  { grid-template-columns: repeat(2, 1fr) !important; }
+}
 @media (max-width: 720px) {
   .about-grid   { grid-template-columns: 1fr !important; }
+  /* карточки тарифов на мобиле — ровно одна в кадре, листаются свайпом */
+  .tariff-grid  {
+    display: flex !important; grid-template-columns: none !important;
+    overflow-x: auto !important; scroll-snap-type: x mandatory !important;
+    padding: 4px 24px !important; margin: 0 -24px 20px !important;
+    -webkit-overflow-scrolling: touch !important; scrollbar-width: none !important;
+  }
+  .tariff-grid::-webkit-scrollbar { display: none !important; }
+  .tariff-grid > div { flex: 0 0 100% !important; scroll-snap-align: center !important; }
+  .tariff-dots  { display: flex !important; }
+  .tariff-arrow { display: flex !important; }
   /* мобила: анимация между заголовком и текстом */
   .balance-grid {
     grid-template-columns: 1fr !important;

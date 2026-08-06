@@ -10,6 +10,7 @@ const NAV_ITEMS = [
   { id: 'about', label: 'О ЧЁМ' },
   { id: 'balance', label: 'ТОЧКА БАЛАНСА' },
   { id: 'karta', label: 'КАРТА' },
+  { id: 'platform', label: 'ПЛАТФОРМА' },
 ]
 
 // ─── Music equalizer bars animation ──────────────────────────────────────────
