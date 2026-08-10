@@ -44,8 +44,15 @@ export const MEDIA = {
   worldsMap: './media/worlds_map.jpg',
   warrior:   './media/warrior_against_matrix.jpg',
   platformCalendar: './media/platform_calendar.png',
-  platformGenes:    './media/platform_genes.png',
-  platformKnowledge:'./media/platform_knowledge.png',
+  platformRubkaLight:     './media/platform_rubka_light.png',
+  platformRubkaDark:      './media/platform_rubka_dark.png',
+  platformTasksLight:     './media/platform_tasks_light.png',
+  platformTasksDark:      './media/platform_tasks_dark.png',
+  platformGenesLight:     './media/platform_genes_light.png',
+  platformGenesDark:      './media/platform_genes_dark.png',
+  platformKnowledgeLight: './media/platform_knowledge_light.png',
+  platformKnowledgeDark:  './media/platform_knowledge_dark.png',
+  platformInstall:        './media/platform_install.mp4',
 }
 
 // ─── STAR SPARK ───────────────────────────────────────────────────────────────

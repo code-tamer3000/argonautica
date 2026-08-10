@@ -23,7 +23,7 @@ export default function ExpeditionSection() {
         <FadeSection><MeanderRule opacity={0.55} style={{ marginBottom: 44 }} /></FadeSection>
 
         <FadeSection delay={80}>
-          <SecLabel num="05" text="Экспедиция" color={C.latun} accent={C.zoloto} style={{ justifyContent: 'center' }} />
+          <SecLabel num="06" text="Экспедиция" color={C.latun} accent={C.zoloto} style={{ justifyContent: 'center' }} />
         </FadeSection>
 
         <FadeSection delay={140} y={22}>
@@ -59,7 +59,7 @@ export default function ExpeditionSection() {
             <div style={{ textAlign: 'center' }}>
               <div style={{
                 fontFamily: "'Prata', serif", fontSize: 'clamp(19px,2.4vw,24px)', color: C.kostYar,
-              }}>Корабль аргонавтов уже отплыл и находится в экспедиции</div>
+              }}>Первая экспедиция Аргонавтов завершилась</div>
             </div>
 
             {/* О следующей экспедиции — объявление в Telegram-канале */}
@@ -69,8 +69,12 @@ export default function ExpeditionSection() {
             }}>
               <p style={{
                 fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 14,
+                lineHeight: 1.5, color: C.kostDim, margin: '0 auto 8px', maxWidth: 460,
+              }}>В ближайшие дни будет открыт набор в новое плавание</p>
+              <p style={{
+                fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 14,
                 lineHeight: 1.5, color: C.kostDim, margin: '0 auto 20px', maxWidth: 460,
-              }}>О следующей экспедиции будет объявлено в Telegram-канале Аргонавтики</p>
+              }}>Присоединяйтесь к тг-каналу и следите за новостями</p>
               <a
                 href={TG_CHANNEL}
                 target="_blank" rel="noopener noreferrer"
