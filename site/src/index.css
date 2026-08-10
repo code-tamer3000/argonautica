@@ -97,7 +97,8 @@ input, textarea, button {
 }
 /* Напутствия участников — на мобиле вместо всплывающих цитат по бокам,
    горизонтальная карусель со свайпом, одна реплика в кадре */
-@media (max-width: 1300px) {
+@media (max-width: 1024px) {
+  .quote-list-wrap { display: block !important; }
   .quote-list {
     display: flex !important; flex-direction: row; gap: 0;
     overflow-x: auto; scroll-snap-type: x mandatory;

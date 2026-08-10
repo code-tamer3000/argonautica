@@ -5,12 +5,11 @@ import AboutSection from './components/AboutSection'
 import BalanceSection from './components/BalanceSection'
 import KartaSection from './components/KartaSection'
 import PlatformSection from './components/PlatformSection'
-import TestimonialsSection from './components/TestimonialsSection'
 import ExpeditionSection from './components/ExpeditionSection'
 import Footer from './components/Footer'
 import { WordMark, StarSpark, C } from './components/Shared'
 
-const SECTIONS = ['hero', 'about', 'balance', 'karta', 'platform', 'testimonials', 'expedition']
+const SECTIONS = ['hero', 'about', 'balance', 'karta', 'platform', 'expedition']
 
 function SplashScreen({ fading }) {
   return (
@@ -85,7 +84,6 @@ export default function App() {
         <BalanceSection />
         <KartaSection />
         <PlatformSection />
-        <TestimonialsSection />
         <ExpeditionSection />
       </main>
       <Footer />

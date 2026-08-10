@@ -1,7 +1,18 @@
-import { C, FadeSection, MeanderRule, MEDIA, SecLabel } from './Shared'
+import { C, FadeSection, MeanderRule, MEDIA, SecLabel, QuoteRail, QuoteList } from './Shared'
 
 // Кнопка ведёт в Telegram-канал Аргонавтики (тот же, что в футере)
 const TG_CHANNEL = 'https://t.me/argonautica_systems'
+
+// Оставшиеся голоса прошлого потока (первые 6 — в PlatformSection), полный
+// текст из карточек. Согласие на публикацию с ником получено
+// (survey_responses.publish_consent).
+const FLOAT_QUOTES = [
+  { side: 'left', top: 28, author: 'daria_epi', text: 'Довериться хотя бы раз этому подходу и дать себе шанс встать на этот путь. Не ожидать чуда, но проходить его с вниманием и честностью — тогда перемены обязательно придут.' },
+  { side: 'right', top: 55, author: 'yakov', text: 'Если ты настрадался, наискался, наигрался в медитации, психологию, аффирмации, йогу и всё это... То пора отправляться в экспедицию и встретить своих чудовищ.' },
+  { side: 'left', top: 78, author: 'ivanartomov', text: 'Вступайте на путь и, по-любому, это вас зацепит: будь то ключи, стихии или знания Аргата.' },
+]
+
+const SWIPE_QUOTES = FLOAT_QUOTES.map(({ author, text }) => ({ author, text }))
 
 // ─── ExpeditionSection ────────────────────────────────────────────────────────
 export default function ExpeditionSection() {
@@ -18,6 +29,8 @@ export default function ExpeditionSection() {
         background: 'radial-gradient(ellipse at center, rgba(194,154,72,0.10), transparent 65%)',
         pointerEvents: 'none',
       }} />
+
+      <QuoteRail {...FLOAT_QUOTES[0]} />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
         <FadeSection><MeanderRule opacity={0.55} style={{ marginBottom: 44 }} /></FadeSection>
@@ -91,7 +104,13 @@ export default function ExpeditionSection() {
             </div>
           </div>
         </FadeSection>
+
+        <QuoteRail {...FLOAT_QUOTES[1]} />
+
+        <QuoteList quotes={SWIPE_QUOTES} style={{ maxWidth: 480, margin: '56px auto 0' }} />
       </div>
+
+      <QuoteRail {...FLOAT_QUOTES[2]} />
     </section>
   )
 }

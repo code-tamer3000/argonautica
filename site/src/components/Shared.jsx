@@ -261,7 +261,7 @@ export const QuoteRail = ({ text, author, side = 'left', top = 50 }) => {
   // На узких экранах нет полей сбоку контента — цитата не прячется,
   // а центрируется и всплывает поверх текста, как и было задумано.
   useEffect(() => {
-    const mq = window.matchMedia('(max-width: 1300px)')
+    const mq = window.matchMedia('(max-width: 1024px)')
     setNarrow(mq.matches)
     const h = e => setNarrow(e.matches)
     mq.addEventListener('change', h)
@@ -297,8 +297,8 @@ export const QuoteRail = ({ text, author, side = 'left', top = 50 }) => {
     }
   }, [])
 
-  const scale = 0.68 + progress * 0.6        // 0.68 → 1.28
-  const baseOpacity = 0.08 + progress * 0.92 // 0.08 → 1.0
+  const scale = 0.68 + progress * 0.6 // 0.68 → 1.28
+  const baseOpacity = progress        // 0 → 1.0, полностью гаснет вдали от анкера
   const opacity = idle ? baseOpacity * 0.16 : baseOpacity
 
   // На узких экранах полей сбоку контента нет, а перекрывать текст здесь
@@ -345,25 +345,68 @@ export const QuoteRail = ({ text, author, side = 'left', top = 50 }) => {
 // На узких экранах QuoteRail ничего не рендерит — вместо всплывающей
 // механики те же голоса участников идут горизонтальной каруселью, одна
 // реплика в кадре, листается свайпом. Показывается только на мобиле через CSS.
-export const QuoteList = ({ quotes, style }) => (
-  <div className="quote-list" style={{ display: 'none', ...style }}>
-    {quotes.map(q => (
-      <figure key={q.author} className="quote-list-item" style={{
-        margin: 0, textAlign: 'center', flex: '0 0 100%',
-        scrollSnapAlign: 'center', padding: '0 30px',
-      }}>
-        <blockquote style={{
-          margin: 0, fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 15,
-          lineHeight: 1.6, color: C.kostDim,
-        }}>{q.text}</blockquote>
-        <figcaption style={{
-          marginTop: 10, fontFamily: "'Onest', sans-serif", fontSize: 10.5, letterSpacing: 1,
-          textTransform: 'uppercase', color: C.zoloto,
-        }}>— {q.author}</figcaption>
-      </figure>
-    ))}
-  </div>
-)
+// Точки внизу — навигация: показывают, где ты в ленте, и кликабельны.
+export const QuoteList = ({ quotes, style }) => {
+  const trackRef = useRef(null)
+  const [active, setActive] = useState(0)
+
+  useEffect(() => {
+    const el = trackRef.current
+    if (!el) return
+    let raf = null
+    const onScroll = () => {
+      if (raf != null) return
+      raf = requestAnimationFrame(() => {
+        raf = null
+        const i = Math.round(el.scrollLeft / el.clientWidth)
+        setActive(Math.max(0, Math.min(quotes.length - 1, i)))
+      })
+    }
+    el.addEventListener('scroll', onScroll, { passive: true })
+    return () => { el.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf) }
+  }, [quotes.length])
+
+  const goTo = i => {
+    const el = trackRef.current
+    if (!el) return
+    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
+  }
+
+  return (
+    <div style={{ display: 'none', ...style }} className="quote-list-wrap">
+      <div ref={trackRef} className="quote-list">
+        {quotes.map(q => (
+          <figure key={q.author} className="quote-list-item" style={{
+            margin: 0, textAlign: 'center', flex: '0 0 100%',
+            scrollSnapAlign: 'center', padding: '0 30px',
+          }}>
+            <blockquote style={{
+              margin: 0, fontFamily: "'Lora', serif", fontStyle: 'italic', fontSize: 15,
+              lineHeight: 1.6, color: C.kostDim,
+            }}>{q.text}</blockquote>
+            <figcaption style={{
+              marginTop: 10, fontFamily: "'Onest', sans-serif", fontSize: 10.5, letterSpacing: 1,
+              textTransform: 'uppercase', color: C.zoloto,
+            }}>— {q.author}</figcaption>
+          </figure>
+        ))}
+      </div>
+      <div className="quote-list-dots" style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 22 }}>
+        {quotes.map((q, i) => (
+          <button
+            key={q.author} type="button" onClick={() => goTo(i)}
+            aria-label={`Отзыв ${i + 1} из ${quotes.length}`}
+            style={{
+              width: 7, height: 7, borderRadius: '50%', padding: 0, border: 'none',
+              background: i === active ? C.zoloto : 'rgba(194,154,72,0.28)',
+              cursor: 'pointer', transition: 'background 200ms ease',
+            }}
+          />
+        ))}
+      </div>
+    </div>
+  )
+}
 
 // ─── SCROLL HELPER ────────────────────────────────────────────────────────────
 export const scrollTo = (id, offset = 64) => {
