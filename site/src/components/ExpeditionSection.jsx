@@ -20,7 +20,7 @@ const SWIPE_QUOTES = FLOAT_QUOTES.map(({ author, text }) => ({ author, text }))
 // (см. ниже DEFAULT_IDX).
 const POSITIONS = [
   {
-    id: 'nabludatel', name: 'Наблюдатель', price: '8 000 ₽', image: MEDIA.positionNabludatel,
+    id: 'nabludatel', name: 'Наблюдатель', price: '8 000 ₽', image: MEDIA.positionNabludatel, mobileFocus: '13% 20%',
     tagline: 'Один в каноэ.',
     format: 'Самостоятельная работа. Сдаёшь отчёт по Генному Замку — идёшь дальше.',
     efirs: 'Эфиры в записи.',
@@ -29,7 +29,7 @@ const POSITIONS = [
     who: 'Результат зависит исключительно от твоей включённости.',
   },
   {
-    id: 'igrok', name: 'Игрок', price: '16 000 ₽', image: MEDIA.positionIgrok,
+    id: 'igrok', name: 'Игрок', price: '16 000 ₽', image: MEDIA.positionIgrok, mobileFocus: '31% 50%',
     tagline: 'Экипаж. Основной корпус.',
     format: 'Полноценное движение в составе группы аргонавтов.',
     efirs: 'Живой Эфир по каждой Стихии.',
@@ -38,7 +38,7 @@ const POSITIONS = [
     who: 'Самооживленческая база.',
   },
   {
-    id: 'specotryad', name: 'Спецотряд', price: '37 000 ₽', image: MEDIA.positionSpecotryad,
+    id: 'specotryad', name: 'Спецотряд', price: '37 000 ₽', image: MEDIA.positionSpecotryad, mobileFocus: '57% 50%',
     tagline: 'Малый круг.',
     format: 'Мини-группа морских ассасинов с личным наставничеством Аргата.',
     efirs: 'Живой Эфир по каждой Стихии.',
@@ -66,16 +66,18 @@ const POSITIONS = [
 // Дефолтная карточка при открытии поп-апа — «Игрок» (основной тариф)
 const DEFAULT_IDX = POSITIONS.findIndex(p => p.id === 'igrok')
 
-function PositionCard({ pos }) {
+function PositionCard({ pos, dir = 1 }) {
   return (
-    <div className="position-card" style={{
+    <div className={`position-card ${dir > 0 ? 'slide-in-right' : 'slide-in-left'}`} style={{
       position: 'relative', borderRadius: 12, overflow: 'hidden',
       border: '1px solid rgba(194,154,72,0.28)',
     }}>
-      {/* Фреска фоном на всю карточку — лёгкий блюр и затемнение под текст */}
-      <img src={pos.image} alt="" aria-hidden="true" style={{
+      {/* Фреска фоном на всю карточку — лёгкий блюр и затемнение под текст.
+          На мобиле кроп сдвинут на фокус позиции (подобрано вручную в Figma) — на десктопе центр не трогаем. */}
+      <img src={pos.image} alt="" aria-hidden="true" className="pc-bg-image" style={{
         position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-        filter: 'blur(1px)', transform: 'scale(1.03)',
+        filter: 'blur(1px)', transform: 'scale(1.03) translateZ(0)', backfaceVisibility: 'hidden',
+        '--mobile-focus': pos.mobileFocus || '50% 50%',
       }} />
       <div style={{
         position: 'absolute', inset: 0,
@@ -163,10 +165,12 @@ function PositionCard({ pos }) {
 // ─── ExpeditionSection ────────────────────────────────────────────────────────
 export default function ExpeditionSection() {
   const [activeIdx, setActiveIdx] = useState(DEFAULT_IDX)
+  const [dir, setDir] = useState(1) // направление последнего переключения — куда влетает карточка
   const active = POSITIONS[activeIdx]
 
-  const goPrev = () => setActiveIdx(i => Math.max(0, i - 1)) // влево — дешевле
-  const goNext = () => setActiveIdx(i => Math.min(POSITIONS.length - 1, i + 1)) // вправо — дороже
+  const goPrev = () => { setDir(-1); setActiveIdx(i => Math.max(0, i - 1)) } // влево — дешевле
+  const goNext = () => { setDir(1); setActiveIdx(i => Math.min(POSITIONS.length - 1, i + 1)) } // вправо — дороже
+  const goTo = i => { setDir(i > activeIdx ? 1 : -1); setActiveIdx(i) }
 
   return (
     <section id="expedition" style={{
@@ -281,7 +285,7 @@ export default function ExpeditionSection() {
               onClick={goPrev} disabled={activeIdx === 0}
             >‹</button>
 
-            <PositionCard key={active.id} pos={active} />
+            <PositionCard key={active.id} pos={active} dir={dir} />
 
             <button
               type="button" aria-label="Дороже" className="position-arrow position-arrow-right"
@@ -292,7 +296,7 @@ export default function ExpeditionSection() {
           <div className="position-dots" aria-hidden="true">
             {POSITIONS.map((p, i) => (
               <button
-                key={p.id} type="button" onClick={() => setActiveIdx(i)}
+                key={p.id} type="button" onClick={() => goTo(i)}
                 aria-label={p.name}
                 style={{
                   width: i === activeIdx ? 18 : 6, height: 6, borderRadius: 3, padding: 0, border: 'none',

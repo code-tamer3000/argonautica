@@ -123,6 +123,36 @@ input, textarea, button {
 @media (min-width: 860px) {
   .position-viewport { max-width: 640px !important; }
 }
+/* Фикс дрожания фрески на скролле iOS Safari: filter+transform на абсолютном
+   элементе внутри overflow:hidden репейнтится на каждый кадр — выносим на
+   отдельный GPU-слой (сам transform у .pc-bg-image задан инлайном в JSX,
+   translateZ(0) добавлен туда же, т.к. инлайн-стиль иначе перебивает класс) */
+.position-card {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+/* Переключение позиции стрелками/точками — карточка каждый раз новый DOM-узел
+   (смена key), влетает сбоку по направлению перехода: вправо (дороже) — с
+   правого края, влево (дешевле) — с левого */
+@keyframes posCardInFromRight {
+  from { opacity: 0; transform: translateZ(0) translateX(28px) scale(0.98); }
+  to   { opacity: 1; transform: translateZ(0) translateX(0) scale(1); }
+}
+@keyframes posCardInFromLeft {
+  from { opacity: 0; transform: translateZ(0) translateX(-28px) scale(0.98); }
+  to   { opacity: 1; transform: translateZ(0) translateX(0) scale(1); }
+}
+.position-card.slide-in-right { animation: posCardInFromRight 320ms cubic-bezier(.22,.61,.36,1); }
+.position-card.slide-in-left  { animation: posCardInFromLeft 320ms cubic-bezier(.22,.61,.36,1); }
+@media (prefers-reduced-motion: reduce) {
+  .position-card.slide-in-right, .position-card.slide-in-left { animation: none; }
+}
+/* Кроп фрески под мобилку — фокус подобран вручную в Figma под каждую позицию */
+@media (max-width: 640px) {
+  .pc-bg-image { object-position: var(--mobile-focus, 50% 50%); }
+}
 /* Напутствия участников — на мобиле вместо всплывающих цитат по бокам,
    горизонтальная карусель со свайпом, одна реплика в кадре */
 @media (max-width: 1024px) {
