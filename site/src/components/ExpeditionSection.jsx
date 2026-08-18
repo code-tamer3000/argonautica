@@ -1,4 +1,4 @@
-import { C, FadeSection, MeanderRule, MEDIA, SecLabel, QuoteRail, QuoteList } from './Shared'
+import { C, FadeSection, MeanderRule, MEDIA, SecLabel, QuoteRail } from './Shared'
 
 // Кнопка ведёт в Telegram-канал Аргонавтики (тот же, что в футере)
 const TG_CHANNEL = 'https://t.me/argonautica_systems'
@@ -11,8 +11,6 @@ const FLOAT_QUOTES = [
   { side: 'right', top: 55, author: 'yakov', text: 'Если ты настрадался, наискался, наигрался в медитации, психологию, аффирмации, йогу и всё это... То пора отправляться в экспедицию и встретить своих чудовищ.' },
   { side: 'left', top: 78, author: 'ivanartomov', text: 'Вступайте на путь и, по-любому, это вас зацепит: будь то ключи, стихии или знания Аргата.' },
 ]
-
-const SWIPE_QUOTES = FLOAT_QUOTES.map(({ author, text }) => ({ author, text }))
 
 // ─── ExpeditionSection ────────────────────────────────────────────────────────
 export default function ExpeditionSection() {
@@ -106,8 +104,6 @@ export default function ExpeditionSection() {
         </FadeSection>
 
         <QuoteRail {...FLOAT_QUOTES[1]} />
-
-        <QuoteList quotes={SWIPE_QUOTES} style={{ maxWidth: 480, margin: '56px auto 0' }} />
       </div>
 
       <QuoteRail {...FLOAT_QUOTES[2]} />
