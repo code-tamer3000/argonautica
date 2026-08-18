@@ -1,5 +1,5 @@
 import { useState } from 'react'
-import { C, FadeSection, MeanderRule, MEDIA, QuoteList, QuoteRail, SecLabel, StarSpark } from './Shared'
+import { C, FadeSection, MeanderRule, MEDIA, QuoteRail, SecLabel, StarSpark } from './Shared'
 
 // Кнопка ведёт в Telegram-канал Аргонавтики (тот же, что в футере)
 const TG_CHANNEL = 'https://t.me/argonautica_systems'
@@ -13,8 +13,6 @@ const FLOAT_QUOTES = [
   { side: 'right', top: 52, author: 'yakov', text: 'Если ты настрадался, наискался, наигрался в медитации, психологию, аффирмации, йогу и всё это... То пора отправляться в экспедицию и встретить своих чудовищ.' },
   { side: 'left', top: 80, author: 'ivanartomov', text: 'Вступайте на путь и, по-любому, это вас зацепит: будь то ключи, стихии или знания Аргата.' },
 ]
-
-const SWIPE_QUOTES = FLOAT_QUOTES.map(({ author, text }) => ({ author, text }))
 
 // Позиции — от дешёвой к дорогой. Открывается по умолчанию на «Игрок»
 // (см. ниже DEFAULT_IDX).
@@ -344,8 +342,6 @@ export default function ExpeditionSection() {
             }}>Позицию выберешь внутри — второй раз ничего заполнять не придётся.</p>
           </div>
         </FadeSection>
-
-        <QuoteList quotes={SWIPE_QUOTES} style={{ maxWidth: 480, margin: '56px auto 0' }} />
       </div>
 
       <QuoteRail {...FLOAT_QUOTES[2]} />
