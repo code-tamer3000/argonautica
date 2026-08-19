@@ -147,16 +147,14 @@ input, textarea, button {
    iOS Safari мигает и дёргает зафильтрованный слой, когда родительский
    transform меняется каждый кадр (класс вешается/снимается в JS) */
 .position-track.dragging .pc-bg-image { filter: none !important; }
-/* Фикс дрожания фрески на скролле iOS Safari: filter+transform на абсолютном
-   элементе внутри overflow:hidden репейнтится на каждый кадр — выносим на
-   отдельный GPU-слой (сам transform у .pc-bg-image задан инлайном в JSX,
-   translateZ(0) добавлен туда же, т.к. инлайн-стиль иначе перебивает класс) */
-.position-card {
-  transform: translateZ(0);
-  -webkit-transform: translateZ(0);
-  backface-visibility: hidden;
-  -webkit-backface-visibility: hidden;
-}
+/* Карточка и фреска внутри НЕ получают собственный GPU-слой (нет своего
+   translateZ) — весь трек уже один слой целиком (will-change: transform
+   выше). Раньше у каждой карточки и картинки внутри были СВОИ вложенные
+   слои поверх слоя трека — на анимации transform трека эти вложенные слои
+   на iOS Safari обновлялись не синхронно с остальным содержимым карточки
+   (тёмный градиент и текст), и на кадр-два проскакивала голая некрытая
+   картинка без градиента и текста. Один слой на весь трек — контент
+   карточки всегда один нерасслаивающийся кусок. */
 /* Кроп фрески под мобилку — фокус подобран вручную в Figma под каждую позицию */
 @media (max-width: 640px) {
   .pc-bg-image { object-position: var(--mobile-focus, 50% 50%); }

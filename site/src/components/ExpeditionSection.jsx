@@ -95,7 +95,7 @@ function PositionCard({ pos }) {
           На мобиле кроп сдвинут на фокус позиции (подобрано вручную в Figma) — на десктопе центр не трогаем. */}
       <img src={pos.image} alt="" aria-hidden="true" className="pc-bg-image" style={{
         position: 'absolute', inset: 0, width: '100%', height: '100%', objectFit: 'cover',
-        filter: 'blur(1px)', transform: 'scale(1.03) translateZ(0)', backfaceVisibility: 'hidden',
+        filter: 'blur(1px)', transform: 'scale(1.03)',
         '--mobile-focus': pos.mobileFocus || '50% 50%',
       }} />
       <div style={{
