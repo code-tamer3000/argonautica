@@ -22,7 +22,7 @@ function SplashScreen({ fading }) {
       pointerEvents: fading ? 'none' : 'all',
     }}>
       <div style={{ animation: 'splashPulse 2.2s ease-in-out infinite' }}>
-        <StarSpark size={38} color={C.zoloto} />
+        <StarSpark size={38} style={{ animation: 'splashTwinkle 1.3s ease-in-out infinite' }} />
       </div>
       <WordMark size={15} color={C.kostDim} gap={10} withStar={false}
         style={{ letterSpacing: 6 }} />

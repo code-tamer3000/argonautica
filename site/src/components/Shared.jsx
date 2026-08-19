@@ -57,21 +57,22 @@ export const MEDIA = {
   positionIgrok:      './media/positions/position_igrok.jpg',
   positionSpecotryad: './media/positions/position_specotryad.jpg',
   positionOko:        './media/positions/position_oko.jpg',
+  starIcon:  './media/emoji/argonautica_systems/star.webp',
+  starIconPng: './media/emoji/argonautica_systems/star.png',
 }
 
-// ─── STAR SPARK ───────────────────────────────────────────────────────────────
-export const StarSpark = ({ size = 12, color = C.zoloto, style }) => (
-  <svg
+// ─── STAR SPARK (брендовая иконка звезды) ──────────────────────────────────────
+export const StarSpark = ({ size = 12, style }) => (
+  <img
+    src={MEDIA.starIcon}
+    alt="" aria-hidden="true"
     width={size} height={size}
-    viewBox="-11 -11 22 22"
-    style={{ display: 'inline-block', flexShrink: 0, verticalAlign: 'middle', ...style }}
-    aria-hidden="true"
-  >
-    <path
-      d="M0,-10 C1.5,-3 3,-1.5 10,0 C3,1.5 1.5,3 0,10 C-1.5,3 -3,1.5 -10,0 C-3,-1.5 -1.5,-3 0,-10 Z"
-      fill={color}
-    />
-  </svg>
+    style={{
+      display: 'inline-block', flexShrink: 0, verticalAlign: 'middle', objectFit: 'contain',
+      filter: 'drop-shadow(0 0 3px rgba(214,172,64,0.55))',
+      ...style,
+    }}
+  />
 )
 
 // ─── THREE MOVEMENT GLYPHS ────────────────────────────────────────────────────

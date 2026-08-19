@@ -39,6 +39,10 @@ input, textarea, button {
   0%, 100% { opacity: 0.3; width: 30px; }
   50%       { opacity: 0.9; width: 50px; }
 }
+@keyframes splashTwinkle {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 6px rgba(194,154,72,0.4)); }
+  50%       { filter: brightness(1.7) drop-shadow(0 0 18px rgba(217,180,90,0.85)); }
+}
 
 /* ── Sea animations ─────────────────────────────── */
 @keyframes waveScroll {

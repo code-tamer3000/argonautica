@@ -1,4 +1,4 @@
-import { useState } from 'react'
+import { useRef, useState } from 'react'
 import { C, FadeSection, MeanderRule, MEDIA, QuoteRail, SecLabel, StarSpark } from './Shared'
 
 // Кнопка ведёт в Telegram-канал Аргонавтики (тот же, что в футере)
@@ -8,7 +8,7 @@ const RULES_DOC = './pravila.html'
 // Оставшиеся голоса прошлого потока (первые 6 — в PlatformSection), полный
 // текст из карточек. Согласие на публикацию с ником получено
 // (survey_responses.publish_consent).
-const FLOAT_QUOTES = [
+export const FLOAT_QUOTES = [
   { side: 'left', top: 24, author: 'daria_epi', text: 'Довериться хотя бы раз этому подходу и дать себе шанс встать на этот путь. Не ожидать чуда, но проходить его с вниманием и честностью — тогда перемены обязательно придут.' },
   { side: 'right', top: 52, author: 'yakov', text: 'Если ты настрадался, наискался, наигрался в медитации, психологию, аффирмации, йогу и всё это... То пора отправляться в экспедицию и встретить своих чудовищ.' },
   { side: 'left', top: 80, author: 'ivanartomov', text: 'Вступайте на путь и, по-любому, это вас зацепит: будь то ключи, стихии или знания Аргата.' },
@@ -106,7 +106,7 @@ function PositionCard({ pos, dir = 1 }) {
                 fontFamily: "'Onest', sans-serif", fontSize: 13.5, lineHeight: 1.55, color: C.kost,
                 display: 'flex', gap: 9,
               }}>
-                <span style={{ color: C.zolotoYar, flexShrink: 0 }}>✦</span>
+                <StarSpark size={22} style={{ marginTop: -2 }} />
                 <span>{line}</span>
               </li>
             ))}
@@ -114,20 +114,30 @@ function PositionCard({ pos, dir = 1 }) {
         )}
 
         {pos.format && (
-          <p style={{ fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 14, lineHeight: 1.6, color: C.kost, margin: '0 0 14px', textAlign: 'left' }}>
-            {pos.format}
-          </p>
+          <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start', marginBottom: 14 }}>
+            <StarSpark size={22} style={{ marginTop: -1, flexShrink: 0 }} />
+            <p style={{ fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 14, lineHeight: 1.6, color: C.kost, margin: 0, textAlign: 'left' }}>
+              {pos.format}
+            </p>
+          </div>
         )}
 
         <div style={{
+          display: 'flex', gap: 9, alignItems: 'flex-start',
           fontFamily: "'Onest', sans-serif", fontSize: 12.5, fontWeight: 600, letterSpacing: 0.4,
           color: C.zolotoYar, marginBottom: 14, textAlign: 'left',
-        }}>{pos.efirs}</div>
+        }}>
+          <StarSpark size={22} style={{ marginTop: -4 }} />
+          <span>{pos.efirs}</span>
+        </div>
 
         {pos.details && (
-          <p style={{ fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 13.5, lineHeight: 1.65, color: C.kost, margin: '0 0 16px', textAlign: 'left' }}>
-            {pos.details}
-          </p>
+          <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start', marginBottom: 16 }}>
+            <StarSpark size={22} style={{ marginTop: 0, flexShrink: 0 }} />
+            <p style={{ fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 13.5, lineHeight: 1.65, color: C.kost, margin: 0, textAlign: 'left' }}>
+              {pos.details}
+            </p>
+          </div>
         )}
 
         <ul style={{
@@ -139,7 +149,7 @@ function PositionCard({ pos, dir = 1 }) {
               fontFamily: "'Onest', sans-serif", fontSize: 12.5, lineHeight: 1.5, color: C.kostDim,
               display: 'flex', gap: 9,
             }}>
-              <span style={{ color: C.zolotoYar, flexShrink: 0 }}>✦</span>
+              <StarSpark size={22} style={{ marginTop: -3 }} />
               <span>{line}</span>
             </li>
           ))}
@@ -169,6 +179,24 @@ export default function ExpeditionSection() {
   const goPrev = () => { setDir(-1); setActiveIdx(i => Math.max(0, i - 1)) } // влево — дешевле
   const goNext = () => { setDir(1); setActiveIdx(i => Math.min(POSITIONS.length - 1, i + 1)) } // вправо — дороже
   const goTo = i => { setDir(i > activeIdx ? 1 : -1); setActiveIdx(i) }
+
+  // Свайп по карточке на тачскринах — та же навигация, что у стрелок/точек.
+  const touchStart = useRef(null)
+  const onTouchStart = e => {
+    const t = e.touches[0]
+    touchStart.current = { x: t.clientX, y: t.clientY }
+  }
+  const onTouchEnd = e => {
+    const start = touchStart.current
+    touchStart.current = null
+    if (!start) return
+    const t = e.changedTouches[0]
+    const dx = t.clientX - start.x
+    const dy = t.clientY - start.y
+    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
+      if (dx < 0) goNext(); else goPrev()
+    }
+  }
 
   return (
     <section id="expedition" style={{
@@ -232,7 +260,7 @@ export default function ExpeditionSection() {
                   'Входя на борт корабля Аргонавтов ты оставляешь старые роли.',
                 ].map((line, i) => (
                   <div key={i} style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
-                    <StarSpark size={11} style={{ marginTop: 5, flexShrink: 0 }} />
+                    <StarSpark size={26} style={{ marginTop: -4, flexShrink: 0 }} />
                     <span style={{
                       fontFamily: "'Onest', sans-serif", fontWeight: 600, fontSize: 16,
                       lineHeight: 1.5, color: C.kostYar,
@@ -248,9 +276,9 @@ export default function ExpeditionSection() {
                 fontFamily: "'Onest', sans-serif", fontSize: 13, fontWeight: 600,
                 letterSpacing: 1, textTransform: 'uppercase', color: C.zolotoYar,
               }}>
-                <span>Старт 31.08</span>
+                <span>Старт 1.09</span>
                 <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
-                <span>Финиш 27.09</span>
+                <span>Финиш 28.09</span>
               </div>
             </div>
           </FadeSection>
@@ -262,14 +290,14 @@ export default function ExpeditionSection() {
               fontFamily: "'Prata', serif", fontWeight: 400,
               fontSize: 'clamp(22px,3vw,32px)', lineHeight: 1.15, color: C.kostYar,
               letterSpacing: '-0.01em', margin: '0 auto 18px',
-            }}>4 Позиции</h3>
+            }}>Четыре позиции прохождения</h3>
             <p style={{
               fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 14.5, lineHeight: 1.65,
               color: C.kostDim, margin: '0 auto 48px', maxWidth: 620,
             }}>
-              Каждая Позиция — это уровень включённости в жизнь. С каждой Позицией растёт
-              пропускная способность аргонавта: сколько внимания направлено на тебя,
-              а также мера твоих прав и свободы.
+              Каждая Позиция это уровень включённости в жизнь.
+              Внимание — самая дорогая валюта. Каждая позиция это более высокий объём
+              внимания, уровень пропускной способности участника.
             </p>
           </FadeSection>
         </div>
@@ -277,7 +305,10 @@ export default function ExpeditionSection() {
         {/* Поп-ап позиций: одна карточка в кадре, по умолчанию «Игрок».
             Влево — дешевле, вправо — дороже. */}
         <FadeSection delay={360} y={16}>
-          <div className="position-viewport" style={{ position: 'relative', maxWidth: 460, margin: '0 auto', width: '100%' }}>
+          <div
+            className="position-viewport" style={{ position: 'relative', maxWidth: 460, margin: '0 auto', width: '100%' }}
+            onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
+          >
             <button
               type="button" aria-label="Дешевле" className="position-arrow position-arrow-left"
               onClick={goPrev} disabled={activeIdx === 0}
