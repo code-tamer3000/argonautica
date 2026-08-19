@@ -119,10 +119,12 @@ input, textarea, button {
   .position-arrow-left  { left: -54px; }
   .position-arrow-right { right: -54px; }
 }
-/* На мобиле карточки тянутся пальцем напрямую — большие кнопки-стрелки
-   рядом с краями экрана только мешают, навигация целиком на свайпе и точках */
+/* На мобиле карточки тянутся пальцем напрямую — стрелки там на подхвате,
+   а не основная навигация, поэтому уменьшены и приглушены */
 @media (max-width: 640px) {
-  .position-arrow { display: none; }
+  .position-arrow { width: 28px; height: 28px; font-size: 15px; background: rgba(11,16,14,0.5); border-color: rgba(194,154,72,0.22); }
+  .position-arrow-left  { left: 2px; }
+  .position-arrow-right { right: 2px; }
 }
 /* Карточка позиции — картинка растянута фоном на всю карточку, шире на десктопе */
 @media (min-width: 860px) {
@@ -130,11 +132,13 @@ input, textarea, button {
 }
 /* Трек карусели — все 4 карточки всегда в DOM рядом друг с другом, а не по
    одной. Это даёт две вещи разом: карточка тянется за пальцем в реальном
-   времени (transform каждый кадр драга), и высота блока не скачет при
-   переключении — flex-ряд всегда высотой в самую высокую карточку, независимо
-   от того, какая из них сейчас видна. */
+   времени (transform у .position-track двигается напрямую через ref, см.
+   ExpeditionSection.jsx — так дешевле, чем гонять весь рендер на touchmove),
+   и высота блока не скачет при переключении — высота ряда определяется
+   самой высокой карточкой, а align-items: flex-start не растягивает
+   остальные карточки под неё (каждая остаётся своей естественной высоты). */
 .position-track-wrap { overflow: hidden; border-radius: 12px; }
-.position-track { will-change: transform; }
+.position-track { display: flex; align-items: flex-start; will-change: transform; }
 /* Фикс дрожания фрески на скролле iOS Safari: filter+transform на абсолютном
    элементе внутри overflow:hidden репейнтится на каждый кадр — выносим на
    отдельный GPU-слой (сам transform у .pc-bg-image задан инлайном в JSX,

@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import { C, FadeSection, MeanderRule, MEDIA, QuoteRail, SecLabel, StarSpark } from './Shared'
 
 // Кнопка ведёт в Telegram-канал Аргонавтики (тот же, что в футере)
@@ -44,8 +44,9 @@ const POSITIONS = [
       'Личная каюта и общее пространство: видно, кто где идёт и что выгружает.',
       'Усиление командой — другими участниками.',
       'Партнёрства.',
+      'Возможность пользоваться всеми функциями Платформы.',
     ],
-    access: ['Возможность пользоваться всеми функциями Платформы.', 'Количество мест ограничено.'],
+    access: ['Количество мест ограничено.'],
     who: 'Самооживленческая база.',
   },
   {
@@ -59,8 +60,9 @@ const POSITIONS = [
       'Задания от Аргата, уточнения по динамике, разборы Генных Замков.',
       'Приоритет в отбор Навигаторов.',
       'А также все возможности позиции «Игрок».',
+      'Возможность пользоваться всеми функциями Платформы.',
     ],
-    access: ['Возможность пользоваться всеми функциями Платформы.', 'Группа до десяти человек.'],
+    access: [],
     who: 'Сконцентрированное и усиленное ежедневное движение по самооживлению.',
   },
   {
@@ -72,8 +74,10 @@ const POSITIONS = [
       'Персональные задания.',
       'Подробный разбор Генных Замков с учётом условий и динамики прохождения.',
       'Все возможности предыдущих позиций.',
+      'Возможность пользоваться всеми функциями Платформы.',
+      'Одно место в потоке.',
     ],
-    access: ['Возможность пользоваться всеми функциями Платформы.', 'Одно место в потоке.'],
+    access: [],
     who: 'Для развития живости, силы и точности Геркулеса.',
   },
 ]
@@ -85,7 +89,7 @@ function PositionCard({ pos }) {
   return (
     <div className="position-card" style={{
       position: 'relative', borderRadius: 12, overflow: 'hidden',
-      border: '1px solid rgba(194,154,72,0.28)', height: '100%',
+      border: '1px solid rgba(194,154,72,0.28)',
     }}>
       {/* Фреска фоном на всю карточку — лёгкий блюр и затемнение под текст.
           На мобиле кроп сдвинут на фокус позиции (подобрано вручную в Figma) — на десктопе центр не трогаем. */}
@@ -128,20 +132,20 @@ function PositionCard({ pos }) {
           ))}
         </ul>
 
-        <ul style={{
-          listStyle: 'none', margin: '0 0 20px', padding: 0, textAlign: 'left',
-          display: 'flex', flexDirection: 'column', gap: 6,
-        }}>
-          {pos.access.map((line, i) => (
-            <li key={i} style={{
-              fontFamily: "'Onest', sans-serif", fontSize: 12.5, lineHeight: 1.5, color: C.kostDim,
-              display: 'flex', gap: 9,
-            }}>
-              <StarSpark size={22} style={{ marginTop: -3 }} />
-              <span>{line}</span>
-            </li>
-          ))}
-        </ul>
+        {pos.access.length > 0 && (
+          <ul style={{
+            listStyle: 'none', margin: '0 0 20px', padding: 0, textAlign: 'left',
+            display: 'flex', flexDirection: 'column', gap: 6,
+          }}>
+            {pos.access.map((line, i) => (
+              <li key={i} style={{
+                fontFamily: "'Onest', sans-serif", fontSize: 12.5, lineHeight: 1.5, color: C.kostDim,
+              }}>
+                {line}
+              </li>
+            ))}
+          </ul>
+        )}
 
         {/* «Who» и цена — внизу карточки, оба отдельным акцентом */}
         <div style={{ paddingTop: 20, borderTop: '1px solid rgba(194,154,72,0.3)' }}>
@@ -161,26 +165,57 @@ function PositionCard({ pos }) {
 // ─── ExpeditionSection ────────────────────────────────────────────────────────
 export default function ExpeditionSection() {
   const [activeIdx, setActiveIdx] = useState(DEFAULT_IDX)
-  const [dragX, setDragX] = useState(0)
-  const [dragging, setDragging] = useState(false)
+  const trackRef = useRef(null)
   const trackWrapRef = useRef(null)
   const dragInfo = useRef(null)
 
-  const goPrev = () => setActiveIdx(i => Math.max(0, i - 1)) // влево — дешевле
-  const goNext = () => setActiveIdx(i => Math.min(POSITIONS.length - 1, i + 1)) // вправо — дороже
-  const goTo = i => setActiveIdx(i)
+  const EASE = 'transform 380ms cubic-bezier(.22,.61,.36,1)'
 
-  // Карточка тянется за пальцем в реальном времени (перевод трека всех 4
-  // карточек по transform), а не просто дискретно щёлкает по свайпу —
-  // на отпускании либо доезжает до соседней, либо пружинит назад.
+  // Трек двигаем напрямую через ref, а не через setState на transform/
+  // transition в JSX — иначе на каждый touchmove (десятки раз в секунду)
+  // перерендерилось бы всё дерево карточки с её blur-фильтром фрески и
+  // текстом, и на слабых мобильных GPU это мигает/пропадает на кадр.
+  // React знает только activeIdx — для точек и disabled на стрелках.
+  const setTrackTransform = (px, animate) => {
+    const track = trackRef.current
+    if (!track) return
+    track.style.transition = animate ? EASE : 'none'
+    track.style.transform = `translate3d(${px}px, 0, 0)`
+  }
+
+  const goToIdx = idx => {
+    const clamped = Math.max(0, Math.min(POSITIONS.length - 1, idx))
+    setTrackTransform(-clamped * (trackWrapRef.current?.offsetWidth || 0), true)
+    setActiveIdx(clamped)
+  }
+  const goPrev = () => goToIdx(activeIdx - 1) // влево — дешевле
+  const goNext = () => goToIdx(activeIdx + 1) // вправо — дороже
+  const goTo = i => goToIdx(i)
+
+  useEffect(() => {
+    setTrackTransform(-DEFAULT_IDX * (trackWrapRef.current?.offsetWidth || 0), false)
+  }, [])
+
+  // Пересчёт позиции трека при смене ширины окна — держим ссылку на актуальный
+  // activeIdx, чтобы не переслушивать resize на каждое переключение карточки.
+  const activeIdxRef = useRef(activeIdx)
+  activeIdxRef.current = activeIdx
+  useEffect(() => {
+    const onResize = () => setTrackTransform(-activeIdxRef.current * (trackWrapRef.current?.offsetWidth || 0), false)
+    window.addEventListener('resize', onResize)
+    return () => window.removeEventListener('resize', onResize)
+  }, [])
+
+  // Карточка тянется за пальцем в реальном времени, а не просто дискретно
+  // щёлкает по свайпу — на отпускании либо доезжает до соседней, либо
+  // пружинит назад.
   const onTouchStart = e => {
     const t = e.touches[0]
     dragInfo.current = {
       startX: t.clientX, startY: t.clientY,
       width: trackWrapRef.current?.offsetWidth || 1,
-      axis: null,
+      axis: null, lastDx: 0,
     }
-    setDragging(true)
   }
   const onTouchMove = e => {
     const info = dragInfo.current
@@ -196,18 +231,17 @@ export default function ExpeditionSection() {
     // Лёгкое сопротивление на краях — тянуть можно, но с усилием
     const resisted = (activeIdx === 0 && dx > 0) || (activeIdx === POSITIONS.length - 1 && dx < 0)
       ? dx * 0.35 : dx
-    setDragX(resisted)
+    info.lastDx = resisted
+    setTrackTransform(-activeIdx * info.width + resisted, false)
   }
   const onTouchEnd = () => {
     const info = dragInfo.current
     dragInfo.current = null
-    setDragging(false)
-    if (info && info.axis === 'x') {
-      const threshold = info.width * 0.22
-      if (dragX <= -threshold) goNext()
-      else if (dragX >= threshold) goPrev()
-    }
-    setDragX(0)
+    if (!info || info.axis !== 'x') { goToIdx(activeIdx); return }
+    const threshold = info.width * 0.22
+    if (info.lastDx <= -threshold) goToIdx(activeIdx + 1)
+    else if (info.lastDx >= threshold) goToIdx(activeIdx - 1)
+    else goToIdx(activeIdx)
   }
 
   return (
@@ -327,16 +361,11 @@ export default function ExpeditionSection() {
 
             <div className="position-track-wrap" ref={trackWrapRef}>
               <div
-                className="position-track"
+                className="position-track" ref={trackRef}
                 onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
-                style={{
-                  display: 'flex',
-                  transform: `translateX(calc(${-activeIdx * 100}% + ${dragX}px))`,
-                  transition: dragging ? 'none' : 'transform 380ms cubic-bezier(.22,.61,.36,1)',
-                }}
               >
                 {POSITIONS.map(pos => (
-                  <div key={pos.id} style={{ flex: '0 0 100%', minWidth: 0 }}>
+                  <div key={pos.id} style={{ flex: '0 0 100%', minWidth: 0, padding: '0 8px', boxSizing: 'border-box' }}>
                     <PositionCard pos={pos} />
                   </div>
                 ))}
