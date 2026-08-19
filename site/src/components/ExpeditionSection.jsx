@@ -226,6 +226,11 @@ export default function ExpeditionSection() {
     if (info.axis == null) {
       if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return
       info.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
+      // На iOS Safari blur-фильтр фрески в связке с transform, меняющимся
+      // каждый кадр драга, мигает и дёргает (репейнт зафильтрованного слоя
+      // конфликтует с композитингом) — на время активного горизонтального
+      // драга снимаем фильтр классом, возвращаем на отпускании.
+      if (info.axis === 'x') trackRef.current?.classList.add('dragging')
     }
     if (info.axis !== 'x') return
     // Лёгкое сопротивление на краях — тянуть можно, но с усилием
@@ -237,6 +242,7 @@ export default function ExpeditionSection() {
   const onTouchEnd = () => {
     const info = dragInfo.current
     dragInfo.current = null
+    trackRef.current?.classList.remove('dragging')
     if (!info || info.axis !== 'x') { goToIdx(activeIdx); return }
     const threshold = info.width * 0.22
     if (info.lastDx <= -threshold) goToIdx(activeIdx + 1)

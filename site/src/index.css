@@ -138,7 +138,15 @@ input, textarea, button {
    самой высокой карточкой, а align-items: flex-start не растягивает
    остальные карточки под неё (каждая остаётся своей естественной высоты). */
 .position-track-wrap { overflow: hidden; border-radius: 12px; }
-.position-track { display: flex; align-items: flex-start; will-change: transform; }
+/* touch-action: pan-y — сразу отдаёт горизонтальный жест нам, а вертикальный
+   браузеру, без чего iOS Safari какое-то время "решает", кто ведёт жест
+   (нативный скролл или наш JS-драг), и на этом фоне дёргает и мигает
+   зафильтрованный слой фрески под пальцем */
+.position-track { display: flex; align-items: flex-start; touch-action: pan-y; will-change: transform; }
+/* На активном горизонтальном драге снимаем blur с фресок всех карточек —
+   iOS Safari мигает и дёргает зафильтрованный слой, когда родительский
+   transform меняется каждый кадр (класс вешается/снимается в JS) */
+.position-track.dragging .pc-bg-image { filter: none !important; }
 /* Фикс дрожания фрески на скролле iOS Safari: filter+transform на абсолютном
    элементе внутри overflow:hidden репейнтится на каждый кадр — выносим на
    отдельный GPU-слой (сам transform у .pc-bg-image задан инлайном в JSX,
