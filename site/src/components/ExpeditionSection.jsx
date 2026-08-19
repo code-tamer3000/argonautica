@@ -3,7 +3,6 @@ import { C, FadeSection, MeanderRule, MEDIA, QuoteRail, SecLabel, StarSpark } fr
 
 // Кнопка ведёт в Telegram-канал Аргонавтики (тот же, что в футере)
 const TG_CHANNEL = 'https://t.me/argonautica_systems'
-const RULES_DOC = './pravila.html'
 
 // Оставшиеся голоса прошлого потока (первые 6 — в PlatformSection), полный
 // текст из карточек. Согласие на публикацию с ником получено
@@ -257,7 +256,7 @@ export default function ExpeditionSection() {
                 {[
                   '6 эфиров.',
                   'Целенаправленное движение по самооживлению в течение 28 дней.',
-                  'Входя на борт корабля Аргонавтов ты оставляешь старые роли.',
+                  'Доступ к Манифесту Аргонавтики.',
                 ].map((line, i) => (
                   <div key={i} style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
                     <StarSpark size={26} style={{ marginTop: -4, flexShrink: 0 }} />
@@ -344,11 +343,8 @@ export default function ExpeditionSection() {
             maxWidth: 640, margin: '0 auto 40px', textAlign: 'center',
             fontFamily: "'Onest', sans-serif", fontSize: 12.5, lineHeight: 1.7, color: C.kostMuted,
           }}>
-            Цена растёт по мере приближения к отплытию. Все детали по срокам и условиям —
-            в{' '}
-            <a href={RULES_DOC} target="_blank" rel="noopener noreferrer"
-              style={{ color: C.kostDim, textDecoration: 'underline', textUnderlineOffset: 3 }}
-            >правилах экспедиции</a>, бот расскажет о них ещё раз перед оплатой.
+            Цена растёт по мере приближения к отплытию. Все детали по срокам и условиям
+            раскроем после одобрения заявки в telegram.
           </div>
         </FadeSection>
 
