@@ -119,14 +119,22 @@ input, textarea, button {
   .position-arrow-left  { left: -54px; }
   .position-arrow-right { right: -54px; }
 }
-@media (max-width: 480px) {
-  .position-arrow-left  { left: 4px; }
-  .position-arrow-right { right: 4px; }
+/* На мобиле карточки тянутся пальцем напрямую — большие кнопки-стрелки
+   рядом с краями экрана только мешают, навигация целиком на свайпе и точках */
+@media (max-width: 640px) {
+  .position-arrow { display: none; }
 }
 /* Карточка позиции — картинка растянута фоном на всю карточку, шире на десктопе */
 @media (min-width: 860px) {
   .position-viewport { max-width: 640px !important; }
 }
+/* Трек карусели — все 4 карточки всегда в DOM рядом друг с другом, а не по
+   одной. Это даёт две вещи разом: карточка тянется за пальцем в реальном
+   времени (transform каждый кадр драга), и высота блока не скачет при
+   переключении — flex-ряд всегда высотой в самую высокую карточку, независимо
+   от того, какая из них сейчас видна. */
+.position-track-wrap { overflow: hidden; border-radius: 12px; }
+.position-track { will-change: transform; }
 /* Фикс дрожания фрески на скролле iOS Safari: filter+transform на абсолютном
    элементе внутри overflow:hidden репейнтится на каждый кадр — выносим на
    отдельный GPU-слой (сам transform у .pc-bg-image задан инлайном в JSX,
@@ -136,22 +144,6 @@ input, textarea, button {
   -webkit-transform: translateZ(0);
   backface-visibility: hidden;
   -webkit-backface-visibility: hidden;
-}
-/* Переключение позиции стрелками/точками — карточка каждый раз новый DOM-узел
-   (смена key), влетает сбоку по направлению перехода: вправо (дороже) — с
-   правого края, влево (дешевле) — с левого */
-@keyframes posCardInFromRight {
-  from { opacity: 0; transform: translateZ(0) translateX(28px) scale(0.98); }
-  to   { opacity: 1; transform: translateZ(0) translateX(0) scale(1); }
-}
-@keyframes posCardInFromLeft {
-  from { opacity: 0; transform: translateZ(0) translateX(-28px) scale(0.98); }
-  to   { opacity: 1; transform: translateZ(0) translateX(0) scale(1); }
-}
-.position-card.slide-in-right { animation: posCardInFromRight 320ms cubic-bezier(.22,.61,.36,1); }
-.position-card.slide-in-left  { animation: posCardInFromLeft 320ms cubic-bezier(.22,.61,.36,1); }
-@media (prefers-reduced-motion: reduce) {
-  .position-card.slide-in-right, .position-card.slide-in-left { animation: none; }
 }
 /* Кроп фрески под мобилку — фокус подобран вручную в Figma под каждую позицию */
 @media (max-width: 640px) {

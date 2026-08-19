@@ -15,46 +15,64 @@ export const FLOAT_QUOTES = [
 
 // Позиции — от дешёвой к дорогой. Открывается по умолчанию на «Игрок»
 // (см. ниже DEFAULT_IDX).
+// points — единый список буллетов карточки, строго по порядку: 1) формат
+// позиции, 2) эфиры (без отдельного выделения — просто второй пункт),
+// 3+) остальные детали, каждая своим пунктом, а не одним абзацем.
 const POSITIONS = [
   {
     id: 'nabludatel', name: 'Наблюдатель', price: '8 000 ₽', image: MEDIA.positionNabludatel, mobileFocus: '13% 20%',
     tagline: 'Один в каноэ.',
-    format: 'Самостоятельная работа. Сдаёшь отчёт по Генному Замку — идёшь дальше.',
-    efirs: 'Эфиры в записи.',
-    details: 'Можешь пользоваться Материалами Платформы для самостоятельного прохождения. Без дополнительных заданий и без групповой динамики.',
+    points: [
+      'Самостоятельная работа. Сдаёшь отчёт по Генному Замку — идёшь дальше.',
+      'Эфиры в записи.',
+      'Можешь пользоваться Материалами Платформы для самостоятельного прохождения. Без дополнительных заданий и без групповой динамики.',
+    ],
     access: ['Минимальные функции Платформы.'],
     who: 'Результат зависит исключительно от твоей включённости.',
   },
   {
     id: 'igrok', name: 'Игрок', price: '16 000 ₽', image: MEDIA.positionIgrok, mobileFocus: '31% 50%',
     tagline: 'Экипаж. Основной корпус.',
-    format: 'Полноценное движение в составе группы аргонавтов.',
-    efirs: 'Живой Эфир по каждой Стихии.',
-    details: 'Направление Навигаторами, ранее прошедшими Экспедицию. Динамика через геймифицированную платформу Аргонавтики: настройся на ежедневную включённость в течение 28 дней. Ежедневно вести Бортовой Журнал. Выполнять задания: групповые, личные, парные. Усиление командой — другими участниками. Личная каюта и общее пространство: видно, кто где идёт и что выгружает. Возможность общаться и усиливать друг друга. Партнёрства.',
+    points: [
+      'Полноценное движение в составе группы аргонавтов.',
+      'Живой Эфир по каждой Стихии.',
+      'Направление Навигаторами, ранее прошедшими Экспедицию.',
+      'Геймифицированная платформа Аргонавтики.',
+      'Ежедневную включённость в течение 28 дней.',
+      'Бортовой Журнал.',
+      'Задания по самооживлению: групповые, личные, парные.',
+      'Личная каюта и общее пространство: видно, кто где идёт и что выгружает.',
+      'Усиление командой — другими участниками.',
+      'Партнёрства.',
+    ],
     access: ['Возможность пользоваться всеми функциями Платформы.', 'Количество мест ограничено.'],
     who: 'Самооживленческая база.',
   },
   {
     id: 'specotryad', name: 'Спецотряд', price: '37 000 ₽', image: MEDIA.positionSpecotryad, mobileFocus: '57% 50%',
     tagline: 'Малый круг.',
-    format: 'Мини-группа морских ассасинов с личным наставничеством Аргата.',
-    efirs: 'Живой Эфир по каждой Стихии.',
-    details: 'Движение происходит в небольшой группе, которую направляет Аргат. На каждой Стихии, кроме — дополнительный созвон группы. Задания от Аргата, уточнения по динамике, разборы Генных Замков. Приоритет в отбор Навигаторов.',
+    points: [
+      'Мини-группа морских ассасинов с личным наставничеством Аргата.',
+      'Живой Эфир по каждой Стихии.',
+      'Движение происходит в небольшой группе, которую направляет Аргат.',
+      'На каждой Стихии — дополнительный созвон группы.',
+      'Задания от Аргата, уточнения по динамике, разборы Генных Замков.',
+      'Приоритет в отбор Навигаторов.',
+      'А также все возможности позиции «Игрок».',
+    ],
     access: ['Возможность пользоваться всеми функциями Платформы.', 'Группа до десяти человек.'],
     who: 'Сконцентрированное и усиленное ежедневное движение по самооживлению.',
   },
   {
     id: 'oko', name: 'Око', price: '150 000 ₽', image: MEDIA.positionOko,
     tagline: 'С глазу на глаз.',
-    format: null,
-    exclusive: [
-      'Личное сопровождение Аргатом.',
-      'Дополнительный созвон на каждой Стихии.',
-      'Индивидуальные задания под твою ситуацию.',
-      'Персональный разбор Генных Замков с учётом условий и динамики прохождения.',
+    points: [
+      'Дополнительный индивидуальный созвон на каждой Стихии.',
+      'Живой Эфир по каждой Стихии.',
+      'Персональные задания.',
+      'Подробный разбор Генных Замков с учётом условий и динамики прохождения.',
+      'Все возможности предыдущих позиций.',
     ],
-    efirs: 'Живой Эфир по каждой Стихии.',
-    details: null,
     access: ['Возможность пользоваться всеми функциями Платформы.', 'Одно место в потоке.'],
     who: 'Для развития живости, силы и точности Геркулеса.',
   },
@@ -63,11 +81,11 @@ const POSITIONS = [
 // Дефолтная карточка при открытии поп-апа — «Игрок» (основной тариф)
 const DEFAULT_IDX = POSITIONS.findIndex(p => p.id === 'igrok')
 
-function PositionCard({ pos, dir = 1 }) {
+function PositionCard({ pos }) {
   return (
-    <div className={`position-card ${dir > 0 ? 'slide-in-right' : 'slide-in-left'}`} style={{
+    <div className="position-card" style={{
       position: 'relative', borderRadius: 12, overflow: 'hidden',
-      border: '1px solid rgba(194,154,72,0.28)',
+      border: '1px solid rgba(194,154,72,0.28)', height: '100%',
     }}>
       {/* Фреска фоном на всю карточку — лёгкий блюр и затемнение под текст.
           На мобиле кроп сдвинут на фокус позиции (подобрано вручную в Figma) — на десктопе центр не трогаем. */}
@@ -95,49 +113,20 @@ function PositionCard({ pos, dir = 1 }) {
           marginBottom: 24, textShadow: '0 2px 10px rgba(0,0,0,0.6)',
         }}>{pos.tagline}</div>
 
-        {pos.exclusive && (
-          <ul style={{
-            listStyle: 'none', margin: '0 0 16px', padding: 0, textAlign: 'left',
-            display: 'flex', flexDirection: 'column', gap: 7,
-          }}>
-            {pos.exclusive.map((line, i) => (
-              <li key={i} style={{
-                fontFamily: "'Onest', sans-serif", fontSize: 13.5, lineHeight: 1.55, color: C.kost,
-                display: 'flex', gap: 9,
-              }}>
-                <StarSpark size={22} style={{ marginTop: -2 }} />
-                <span>{line}</span>
-              </li>
-            ))}
-          </ul>
-        )}
-
-        {pos.format && (
-          <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start', marginBottom: 14 }}>
-            <StarSpark size={22} style={{ marginTop: -1, flexShrink: 0 }} />
-            <p style={{ fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 14, lineHeight: 1.6, color: C.kost, margin: 0, textAlign: 'left' }}>
-              {pos.format}
-            </p>
-          </div>
-        )}
-
-        <div style={{
-          display: 'flex', gap: 9, alignItems: 'flex-start',
-          fontFamily: "'Onest', sans-serif", fontSize: 12.5, fontWeight: 600, letterSpacing: 0.4,
-          color: C.zolotoYar, marginBottom: 14, textAlign: 'left',
+        <ul style={{
+          listStyle: 'none', margin: '0 0 20px', padding: 0, textAlign: 'left',
+          display: 'flex', flexDirection: 'column', gap: 8,
         }}>
-          <StarSpark size={22} style={{ marginTop: -4 }} />
-          <span>{pos.efirs}</span>
-        </div>
-
-        {pos.details && (
-          <div style={{ display: 'flex', gap: 9, alignItems: 'flex-start', marginBottom: 16 }}>
-            <StarSpark size={22} style={{ marginTop: 0, flexShrink: 0 }} />
-            <p style={{ fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 13.5, lineHeight: 1.65, color: C.kost, margin: 0, textAlign: 'left' }}>
-              {pos.details}
-            </p>
-          </div>
-        )}
+          {pos.points.map((line, i) => (
+            <li key={i} style={{
+              fontFamily: "'Onest', sans-serif", fontSize: 13.5, lineHeight: 1.55, color: C.kost,
+              display: 'flex', gap: 9,
+            }}>
+              <StarSpark size={22} style={{ marginTop: -2, flexShrink: 0 }} />
+              <span>{line}</span>
+            </li>
+          ))}
+        </ul>
 
         <ul style={{
           listStyle: 'none', margin: '0 0 20px', padding: 0, textAlign: 'left',
@@ -172,29 +161,53 @@ function PositionCard({ pos, dir = 1 }) {
 // ─── ExpeditionSection ────────────────────────────────────────────────────────
 export default function ExpeditionSection() {
   const [activeIdx, setActiveIdx] = useState(DEFAULT_IDX)
-  const [dir, setDir] = useState(1) // направление последнего переключения — куда влетает карточка
-  const active = POSITIONS[activeIdx]
+  const [dragX, setDragX] = useState(0)
+  const [dragging, setDragging] = useState(false)
+  const trackWrapRef = useRef(null)
+  const dragInfo = useRef(null)
 
-  const goPrev = () => { setDir(-1); setActiveIdx(i => Math.max(0, i - 1)) } // влево — дешевле
-  const goNext = () => { setDir(1); setActiveIdx(i => Math.min(POSITIONS.length - 1, i + 1)) } // вправо — дороже
-  const goTo = i => { setDir(i > activeIdx ? 1 : -1); setActiveIdx(i) }
+  const goPrev = () => setActiveIdx(i => Math.max(0, i - 1)) // влево — дешевле
+  const goNext = () => setActiveIdx(i => Math.min(POSITIONS.length - 1, i + 1)) // вправо — дороже
+  const goTo = i => setActiveIdx(i)
 
-  // Свайп по карточке на тачскринах — та же навигация, что у стрелок/точек.
-  const touchStart = useRef(null)
+  // Карточка тянется за пальцем в реальном времени (перевод трека всех 4
+  // карточек по transform), а не просто дискретно щёлкает по свайпу —
+  // на отпускании либо доезжает до соседней, либо пружинит назад.
   const onTouchStart = e => {
     const t = e.touches[0]
-    touchStart.current = { x: t.clientX, y: t.clientY }
-  }
-  const onTouchEnd = e => {
-    const start = touchStart.current
-    touchStart.current = null
-    if (!start) return
-    const t = e.changedTouches[0]
-    const dx = t.clientX - start.x
-    const dy = t.clientY - start.y
-    if (Math.abs(dx) > 40 && Math.abs(dx) > Math.abs(dy)) {
-      if (dx < 0) goNext(); else goPrev()
+    dragInfo.current = {
+      startX: t.clientX, startY: t.clientY,
+      width: trackWrapRef.current?.offsetWidth || 1,
+      axis: null,
     }
+    setDragging(true)
+  }
+  const onTouchMove = e => {
+    const info = dragInfo.current
+    if (!info) return
+    const t = e.touches[0]
+    const dx = t.clientX - info.startX
+    const dy = t.clientY - info.startY
+    if (info.axis == null) {
+      if (Math.abs(dx) < 6 && Math.abs(dy) < 6) return
+      info.axis = Math.abs(dx) > Math.abs(dy) ? 'x' : 'y'
+    }
+    if (info.axis !== 'x') return
+    // Лёгкое сопротивление на краях — тянуть можно, но с усилием
+    const resisted = (activeIdx === 0 && dx > 0) || (activeIdx === POSITIONS.length - 1 && dx < 0)
+      ? dx * 0.35 : dx
+    setDragX(resisted)
+  }
+  const onTouchEnd = () => {
+    const info = dragInfo.current
+    dragInfo.current = null
+    setDragging(false)
+    if (info && info.axis === 'x') {
+      const threshold = info.width * 0.22
+      if (dragX <= -threshold) goNext()
+      else if (dragX >= threshold) goPrev()
+    }
+    setDragX(0)
   }
 
   return (
@@ -301,19 +314,34 @@ export default function ExpeditionSection() {
           </FadeSection>
         </div>
 
-        {/* Поп-ап позиций: одна карточка в кадре, по умолчанию «Игрок».
-            Влево — дешевле, вправо — дороже. */}
+        {/* Карусель позиций: все 4 карточки в одном треке, по умолчанию
+            «Игрок». Трек тянется за пальцем и доезжает/пружинит на отпускании —
+            все карточки всегда в DOM, поэтому высота блока не скачет при
+            переключении (не зависит от того, какая карточка сейчас в кадре). */}
         <FadeSection delay={360} y={16}>
-          <div
-            className="position-viewport" style={{ position: 'relative', maxWidth: 460, margin: '0 auto', width: '100%' }}
-            onTouchStart={onTouchStart} onTouchEnd={onTouchEnd}
-          >
+          <div className="position-viewport" style={{ position: 'relative', maxWidth: 460, margin: '0 auto', width: '100%' }}>
             <button
               type="button" aria-label="Дешевле" className="position-arrow position-arrow-left"
               onClick={goPrev} disabled={activeIdx === 0}
             >‹</button>
 
-            <PositionCard key={active.id} pos={active} dir={dir} />
+            <div className="position-track-wrap" ref={trackWrapRef}>
+              <div
+                className="position-track"
+                onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
+                style={{
+                  display: 'flex',
+                  transform: `translateX(calc(${-activeIdx * 100}% + ${dragX}px))`,
+                  transition: dragging ? 'none' : 'transform 380ms cubic-bezier(.22,.61,.36,1)',
+                }}
+              >
+                {POSITIONS.map(pos => (
+                  <div key={pos.id} style={{ flex: '0 0 100%', minWidth: 0 }}>
+                    <PositionCard pos={pos} />
+                  </div>
+                ))}
+              </div>
+            </div>
 
             <button
               type="button" aria-label="Дороже" className="position-arrow position-arrow-right"
