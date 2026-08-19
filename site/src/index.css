@@ -95,6 +95,64 @@ input, textarea, button {
 @media (max-width: 640px) {
   .hdr-links { display: none !important; }
 }
+/* Точки-пагинатор поп-апа позиций — активная точка чуть шире остальных */
+.position-dots { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 20px 0 40px; }
+/* Стрелки поп-апа позиций — влево дешевле, вправо дороже; видны на всех размерах */
+.position-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; border-radius: 50%; z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(11,16,14,0.72); border: 1px solid rgba(194,154,72,0.32);
+  color: var(--color-kost-yar, #F4F1E9); font-size: 21px; line-height: 1;
+  font-family: 'Onest', sans-serif; cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease, opacity 200ms ease;
+}
+.position-arrow:hover:not(:disabled) { background: rgba(194,154,72,0.18); border-color: rgba(194,154,72,0.5); }
+.position-arrow:disabled { opacity: 0.25; cursor: default; }
+.position-arrow-left  { left: -14px; }
+.position-arrow-right { right: -14px; }
+@media (min-width: 640px) {
+  .position-arrow-left  { left: -54px; }
+  .position-arrow-right { right: -54px; }
+}
+@media (max-width: 480px) {
+  .position-arrow-left  { left: 4px; }
+  .position-arrow-right { right: 4px; }
+}
+/* Карточка позиции — картинка растянута фоном на всю карточку, шире на десктопе */
+@media (min-width: 860px) {
+  .position-viewport { max-width: 640px !important; }
+}
+/* Фикс дрожания фрески на скролле iOS Safari: filter+transform на абсолютном
+   элементе внутри overflow:hidden репейнтится на каждый кадр — выносим на
+   отдельный GPU-слой (сам transform у .pc-bg-image задан инлайном в JSX,
+   translateZ(0) добавлен туда же, т.к. инлайн-стиль иначе перебивает класс) */
+.position-card {
+  transform: translateZ(0);
+  -webkit-transform: translateZ(0);
+  backface-visibility: hidden;
+  -webkit-backface-visibility: hidden;
+}
+/* Переключение позиции стрелками/точками — карточка каждый раз новый DOM-узел
+   (смена key), влетает сбоку по направлению перехода: вправо (дороже) — с
+   правого края, влево (дешевле) — с левого */
+@keyframes posCardInFromRight {
+  from { opacity: 0; transform: translateZ(0) translateX(28px) scale(0.98); }
+  to   { opacity: 1; transform: translateZ(0) translateX(0) scale(1); }
+}
+@keyframes posCardInFromLeft {
+  from { opacity: 0; transform: translateZ(0) translateX(-28px) scale(0.98); }
+  to   { opacity: 1; transform: translateZ(0) translateX(0) scale(1); }
+}
+.position-card.slide-in-right { animation: posCardInFromRight 320ms cubic-bezier(.22,.61,.36,1); }
+.position-card.slide-in-left  { animation: posCardInFromLeft 320ms cubic-bezier(.22,.61,.36,1); }
+@media (prefers-reduced-motion: reduce) {
+  .position-card.slide-in-right, .position-card.slide-in-left { animation: none; }
+}
+/* Кроп фрески под мобилку — фокус подобран вручную в Figma под каждую позицию */
+@media (max-width: 640px) {
+  .pc-bg-image { object-position: var(--mobile-focus, 50% 50%); }
+}
 /* Напутствия участников — на мобиле вместо всплывающих цитат по бокам,
    горизонтальная карусель со свайпом, одна реплика в кадре */
 @media (max-width: 1024px) {

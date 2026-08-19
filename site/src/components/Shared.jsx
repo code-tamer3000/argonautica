@@ -53,6 +53,10 @@ export const MEDIA = {
   platformKnowledgeLight: './media/platform_knowledge_light.png',
   platformKnowledgeDark:  './media/platform_knowledge_dark.png',
   platformInstall:        './media/platform_install.mp4',
+  positionNabludatel: './media/positions/position_nabludatel.jpg',
+  positionIgrok:      './media/positions/position_igrok.jpg',
+  positionSpecotryad: './media/positions/position_specotryad.jpg',
+  positionOko:        './media/positions/position_oko.jpg',
 }
 
 // ─── STAR SPARK ───────────────────────────────────────────────────────────────
