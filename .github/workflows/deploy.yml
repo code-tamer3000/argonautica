@@ -2,7 +2,7 @@ name: Deploy site
 
 on:
   push:
-    branches: [main]
+    branches: [main, develop]
     paths:
       - "site/**"
       - ".github/workflows/deploy.yml"
@@ -28,6 +28,14 @@ jobs:
         working-directory: site
         run: npm run build
 
+      - name: Resolve remote path
+        run: |
+          if [ "${{ github.ref_name }}" = "main" ]; then
+            echo "REMOTE_PATH=/root/argonautica-site/" >> "$GITHUB_ENV"
+          else
+            echo "REMOTE_PATH=/root/argonautica-site-preview/" >> "$GITHUB_ENV"
+          fi
+
       - name: Deploy over rsync/ssh
         env:
           SSH_KEY: ${{ secrets.DEPLOY_SSH_KEY }}
@@ -36,9 +44,7 @@ jobs:
         run: |
           install -m 600 -D /dev/stdin ~/.ssh/deploy_key <<< "$SSH_KEY"
           ssh-keyscan -H "$DEPLOY_HOST" >> ~/.ssh/known_hosts 2>/dev/null
-          rsync -avz --delete \
-            --exclude='config.php' \
-            --exclude='config_test.php' \
+          rsync -az --delete \
             -e "ssh -i ~/.ssh/deploy_key" \
             site/dist/ \
-            "$DEPLOY_USER@$DEPLOY_HOST:/"
+            "$DEPLOY_USER@$DEPLOY_HOST:$REMOTE_PATH"
