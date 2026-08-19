@@ -1,8 +1,8 @@
 import { useEffect, useRef, useState } from 'react'
 import { C, FadeSection, MeanderRule, MEDIA, QuoteRail, SecLabel, StarSpark } from './Shared'
 
-// Кнопка ведёт в Telegram-канал Аргонавтики (тот же, что в футере)
-const TG_CHANNEL = 'https://t.me/argonautica_systems'
+// Кнопка ведёт в Telegram-бота приёма заявок на Экспедицию
+const TG_BOT = 'https://t.me/argonautica_requests_bot'
 
 // Оставшиеся голоса прошлого потока (первые 6 — в PlatformSection), полный
 // текст из карточек. Согласие на публикацию с ником получено
@@ -414,7 +414,7 @@ export default function ExpeditionSection() {
         <FadeSection delay={620}>
           <div style={{ textAlign: 'center' }}>
             <a
-              href={TG_CHANNEL}
+              href={TG_BOT}
               target="_blank" rel="noopener noreferrer"
               onClick={() => { try { window.ym && window.ym(110223480, 'reachGoal', 'bot_click') } catch (e) { } }}
               style={{
