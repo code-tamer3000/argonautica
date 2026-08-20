@@ -39,6 +39,10 @@ input, textarea, button {
   0%, 100% { opacity: 0.3; width: 30px; }
   50%       { opacity: 0.9; width: 50px; }
 }
+@keyframes splashTwinkle {
+  0%, 100% { filter: brightness(1) drop-shadow(0 0 6px rgba(194,154,72,0.4)); }
+  50%       { filter: brightness(1.7) drop-shadow(0 0 18px rgba(217,180,90,0.85)); }
+}
 
 /* ── Sea animations ─────────────────────────────── */
 @keyframes waveScroll {
@@ -94,6 +98,66 @@ input, textarea, button {
 /* Responsive nav hide on mobile */
 @media (max-width: 640px) {
   .hdr-links { display: none !important; }
+}
+/* Точки-пагинатор поп-апа позиций — активная точка чуть шире остальных */
+.position-dots { display: flex; justify-content: center; align-items: center; gap: 6px; margin: 20px 0 40px; }
+/* Стрелки поп-апа позиций — влево дешевле, вправо дороже; видны на всех размерах */
+.position-arrow {
+  position: absolute; top: 50%; transform: translateY(-50%);
+  width: 40px; height: 40px; border-radius: 50%; z-index: 5;
+  display: flex; align-items: center; justify-content: center;
+  background: rgba(11,16,14,0.72); border: 1px solid rgba(194,154,72,0.32);
+  color: var(--color-kost-yar, #F4F1E9); font-size: 21px; line-height: 1;
+  font-family: 'Onest', sans-serif; cursor: pointer;
+  transition: background 200ms ease, border-color 200ms ease, opacity 200ms ease;
+}
+.position-arrow:hover:not(:disabled) { background: rgba(194,154,72,0.18); border-color: rgba(194,154,72,0.5); }
+.position-arrow:disabled { opacity: 0.25; cursor: default; }
+.position-arrow-left  { left: -14px; }
+.position-arrow-right { right: -14px; }
+@media (min-width: 640px) {
+  .position-arrow-left  { left: -54px; }
+  .position-arrow-right { right: -54px; }
+}
+/* На мобиле карточки тянутся пальцем напрямую — стрелки там на подхвате,
+   а не основная навигация, поэтому уменьшены и приглушены */
+@media (max-width: 640px) {
+  .position-arrow { width: 28px; height: 28px; font-size: 15px; background: rgba(11,16,14,0.5); border-color: rgba(194,154,72,0.22); }
+  .position-arrow-left  { left: 2px; }
+  .position-arrow-right { right: 2px; }
+}
+/* Карточка позиции — картинка растянута фоном на всю карточку, шире на десктопе */
+@media (min-width: 860px) {
+  .position-viewport { max-width: 640px !important; }
+}
+/* Трек карусели — все 4 карточки всегда в DOM рядом друг с другом, а не по
+   одной. Это даёт две вещи разом: карточка тянется за пальцем в реальном
+   времени (transform у .position-track двигается напрямую через ref, см.
+   ExpeditionSection.jsx — так дешевле, чем гонять весь рендер на touchmove),
+   и высота блока не скачет при переключении — высота ряда определяется
+   самой высокой карточкой, а align-items: flex-start не растягивает
+   остальные карточки под неё (каждая остаётся своей естественной высоты). */
+.position-track-wrap { overflow: hidden; border-radius: 12px; }
+/* touch-action: pan-y — сразу отдаёт горизонтальный жест нам, а вертикальный
+   браузеру, без чего iOS Safari какое-то время "решает", кто ведёт жест
+   (нативный скролл или наш JS-драг), и на этом фоне дёргает и мигает
+   зафильтрованный слой фрески под пальцем */
+.position-track { display: flex; align-items: flex-start; touch-action: pan-y; will-change: transform; }
+/* На активном горизонтальном драге снимаем blur с фресок всех карточек —
+   iOS Safari мигает и дёргает зафильтрованный слой, когда родительский
+   transform меняется каждый кадр (класс вешается/снимается в JS) */
+.position-track.dragging .pc-bg-image { filter: none !important; }
+/* Карточка и фреска внутри НЕ получают собственный GPU-слой (нет своего
+   translateZ) — весь трек уже один слой целиком (will-change: transform
+   выше). Раньше у каждой карточки и картинки внутри были СВОИ вложенные
+   слои поверх слоя трека — на анимации transform трека эти вложенные слои
+   на iOS Safari обновлялись не синхронно с остальным содержимым карточки
+   (тёмный градиент и текст), и на кадр-два проскакивала голая некрытая
+   картинка без градиента и текста. Один слой на весь трек — контент
+   карточки всегда один нерасслаивающийся кусок. */
+/* Кроп фрески под мобилку — фокус подобран вручную в Figma под каждую позицию */
+@media (max-width: 640px) {
+  .pc-bg-image { object-position: var(--mobile-focus, 50% 50%); }
 }
 /* Напутствия участников — на мобиле вместо всплывающих цитат по бокам,
    горизонтальная карусель со свайпом, одна реплика в кадре */

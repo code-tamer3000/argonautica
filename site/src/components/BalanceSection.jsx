@@ -68,11 +68,14 @@ const BalanceHalos = () => {
       const px = W / 2, py = H / 2
       const now = Date.now()
 
-      // Внешний → внутренний, чтобы ядро рисовалось поверх
+      // Внешний → внутренний, чтобы ядро рисовалось поверх.
+      // Радиус зажат в границы канваса — иначе на пике пульсации ореол
+      // обрезается о край канваса жёсткой рамкой вместо мягкого угасания.
+      const maxR = Math.min(W, H) / 2 * 0.94
       for (let i = 0; i < BALANCE_HALOS.length; i++) {
         const h = BALANCE_HALOS[i]
         const pulse = 1 + Math.sin(now * h.pFreq + i * 1.45) * h.pAmp
-        const r = h.r * pulse
+        const r = Math.min(h.r * pulse, maxR)
         const [cr, cg, cb] = h.rgb
 
         const grd = ctx.createRadialGradient(px, py, 0, px, py, r)

@@ -677,27 +677,29 @@ export default function KartaSection() {
             position: 'relative',
           }}>
             <div style={{
-              position: 'absolute', top: 5, left: '12.5%', right: '12.5%', height: 1,
+              position: 'absolute', top: -15, left: '0%', right: '12.5%', height: 1,
               background: `linear-gradient(to right, ${C.stone}, ${C.zoloto})`, opacity: 0.55,
             }} />
             {ARC.map((a, i) => {
               const last = i === ARC.length - 1
               const accent = last ? C.zolotoYar : (i === 0 ? C.stone : C.latun)
               return (
-                <div key={i} style={{ position: 'relative', paddingTop: 24, paddingRight: 16 }}>
-                  <span
-                    className={i === 0 ? undefined : 'arc-star'}
-                    style={{
-                      position: 'absolute', top: 0, left: 0,
-                      ...(i === 0 ? {} : { '--glow': accent, '--gb': `${6 + i * 3.5}px`, animationDelay: `${i * 0.5}s` }),
-                    }}
-                  >
-                    <StarSpark size={last ? 12 : 9} color={accent} />
-                  </span>
-                  <div style={{
-                    fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: 1.8,
-                    textTransform: 'uppercase', color: accent, marginBottom: 10,
-                  }}>{a.stage}</div>
+                <div key={i} style={{ position: 'relative', paddingRight: 16 }}>
+                  <div style={{ display: 'flex', alignItems: 'center', gap: 6, marginBottom: 10 }}>
+                    <span
+                      className={i === 0 ? undefined : 'arc-star'}
+                      style={{
+                        display: 'inline-flex', flexShrink: 0,
+                        ...(i === 0 ? {} : { '--glow': accent, '--gb': `${6 + i * 3.5}px`, animationDelay: `${i * 0.5}s` }),
+                      }}
+                    >
+                      <StarSpark size={last ? 18 : 14} style={{ opacity: last ? 1 : i === 0 ? 0.45 : 0.75 }} />
+                    </span>
+                    <span style={{
+                      fontFamily: "'Onest', sans-serif", fontSize: 10, fontWeight: 600, letterSpacing: 1.8,
+                      textTransform: 'uppercase', color: accent,
+                    }}>{a.stage}</span>
+                  </div>
                   <div style={{
                     fontFamily: "'Prata', serif", fontSize: 'clamp(15px,1.7vw,20px)',
                     color: last ? C.zolotoYar : C.kost, marginBottom: 6, lineHeight: 1.25,
