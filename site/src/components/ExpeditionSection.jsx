@@ -328,9 +328,9 @@ export default function ExpeditionSection() {
                 fontFamily: "'Onest', sans-serif", fontSize: 13, fontWeight: 600,
                 letterSpacing: 1, textTransform: 'uppercase', color: C.zolotoYar,
               }}>
-                <span>Старт 1.09</span>
+                <span>Старт 31.08</span>
                 <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
-                <span>Финиш 28.09</span>
+                <span>Финиш 27.09</span>
               </div>
             </div>
           </FadeSection>
