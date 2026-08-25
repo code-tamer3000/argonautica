@@ -20,7 +20,7 @@ export const FLOAT_QUOTES = [
 // 3+) остальные детали, каждая своим пунктом, а не одним абзацем.
 const POSITIONS = [
   {
-    id: 'nabludatel', name: 'Наблюдатель', price: '8 000 ₽', image: MEDIA.positionNabludatel, mobileFocus: '13% 20%',
+    id: 'nabludatel', name: 'Наблюдатель', price: '9 000 ₽', image: MEDIA.positionNabludatel, mobileFocus: '13% 20%',
     tagline: 'Один в каноэ.',
     points: [
       'Самостоятельная работа. Сдаёшь отчёт по Генному Замку — идёшь дальше.',
@@ -31,7 +31,7 @@ const POSITIONS = [
     who: 'Результат зависит исключительно от твоей включённости.',
   },
   {
-    id: 'igrok', name: 'Игрок', price: '16 000 ₽', image: MEDIA.positionIgrok, mobileFocus: '31% 50%',
+    id: 'igrok', name: 'Игрок', price: '18 000 ₽', image: MEDIA.positionIgrok, mobileFocus: '31% 50%',
     tagline: 'Экипаж. Основной корпус.',
     points: [
       'Полноценное движение в составе группы аргонавтов.',
@@ -50,7 +50,7 @@ const POSITIONS = [
     who: 'Самооживленческая база.',
   },
   {
-    id: 'specotryad', name: 'Спецотряд', price: '37 000 ₽', image: MEDIA.positionSpecotryad, mobileFocus: '57% 50%',
+    id: 'specotryad', name: 'Спецотряд', price: '42 000 ₽', image: MEDIA.positionSpecotryad, mobileFocus: '57% 50%',
     tagline: 'Малый круг.',
     points: [
       'Мини-группа морских ассасинов с личным наставничеством Аргата.',
