@@ -187,7 +187,10 @@ export default function ExpeditionSection() {
   const dragInfo = useRef(null)
 
   useEffect(() => {
-    fetch('/prices.json')
+    // no-store: файл переписывается на сервере каждые несколько минут под тем же
+    // URL — обычный HTTP-кэш браузера (в т.ч. эвристически закэшированный 404, если
+    // первый визит пришёлся на окно между деплоем сайта и синком цен) не годится.
+    fetch('/prices.json', { cache: 'no-store' })
       .then(r => (r.ok ? r.json() : null))
       .then(data => {
         if (!data) return
