@@ -85,6 +85,22 @@ const POSITIONS = [
 // Дефолтная карточка при открытии поп-апа — «Игрок» (основной тариф)
 const DEFAULT_IDX = POSITIONS.findIndex(p => p.id === 'igrok')
 
+// Живые цены тянутся с платформы: /prices.json генерит cron на сервере из таблицы
+// `plans` (см. docs/DEPLOY.md → Marketing site в репозитории platform), ключ — имя
+// тарифа, значение — цена в рублях числом. Последний успешно полученный ответ
+// кэшируется в localStorage и становится новым фолбеком на следующий визит — так
+// что цены из POSITIONS выше нужны только при самом первом визите/до первого
+// успешного фетча.
+const PRICES_CACHE_KEY = 'argonautica_prices_v1'
+const formatPrice = n => `${n.toLocaleString('ru-RU')} ₽`
+const readCachedPrices = () => {
+  try {
+    return JSON.parse(localStorage.getItem(PRICES_CACHE_KEY)) || {}
+  } catch {
+    return {}
+  }
+}
+
 function PositionCard({ pos }) {
   return (
     <div className="position-card" style={{
@@ -165,9 +181,28 @@ function PositionCard({ pos }) {
 // ─── ExpeditionSection ────────────────────────────────────────────────────────
 export default function ExpeditionSection() {
   const [activeIdx, setActiveIdx] = useState(DEFAULT_IDX)
+  const [livePrices, setLivePrices] = useState(readCachedPrices)
   const trackRef = useRef(null)
   const trackWrapRef = useRef(null)
   const dragInfo = useRef(null)
+
+  useEffect(() => {
+    // no-store: файл переписывается на сервере каждые несколько минут под тем же
+    // URL — обычный HTTP-кэш браузера (в т.ч. эвристически закэшированный 404, если
+    // первый визит пришёлся на окно между деплоем сайта и синком цен) не годится.
+    fetch('/prices.json', { cache: 'no-store' })
+      .then(r => (r.ok ? r.json() : null))
+      .then(data => {
+        if (!data) return
+        setLivePrices(data)
+        try { localStorage.setItem(PRICES_CACHE_KEY, JSON.stringify(data)) } catch { /* private mode etc — fine, just no cache */ }
+      })
+      .catch(() => {}) // тихо остаёмся на кэше/дефолтах — на сайте это не должно быть заметно
+  }, [])
+
+  const positions = POSITIONS.map(pos =>
+    livePrices[pos.name] ? { ...pos, price: formatPrice(livePrices[pos.name]) } : pos
+  )
 
   const EASE = 'transform 380ms cubic-bezier(.22,.61,.36,1)'
 
@@ -370,7 +405,7 @@ export default function ExpeditionSection() {
                 className="position-track" ref={trackRef}
                 onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
               >
-                {POSITIONS.map(pos => (
+                {positions.map(pos => (
                   <div key={pos.id} style={{ flex: '0 0 100%', minWidth: 0, padding: '0 8px', boxSizing: 'border-box' }}>
                     <PositionCard pos={pos} />
                   </div>
