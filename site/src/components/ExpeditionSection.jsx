@@ -367,9 +367,15 @@ export default function ExpeditionSection() {
                 <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
                 <span>Финиш 27.09</span>
                 <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
-                <span style={{ textTransform: 'none', letterSpacing: 'normal', fontWeight: 500 }}>
-                  Экспедиция Аргонавтов началась — успей присоединиться до 03.09
-                </span>
+                <span style={{
+                  textTransform: 'none', letterSpacing: 'normal', fontWeight: 600,
+                  fontSize: 16, color: C.kostYar,
+                }}>Экспедиция Аргонавтов началась.</span>
+                <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
+                <span style={{
+                  textTransform: 'none', letterSpacing: 'normal', fontWeight: 600,
+                  fontSize: 16, color: C.kostYar,
+                }}>Успей присоединиться до 03.09</span>
               </div>
             </div>
           </FadeSection>
