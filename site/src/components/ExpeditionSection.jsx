@@ -359,13 +359,17 @@ export default function ExpeditionSection() {
               <div style={{
                 marginTop: 'clamp(22px,3vw,28px)', paddingTop: 'clamp(22px,3vw,28px)',
                 borderTop: '1px solid rgba(194,154,72,0.18)',
-                display: 'inline-flex', gap: 12, alignItems: 'center',
+                display: 'flex', flexWrap: 'wrap', gap: 12, alignItems: 'center', justifyContent: 'center',
                 fontFamily: "'Onest', sans-serif", fontSize: 13, fontWeight: 600,
                 letterSpacing: 1, textTransform: 'uppercase', color: C.zolotoYar,
               }}>
                 <span>Старт 31.08</span>
                 <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
                 <span>Финиш 27.09</span>
+                <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
+                <span style={{ textTransform: 'none', letterSpacing: 'normal', fontWeight: 500 }}>
+                  Экспедиция Аргонавтов началась — успей присоединиться до 03.09
+                </span>
               </div>
             </div>
           </FadeSection>
