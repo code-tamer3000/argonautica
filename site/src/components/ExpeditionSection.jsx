@@ -366,12 +366,10 @@ export default function ExpeditionSection() {
                 <span>Старт 31.08</span>
                 <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
                 <span>Финиш 27.09</span>
-                <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
                 <span style={{
-                  textTransform: 'none', letterSpacing: 'normal', fontWeight: 600,
-                  fontSize: 16, color: C.kostYar,
+                  flexBasis: '100%', textTransform: 'none', letterSpacing: 'normal',
+                  fontWeight: 600, fontSize: 16, color: C.kostYar,
                 }}>Экспедиция Аргонавтов началась.</span>
-                <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
                 <span style={{
                   textTransform: 'none', letterSpacing: 'normal', fontWeight: 600,
                   fontSize: 16, color: C.kostYar,
