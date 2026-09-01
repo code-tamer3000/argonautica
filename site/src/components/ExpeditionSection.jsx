@@ -369,11 +369,11 @@ export default function ExpeditionSection() {
                 <span style={{
                   flexBasis: '100%', textTransform: 'none', letterSpacing: 'normal',
                   fontWeight: 600, fontSize: 16, color: C.kostYar,
-                }}>Экспедиция Аргонавтов началась.</span>
+                }}>Экспедиция Аргонавтов только началась.</span>
                 <span style={{
                   textTransform: 'none', letterSpacing: 'normal', fontWeight: 600,
                   fontSize: 16, color: C.kostYar,
-                }}>Успей присоединиться до 03.09</span>
+                }}>Ты можешь успеть присоединиться до 03.09</span>
               </div>
             </div>
           </FadeSection>
