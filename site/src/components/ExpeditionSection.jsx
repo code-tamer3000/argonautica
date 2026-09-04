@@ -82,17 +82,22 @@ const POSITIONS = [
   },
 ]
 
-// Дефолтная карточка при открытии поп-апа — «Игрок» (основной тариф)
-const DEFAULT_IDX = POSITIONS.findIndex(p => p.id === 'igrok')
+// Дефолтная карточка при открытии карусели — «Наблюдатель» (первая, самая доступная позиция)
+const DEFAULT_IDX = POSITIONS.findIndex(p => p.id === 'nabludatel')
 
 // Живые цены тянутся с платформы: /prices.json генерит cron на сервере из таблицы
-// `plans` (см. docs/DEPLOY.md → Marketing site в репозитории platform), ключ — имя
-// тарифа, значение — цена в рублях числом. Последний успешно полученный ответ
-// кэшируется в localStorage и становится новым фолбеком на следующий визит — так
-// что цены из POSITIONS выше нужны только при самом первом визите/до первого
-// успешного фетча.
-const PRICES_CACHE_KEY = 'argonautica_prices_v1'
+// `plans` (см. docs/DEPLOY.md → Marketing site в репозитории platform). Ключ — имя
+// тарифа, значение — объект `{ price, is_active }`: все тарифы включены в выгрузку
+// (и активные, и деактивированные), так что деактивированный тариф не пропадает
+// из ответа, а явно помечен `is_active: false` — вместо цены на карточке
+// показываем «Нет мест». Последний успешно полученный ответ кэшируется в
+// localStorage и становится новым фолбеком на следующий визит — так что цены/
+// доступность из POSITIONS выше нужны только при самом первом визите/до первого
+// успешного фетча (чтобы не мигать «Нет мест» всем позициям, пока ответ платформы
+// ещё не пришёл).
+const PRICES_CACHE_KEY = 'argonautica_prices_v2'
 const formatPrice = n => `${n.toLocaleString('ru-RU')} ₽`
+const SOLD_OUT_LABEL = 'Нет мест'
 const readCachedPrices = () => {
   try {
     return JSON.parse(localStorage.getItem(PRICES_CACHE_KEY)) || {}
@@ -170,8 +175,9 @@ function PositionCard({ pos }) {
             color: C.zolotoYar, marginBottom: 14,
           }}>{pos.who}</div>
           <div style={{
-            fontFamily: "'Onest', sans-serif", fontSize: 24, fontWeight: 700, color: C.zolotoYar,
-          }}>{pos.price}</div>
+            fontFamily: "'Onest', sans-serif", fontSize: 24, fontWeight: 700,
+            color: pos.soldOut ? C.kostDim : C.zolotoYar,
+          }}>{pos.soldOut ? SOLD_OUT_LABEL : pos.price}</div>
         </div>
       </div>
     </div>
@@ -182,6 +188,7 @@ function PositionCard({ pos }) {
 export default function ExpeditionSection() {
   const [activeIdx, setActiveIdx] = useState(DEFAULT_IDX)
   const [livePrices, setLivePrices] = useState(readCachedPrices)
+  const [pricesLoaded, setPricesLoaded] = useState(() => Object.keys(readCachedPrices()).length > 0)
   const trackRef = useRef(null)
   const trackWrapRef = useRef(null)
   const dragInfo = useRef(null)
@@ -195,14 +202,24 @@ export default function ExpeditionSection() {
       .then(data => {
         if (!data) return
         setLivePrices(data)
+        setPricesLoaded(true)
         try { localStorage.setItem(PRICES_CACHE_KEY, JSON.stringify(data)) } catch { /* private mode etc — fine, just no cache */ }
       })
       .catch(() => {}) // тихо остаёмся на кэше/дефолтах — на сайте это не должно быть заметно
   }, [])
 
-  const positions = POSITIONS.map(pos =>
-    livePrices[pos.name] ? { ...pos, price: formatPrice(livePrices[pos.name]) } : pos
-  )
+  // До первого успешного фетча/кэша показываем дефолтные цены из POSITIONS как
+  // есть — статус «Нет мест» имеет смысл выставлять только когда точно известно,
+  // какие тарифы сейчас активны на платформе. Отсутствие имени среди ключей (не
+  // должно случаться при нормальной выгрузке, но на всякий случай) трактуем так
+  // же, как is_active: false — тариф недоступен.
+  const positions = POSITIONS.map(pos => {
+    if (!pricesLoaded) return pos
+    const entry = livePrices[pos.name]
+    return entry && entry.is_active !== false
+      ? { ...pos, price: formatPrice(entry.price) }
+      : { ...pos, soldOut: true }
+  })
 
   const EASE = 'transform 380ms cubic-bezier(.22,.61,.36,1)'
 
