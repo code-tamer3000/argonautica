@@ -386,11 +386,11 @@ export default function ExpeditionSection() {
                 <span style={{
                   flexBasis: '100%', textTransform: 'none', letterSpacing: 'normal',
                   fontWeight: 600, fontSize: 16, color: C.kostYar,
-                }}>Экспедиция Аргонавтов только началась.</span>
+                }}>Приём в основной поток закрыт.</span>
                 <span style={{
                   textTransform: 'none', letterSpacing: 'normal', fontWeight: 600,
                   fontSize: 16, color: C.kostYar,
-                }}>Ты можешь успеть присоединиться до 03.09</span>
+                }}>Пройти Экспедицию можно в своём ритме — в формате «Наблюдатель».</span>
               </div>
             </div>
           </FadeSection>
