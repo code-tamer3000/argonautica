@@ -369,7 +369,7 @@ export default function ExpeditionSection() {
                   fontFamily: "'Prata', serif", fontWeight: 400,
                   fontSize: 'clamp(28px,4.4vw,46px)', lineHeight: 1.15, color: C.kostYar,
                   letterSpacing: '-0.01em', marginBottom: 22,
-                }}>Следующая экспедиция — в&nbsp;ноябре</div>
+                }}>Следующая экспедиция готовится в&nbsp;ноябре</div>
                 <p style={{
                   fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 16, lineHeight: 1.6,
                   color: C.kostYar, margin: '0 auto 28px', maxWidth: 420,
