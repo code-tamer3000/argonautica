@@ -363,13 +363,11 @@ export default function ExpeditionSection() {
             <FadeSection delay={280}>
               <div style={{
                 textAlign: 'center', maxWidth: 560, margin: '0 auto 56px',
-                padding: 'clamp(32px,4.4vw,52px) clamp(22px,3.2vw,40px)', borderRadius: 10,
-                border: '1px solid rgba(194,154,72,0.28)',
-                background: 'linear-gradient(160deg, rgba(194,154,72,0.08), rgba(194,154,72,0.01))',
+                padding: 'clamp(12px,2vw,24px) 0',
               }}>
                 <div style={{
                   fontFamily: "'Prata', serif", fontWeight: 400,
-                  fontSize: 'clamp(28px,4.4vw,46px)', lineHeight: 1.15, color: C.zolotoYar,
+                  fontSize: 'clamp(28px,4.4vw,46px)', lineHeight: 1.15, color: C.kostYar,
                   letterSpacing: '-0.01em', marginBottom: 22,
                 }}>Следующая экспедиция — в&nbsp;ноябре</div>
                 <p style={{
