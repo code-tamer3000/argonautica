@@ -3,6 +3,15 @@ import { C, FadeSection, MeanderRule, MEDIA, QuoteRail, SecLabel, StarSpark } fr
 
 // Кнопка ведёт в Telegram-бота приёма заявок на Экспедицию
 const TG_BOT = 'https://t.me/argonautica_requests_bot'
+// Канал/группа Аргонавтики — сюда ведёт кнопка, пока набор закрыт
+const TG_CHANNEL = 'https://t.me/argonautica_systems'
+
+// Переключатель набора. false — между экспедициями: вместо описания потока,
+// карусели тарифов и кнопки бота показываем анонс «Следующая экспедиция в ноябре»,
+// а /prices.json не запрашивается (cron на сервере его по-прежнему пишет — это
+// безвредно). Весь код карточек/тарифов/цен ниже сохранён: когда откроется набор —
+// поставить true (и обновить даты/текст интро).
+const ENROLLMENT_OPEN = false
 
 // Оставшиеся голоса прошлого потока (первые 6 — в PlatformSection), полный
 // текст из карточек. Согласие на публикацию с ником получено
@@ -194,6 +203,7 @@ export default function ExpeditionSection() {
   const dragInfo = useRef(null)
 
   useEffect(() => {
+    if (!ENROLLMENT_OPEN) return
     // no-store: файл переписывается на сервере каждые несколько минут под тем же
     // URL — обычный HTTP-кэш браузера (в т.ч. эвристически закэшированный 404, если
     // первый визит пришёлся на окно между деплоем сайта и синком цен) не годится.
@@ -349,8 +359,42 @@ export default function ExpeditionSection() {
             </h2>
           </FadeSection>
 
+          {!ENROLLMENT_OPEN && (
+            <FadeSection delay={280}>
+              <div style={{
+                textAlign: 'center', maxWidth: 560, margin: '0 auto 56px',
+                padding: 'clamp(32px,4.4vw,52px) clamp(22px,3.2vw,40px)', borderRadius: 10,
+                border: '1px solid rgba(194,154,72,0.28)',
+                background: 'linear-gradient(160deg, rgba(194,154,72,0.08), rgba(194,154,72,0.01))',
+              }}>
+                <div style={{
+                  fontFamily: "'Prata', serif", fontWeight: 400,
+                  fontSize: 'clamp(28px,4.4vw,46px)', lineHeight: 1.15, color: C.zolotoYar,
+                  letterSpacing: '-0.01em', marginBottom: 22,
+                }}>Следующая экспедиция — в&nbsp;ноябре</div>
+                <p style={{
+                  fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 16, lineHeight: 1.6,
+                  color: C.kostYar, margin: '0 auto 28px', maxWidth: 420,
+                }}>Подробности и открытие набора — в нашем Telegram. Следи за новостями и заходи в группу.</p>
+                <a
+                  href={TG_CHANNEL}
+                  target="_blank" rel="noopener noreferrer"
+                  onClick={() => { try { window.ym && window.ym(110223480, 'reachGoal', 'channel_click') } catch (e) { } }}
+                  style={{
+                    display: 'inline-block', fontFamily: "'Onest', sans-serif",
+                    fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase',
+                    padding: '16px 44px', background: C.zoloto, color: '#0B0E0C',
+                    borderRadius: 7, textDecoration: 'none', transition: 'background 220ms ease',
+                  }}
+                  onMouseEnter={e => { e.currentTarget.style.background = C.zolotoYar }}
+                  onMouseLeave={e => { e.currentTarget.style.background = C.zoloto }}
+                >Перейти в Telegram →</a>
+              </div>
+            </FadeSection>
+          )}
+
           {/* Интро — отдельный оформленный блок: длительность, суть, даты */}
-          <FadeSection delay={280}>
+          {ENROLLMENT_OPEN && <FadeSection delay={280}>
             <div style={{
               textAlign: 'center', maxWidth: 560, margin: '0 auto 56px',
               padding: 'clamp(24px,3.2vw,34px)', borderRadius: 10,
@@ -393,9 +437,10 @@ export default function ExpeditionSection() {
                 }}>Пройти Экспедицию можно в своём ритме — в формате «Наблюдатель».</span>
               </div>
             </div>
-          </FadeSection>
+          </FadeSection>}
         </div>
 
+        {ENROLLMENT_OPEN && <>
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
           <FadeSection delay={320}>
             <h3 style={{
@@ -458,9 +503,11 @@ export default function ExpeditionSection() {
             ))}
           </div>
         </FadeSection>
+        </>}
 
         <QuoteRail {...FLOAT_QUOTES[1]} />
 
+        {ENROLLMENT_OPEN && <>
         <FadeSection delay={560}>
           <div style={{
             maxWidth: 640, margin: '0 auto 40px', textAlign: 'center',
@@ -492,6 +539,7 @@ export default function ExpeditionSection() {
             }}>Позицию выберешь внутри — второй раз ничего заполнять не придётся.</p>
           </div>
         </FadeSection>
+        </>}
       </div>
 
       <QuoteRail {...FLOAT_QUOTES[2]} />
