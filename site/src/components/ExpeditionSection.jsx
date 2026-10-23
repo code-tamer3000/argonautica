@@ -373,7 +373,7 @@ export default function ExpeditionSection() {
                 <p style={{
                   fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 16, lineHeight: 1.6,
                   color: C.kostYar, margin: '0 auto 28px', maxWidth: 420,
-                }}>Подробности и открытие набора — в нашем Telegram. Следи за новостями и заходи в группу.</p>
+                }}>Подробности и открытие набора — в Telegram.</p>
                 <a
                   href={TG_CHANNEL}
                   target="_blank" rel="noopener noreferrer"
