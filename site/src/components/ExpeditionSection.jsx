@@ -105,8 +105,8 @@ const POSITIONS = [
   },
 ]
 
-// Дефолтная карточка при открытии карусели — «Наблюдатель» (первая, самая доступная позиция)
-const DEFAULT_IDX = POSITIONS.findIndex(p => p.id === 'nabludatel')
+// Дефолтная карточка при открытии карусели — «Игрок» (основная позиция; «Наблюдатель» слева от неё)
+const DEFAULT_IDX = POSITIONS.findIndex(p => p.id === 'igrok')
 
 // Живые цены тянутся с платформы: /prices.json генерит cron на сервере из таблицы
 // `plans` (см. docs/DEPLOY.md → Marketing site в репозитории platform). Ключ — имя
