@@ -425,14 +425,6 @@ export default function ExpeditionSection() {
                 <span>Старт 17.11</span>
                 <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
                 <span>Финиш 22.12</span>
-                <span style={{
-                  flexBasis: '100%', textTransform: 'none', letterSpacing: 'normal',
-                  fontWeight: 600, fontSize: 16, color: C.kostYar,
-                }}>Приём в основной поток закрыт.</span>
-                <span style={{
-                  textTransform: 'none', letterSpacing: 'normal', fontWeight: 600,
-                  fontSize: 16, color: C.kostYar,
-                }}>Пройти Экспедицию можно в своём ритме — в формате «Наблюдатель».</span>
               </div>
             </div>
           </FadeSection>}
