@@ -53,7 +53,20 @@ const FLOAT_QUOTES = [
 // Собирает голоса из этой секции и из Экспедиции (там на узких экранах своей
 // ленты нет, только скрытый на мобиле QuoteRail) — иначе часть отзывов
 // на мобиле пропадала.
-const SWIPE_QUOTES = [...FLOAT_QUOTES, ...EXPEDITION_QUOTES].map(({ author, text }) => ({ author, text }))
+// Ники чередуются: латиница / кириллица (внутри каждой группы порядок исходный).
+const interleaveByScript = list => {
+  const isRu = q => /[а-яё]/i.test(q.author)
+  const ru = list.filter(isRu), en = list.filter(q => !isRu(q))
+  const out = []
+  for (let i = 0; i < Math.max(ru.length, en.length); i++) {
+    if (en[i]) out.push(en[i])
+    if (ru[i]) out.push(ru[i])
+  }
+  return out
+}
+const SWIPE_QUOTES = interleaveByScript(
+  [...FLOAT_QUOTES, ...EXPEDITION_QUOTES].map(({ author, text }) => ({ author, text })),
+)
 
 // Скрин экрана платформы. Переключатель темы — только у самого первого
 // (Рубка); у остальных один фиксированный скрин без кнопки. Подсказка про

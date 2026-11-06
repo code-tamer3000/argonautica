@@ -350,7 +350,7 @@ export const QuoteRail = ({ text, author, side = 'left', top = 50 }) => {
 // На узких экранах QuoteRail ничего не рендерит — вместо всплывающей
 // механики те же голоса участников идут горизонтальной каруселью, одна
 // реплика в кадре, листается свайпом. Показывается только на мобиле через CSS.
-// Точки внизу — навигация: показывают, где ты в ленте, и кликабельны.
+// Три точки внизу — грубый индикатор: начало / середина / конец ленты.
 export const QuoteList = ({ quotes, style }) => {
   const trackRef = useRef(null)
   const [active, setActive] = useState(0)
@@ -371,12 +371,6 @@ export const QuoteList = ({ quotes, style }) => {
     return () => { el.removeEventListener('scroll', onScroll); if (raf) cancelAnimationFrame(raf) }
   }, [quotes.length])
 
-  const goTo = i => {
-    const el = trackRef.current
-    if (!el) return
-    el.scrollTo({ left: i * el.clientWidth, behavior: 'smooth' })
-  }
-
   return (
     <div style={{ display: 'none', ...style }} className="quote-list-wrap">
       <div ref={trackRef} className="quote-list">
@@ -396,18 +390,18 @@ export const QuoteList = ({ quotes, style }) => {
           </figure>
         ))}
       </div>
-      <div className="quote-list-dots" style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 22 }}>
-        {quotes.map((q, i) => (
-          <button
-            key={q.author} type="button" onClick={() => goTo(i)}
-            aria-label={`Отзыв ${i + 1} из ${quotes.length}`}
-            style={{
-              width: 7, height: 7, borderRadius: '50%', padding: 0, border: 'none',
-              background: i === active ? C.zoloto : 'rgba(194,154,72,0.28)',
-              cursor: 'pointer', transition: 'background 200ms ease',
-            }}
-          />
-        ))}
+      {/* Всего три точки — начало / середина / конец ленты, а не по точке на отзыв. */}
+      <div className="quote-list-dots" aria-hidden="true" style={{ display: 'flex', justifyContent: 'center', gap: 8, marginTop: 22 }}>
+        {[0, 1, 2].map(d => {
+          const pos = active <= 0 ? 0 : active >= quotes.length - 1 ? 2 : 1
+          return (
+            <span key={d} style={{
+              width: 7, height: 7, borderRadius: '50%',
+              background: d === pos ? C.zoloto : 'rgba(194,154,72,0.28)',
+              transition: 'background 200ms ease',
+            }} />
+          )
+        })}
       </div>
     </div>
   )
