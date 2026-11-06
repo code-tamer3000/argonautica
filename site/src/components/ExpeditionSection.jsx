@@ -402,7 +402,7 @@ export default function ExpeditionSection() {
               <div style={{ display: 'flex', flexDirection: 'column', gap: 14, textAlign: 'left' }}>
                 {[
                   '6 эфиров.',
-                  'Целенаправленное движение по самооживлению в течение 28 дней.',
+                  'Целенаправленное движение по самооживлению в течение 5 недель.',
                   'Доступ к Манифесту Аргонавтики.',
                 ].map((line, i) => (
                   <div key={i} style={{ display: 'flex', gap: 11, alignItems: 'flex-start' }}>
