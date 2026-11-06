@@ -33,6 +33,8 @@ export const FLOAT_QUOTES = [
   { side: 'left', top: 42, author: 'Традесканец', text: 'Подобных явлений на Земле не так много. И если оно проявилось пред тобой - иди не оглядываясь.' },
 ]
 
+const QUOTE_ORDER = [3, 4, 0, 5, 6, 1, 7, 8, 9, 10, 2, 11, 12, 13]
+
 // Позиции — от дешёвой к дорогой. Открывается по умолчанию на «Игрок»
 // (см. ниже DEFAULT_IDX).
 // points — единый список буллетов карточки, строго по порядку: 1) формат
@@ -337,11 +339,9 @@ export default function ExpeditionSection() {
         pointerEvents: 'none',
       }} />
 
-      <QuoteRail {...FLOAT_QUOTES[0]} />
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 1160, margin: '0 auto' }}>
         <FadeSection><MeanderRule opacity={0.55} style={{ marginBottom: 44 }} /></FadeSection>
-        <QuoteRail {...FLOAT_QUOTES[3]} />
 
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <FadeSection delay={80}>
@@ -360,7 +360,6 @@ export default function ExpeditionSection() {
             </figure>
           </FadeSection>
 
-          <QuoteRail {...FLOAT_QUOTES[4]} />
           <FadeSection delay={220}>
             <h2 style={{
               fontFamily: "'Prata', serif", fontWeight: 400,
@@ -445,8 +444,6 @@ export default function ExpeditionSection() {
 
         {ENROLLMENT_OPEN && <>
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
-          <QuoteRail {...FLOAT_QUOTES[5]} />
-          <QuoteRail {...FLOAT_QUOTES[6]} />
           <FadeSection delay={320}>
             <h3 style={{
               fontFamily: "'Prata', serif", fontWeight: 400,
@@ -468,9 +465,7 @@ export default function ExpeditionSection() {
             «Игрок». Трек тянется за пальцем и доезжает/пружинит на отпускании —
             все карточки всегда в DOM, поэтому высота блока не скачет при
             переключении (не зависит от того, какая карточка сейчас в кадре). */}
-        <QuoteRail {...FLOAT_QUOTES[7]} />
         <FadeSection delay={360} y={16}>
-        <QuoteRail {...FLOAT_QUOTES[8]} />
           <div className="position-viewport" style={{ position: 'relative', maxWidth: 460, margin: '0 auto', width: '100%' }}>
             <button
               type="button" aria-label="Дешевле" className="position-arrow position-arrow-left"
@@ -512,8 +507,6 @@ export default function ExpeditionSection() {
         </FadeSection>
         </>}
 
-        <QuoteRail {...FLOAT_QUOTES[1]} />
-        <QuoteRail {...FLOAT_QUOTES[9]} />
 
         {ENROLLMENT_OPEN && <>
         <FadeSection delay={560}>
@@ -526,9 +519,7 @@ export default function ExpeditionSection() {
           </div>
         </FadeSection>
 
-        <QuoteRail {...FLOAT_QUOTES[10]} />
         <FadeSection delay={620}>
-        <QuoteRail {...FLOAT_QUOTES[11]} />
           <div style={{ textAlign: 'center' }}>
             <a
               href={TG_BOT}
@@ -552,9 +543,16 @@ export default function ExpeditionSection() {
         </>}
       </div>
 
-      <QuoteRail {...FLOAT_QUOTES[12]} />
-      <QuoteRail {...FLOAT_QUOTES[13]} />
-      <QuoteRail {...FLOAT_QUOTES[2]} />
+      {/* Отзывы: равномерно по высоте секции, стороны чередуются — так у каждой
+          реплики своё место и соседи на одной стороне не накладываются. */}
+      {QUOTE_ORDER.map((qi, i) => (
+        <div key={qi} style={{
+          position: 'absolute', left: 0, right: 0, pointerEvents: 'none',
+          top: `${3 + i * (90 / (QUOTE_ORDER.length - 1))}%`,
+        }}>
+          <QuoteRail {...FLOAT_QUOTES[qi]} side={i % 2 ? 'right' : 'left'} top={30 + (i % 3) * 18} />
+        </div>
+      ))}
     </section>
   )
 }
