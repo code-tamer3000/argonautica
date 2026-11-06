@@ -20,6 +20,17 @@ export const FLOAT_QUOTES = [
   { side: 'left', top: 24, author: 'daria_epi', text: 'Довериться хотя бы раз этому подходу и дать себе шанс встать на этот путь. Не ожидать чуда, но проходить его с вниманием и честностью — тогда перемены обязательно придут.' },
   { side: 'right', top: 52, author: 'yakov', text: 'Если ты настрадался, наискался, наигрался в медитации, психологию, аффирмации, йогу и всё это... То пора отправляться в экспедицию и встретить своих чудовищ.' },
   { side: 'left', top: 80, author: 'ivanartomov', text: 'Вступайте на путь и, по-любому, это вас зацепит: будь то ключи, стихии или знания Аргата.' },
+  { side: 'left', top: 30, author: 'Aida', text: 'Это классная игра, но на самом деле это глубокое погружение в свой мир через игру. Я в восторге, рекомендую.' },
+  { side: 'right', top: 60, author: 'Daria', text: 'Не думайте. Решение уже сделано)' },
+  { side: 'left', top: 70, author: 'Tri_Niti', text: 'Люди которые слышат истину, здесь будут. Им не нужны отзывы.' },
+  { side: 'right', top: 35, author: 'Алатель', text: 'Если чутье, то необъяснимое чувство, вас таки привело в Аргонавтику, несомненно, вам - сюда. Здесь больше, чем ответы.' },
+  { side: 'left', top: 50, author: 'Аметапхо', text: 'Аргонавтика это самый свежий подход к пониманию себя и своей сути.' },
+  { side: 'right', top: 45, author: 'Арья', text: 'Ничего не бойтесь, жизнь одна. Хотите нащупать пульс вашей витальности, протащить тушку в измерение, где ход, ток и сок жизни — вам сюда.' },
+  { side: 'left', top: 38, author: 'Гермес', text: 'Осторожно ⚠️ тут оживляют ! Экспедиция для смелых, для тех кто готов отрекаться от «как было», кто готов сечь лишнее и грести с улыбкой безумца в неизвестность и находить лишь себя и свой Дух' },
+  { side: 'right', top: 65, author: 'Жива', text: 'Глубоко, мощно, вывод один - так как, раньше уже не будет.' },
+  { side: 'left', top: 55, author: 'Логос', text: 'Настоящий враг скрывается там где ты меньше всего будешь его искать. Смелости и отваги!' },
+  { side: 'right', top: 50, author: 'Ляграс', text: 'Клетка, в которой я находилась много лет, раскрылась. Я вышла из неё на волю. В путь Аргонавта невозможно сыграть. Чтобы идти по нему, необходимо полностью погрузиться в процесс и быть предельно честным и требовательным к себе.' },
+  { side: 'left', top: 42, author: 'Традесканец', text: 'Подобных явлений на Земле не так много. И если оно проявилось пред тобой - иди не оглядываясь.' },
 ]
 
 // Позиции — от дешёвой к дорогой. Открывается по умолчанию на «Игрок»
@@ -330,6 +341,7 @@ export default function ExpeditionSection() {
 
       <div style={{ position: 'relative', zIndex: 1, maxWidth: 1160, margin: '0 auto' }}>
         <FadeSection><MeanderRule opacity={0.55} style={{ marginBottom: 44 }} /></FadeSection>
+        <QuoteRail {...FLOAT_QUOTES[3]} />
 
         <div style={{ maxWidth: 720, margin: '0 auto', textAlign: 'center' }}>
           <FadeSection delay={80}>
@@ -348,6 +360,7 @@ export default function ExpeditionSection() {
             </figure>
           </FadeSection>
 
+          <QuoteRail {...FLOAT_QUOTES[4]} />
           <FadeSection delay={220}>
             <h2 style={{
               fontFamily: "'Prata', serif", fontWeight: 400,
@@ -432,6 +445,8 @@ export default function ExpeditionSection() {
 
         {ENROLLMENT_OPEN && <>
         <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+          <QuoteRail {...FLOAT_QUOTES[5]} />
+          <QuoteRail {...FLOAT_QUOTES[6]} />
           <FadeSection delay={320}>
             <h3 style={{
               fontFamily: "'Prata', serif", fontWeight: 400,
@@ -453,7 +468,9 @@ export default function ExpeditionSection() {
             «Игрок». Трек тянется за пальцем и доезжает/пружинит на отпускании —
             все карточки всегда в DOM, поэтому высота блока не скачет при
             переключении (не зависит от того, какая карточка сейчас в кадре). */}
+        <QuoteRail {...FLOAT_QUOTES[7]} />
         <FadeSection delay={360} y={16}>
+        <QuoteRail {...FLOAT_QUOTES[8]} />
           <div className="position-viewport" style={{ position: 'relative', maxWidth: 460, margin: '0 auto', width: '100%' }}>
             <button
               type="button" aria-label="Дешевле" className="position-arrow position-arrow-left"
@@ -496,6 +513,7 @@ export default function ExpeditionSection() {
         </>}
 
         <QuoteRail {...FLOAT_QUOTES[1]} />
+        <QuoteRail {...FLOAT_QUOTES[9]} />
 
         {ENROLLMENT_OPEN && <>
         <FadeSection delay={560}>
@@ -508,7 +526,9 @@ export default function ExpeditionSection() {
           </div>
         </FadeSection>
 
+        <QuoteRail {...FLOAT_QUOTES[10]} />
         <FadeSection delay={620}>
+        <QuoteRail {...FLOAT_QUOTES[11]} />
           <div style={{ textAlign: 'center' }}>
             <a
               href={TG_BOT}
@@ -532,6 +552,8 @@ export default function ExpeditionSection() {
         </>}
       </div>
 
+      <QuoteRail {...FLOAT_QUOTES[12]} />
+      <QuoteRail {...FLOAT_QUOTES[13]} />
       <QuoteRail {...FLOAT_QUOTES[2]} />
     </section>
   )
