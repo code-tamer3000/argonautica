@@ -422,9 +422,9 @@ export default function ExpeditionSection() {
                 fontFamily: "'Onest', sans-serif", fontSize: 13, fontWeight: 600,
                 letterSpacing: 1, textTransform: 'uppercase', color: C.zolotoYar,
               }}>
-                <span>Старт 31.08</span>
+                <span>Старт 17.11</span>
                 <span style={{ width: 16, height: 1, background: C.zoloto, opacity: 0.5 }} />
-                <span>Финиш 27.09</span>
+                <span>Финиш 22.12</span>
                 <span style={{
                   flexBasis: '100%', textTransform: 'none', letterSpacing: 'normal',
                   fontWeight: 600, fontSize: 16, color: C.kostYar,
