@@ -365,11 +365,23 @@ export default function ExpeditionSection() {
             <h2 style={{
               fontFamily: "'Prata', serif", fontWeight: 400,
               fontSize: 'clamp(28px,4.2vw,50px)', lineHeight: 1.1, color: C.kostYar,
-              letterSpacing: '-0.01em', margin: '0 auto 40px', maxWidth: '16ch',
+              letterSpacing: '-0.01em', margin: '0 auto 16px', maxWidth: '16ch',
             }}>
               Экспедиция «Искусство посылания{' '}
               <span style={{ color: C.zolotoYar }}>на&nbsp;Хер</span>»
+              <sup style={{
+                fontFamily: "'Lora', serif", fontStyle: 'italic', fontWeight: 400,
+                fontSize: '0.38em', color: C.zolotoYar, marginLeft: 6, letterSpacing: 0,
+                verticalAlign: 'super',
+              }}>*</sup>
             </h2>
+            <p style={{
+              fontFamily: "'Lora', serif", fontStyle: 'italic', fontWeight: 400,
+              fontSize: 15, lineHeight: 1.45, color: C.kostDim,
+              margin: '0 auto 40px', maxWidth: '32ch',
+            }}>
+              * Текущая экспедиция посвящена различению.
+            </p>
           </FadeSection>
 
           {!ENROLLMENT_OPEN && (
