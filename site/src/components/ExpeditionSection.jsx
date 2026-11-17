@@ -229,7 +229,7 @@ export default function ExpeditionSection() {
         setPricesLoaded(true)
         try { localStorage.setItem(PRICES_CACHE_KEY, JSON.stringify(data)) } catch { /* private mode etc — fine, just no cache */ }
       })
-      .catch(() => {}) // тихо остаёмся на кэше/дефолтах — на сайте это не должно быть заметно
+      .catch(() => { }) // тихо остаёмся на кэше/дефолтах — на сайте это не должно быть заметно
   }, [])
 
   // До первого успешного фетча/кэша показываем дефолтные цены из POSITIONS как
@@ -378,10 +378,20 @@ export default function ExpeditionSection() {
             <p style={{
               fontFamily: "'Lora', serif", fontStyle: 'italic', fontWeight: 400,
               fontSize: 15, lineHeight: 1.45, color: C.kostDim,
-              margin: '0 auto 40px', maxWidth: '32ch',
+              margin: '0 auto 24px', maxWidth: '32ch',
             }}>
               * Текущая экспедиция посвящена различению.
             </p>
+
+            <div style={{
+              fontFamily: "'Onest', sans-serif", fontWeight: 500,
+              fontSize: 16, lineHeight: 1.55, color: C.kostYar,
+              margin: '0 auto 40px', maxWidth: '28ch',
+            }}>
+              Экспедиция началась.<br />
+              Пока стоим в точке баланса.<br />
+              Вход открыт до 22.11
+            </div>
           </FadeSection>
 
           {!ENROLLMENT_OPEN && (
@@ -456,103 +466,103 @@ export default function ExpeditionSection() {
         </div>
 
         {ENROLLMENT_OPEN && <>
-        <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
-          <FadeSection delay={320}>
-            <h3 style={{
-              fontFamily: "'Prata', serif", fontWeight: 400,
-              fontSize: 'clamp(22px,3vw,32px)', lineHeight: 1.15, color: C.kostYar,
-              letterSpacing: '-0.01em', margin: '0 auto 18px',
-            }}>Четыре позиции прохождения</h3>
-            <p style={{
-              fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 14.5, lineHeight: 1.65,
-              color: C.kostDim, margin: '0 auto 48px', maxWidth: 620,
-            }}>
-              Каждая Позиция это уровень включённости в жизнь.
-              Внимание — самая дорогая валюта. Каждая позиция это более высокий объём
-              внимания, уровень пропускной способности участника.
-            </p>
-          </FadeSection>
-        </div>
+          <div style={{ maxWidth: 760, margin: '0 auto', textAlign: 'center' }}>
+            <FadeSection delay={320}>
+              <h3 style={{
+                fontFamily: "'Prata', serif", fontWeight: 400,
+                fontSize: 'clamp(22px,3vw,32px)', lineHeight: 1.15, color: C.kostYar,
+                letterSpacing: '-0.01em', margin: '0 auto 18px',
+              }}>Четыре позиции прохождения</h3>
+              <p style={{
+                fontFamily: "'Onest', sans-serif", fontWeight: 400, fontSize: 14.5, lineHeight: 1.65,
+                color: C.kostDim, margin: '0 auto 48px', maxWidth: 620,
+              }}>
+                Каждая Позиция это уровень включённости в жизнь.
+                Внимание — самая дорогая валюта. Каждая позиция это более высокий объём
+                внимания, уровень пропускной способности участника.
+              </p>
+            </FadeSection>
+          </div>
 
-        {/* Карусель позиций: все 4 карточки в одном треке, по умолчанию
+          {/* Карусель позиций: все 4 карточки в одном треке, по умолчанию
             «Игрок». Трек тянется за пальцем и доезжает/пружинит на отпускании —
             все карточки всегда в DOM, поэтому высота блока не скачет при
             переключении (не зависит от того, какая карточка сейчас в кадре). */}
-        <FadeSection delay={360} y={16}>
-          <div className="position-viewport" style={{ position: 'relative', maxWidth: 460, margin: '0 auto', width: '100%' }}>
-            <button
-              type="button" aria-label="Дешевле" className="position-arrow position-arrow-left"
-              onClick={goPrev} disabled={activeIdx === 0}
-            >‹</button>
+          <FadeSection delay={360} y={16}>
+            <div className="position-viewport" style={{ position: 'relative', maxWidth: 460, margin: '0 auto', width: '100%' }}>
+              <button
+                type="button" aria-label="Дешевле" className="position-arrow position-arrow-left"
+                onClick={goPrev} disabled={activeIdx === 0}
+              >‹</button>
 
-            <div className="position-track-wrap" ref={trackWrapRef}>
-              <div
-                className="position-track" ref={trackRef}
-                onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
-              >
-                {positions.map(pos => (
-                  <div key={pos.id} style={{ flex: '0 0 100%', minWidth: 0, padding: '0 8px', boxSizing: 'border-box' }}>
-                    <PositionCard pos={pos} />
-                  </div>
-                ))}
+              <div className="position-track-wrap" ref={trackWrapRef}>
+                <div
+                  className="position-track" ref={trackRef}
+                  onTouchStart={onTouchStart} onTouchMove={onTouchMove} onTouchEnd={onTouchEnd}
+                >
+                  {positions.map(pos => (
+                    <div key={pos.id} style={{ flex: '0 0 100%', minWidth: 0, padding: '0 8px', boxSizing: 'border-box' }}>
+                      <PositionCard pos={pos} />
+                    </div>
+                  ))}
+                </div>
               </div>
+
+              <button
+                type="button" aria-label="Дороже" className="position-arrow position-arrow-right"
+                onClick={goNext} disabled={activeIdx === POSITIONS.length - 1}
+              >›</button>
             </div>
 
-            <button
-              type="button" aria-label="Дороже" className="position-arrow position-arrow-right"
-              onClick={goNext} disabled={activeIdx === POSITIONS.length - 1}
-            >›</button>
-          </div>
-
-          <div className="position-dots" aria-hidden="true">
-            {POSITIONS.map((p, i) => (
-              <button
-                key={p.id} type="button" onClick={() => goTo(i)}
-                aria-label={p.name}
-                style={{
-                  width: i === activeIdx ? 18 : 6, height: 6, borderRadius: 3, padding: 0, border: 'none',
-                  background: i === activeIdx ? C.zoloto : 'rgba(194,154,72,0.3)',
-                  cursor: 'pointer', transition: 'width 260ms ease, background 260ms ease',
-                }}
-              />
-            ))}
-          </div>
-        </FadeSection>
+            <div className="position-dots" aria-hidden="true">
+              {POSITIONS.map((p, i) => (
+                <button
+                  key={p.id} type="button" onClick={() => goTo(i)}
+                  aria-label={p.name}
+                  style={{
+                    width: i === activeIdx ? 18 : 6, height: 6, borderRadius: 3, padding: 0, border: 'none',
+                    background: i === activeIdx ? C.zoloto : 'rgba(194,154,72,0.3)',
+                    cursor: 'pointer', transition: 'width 260ms ease, background 260ms ease',
+                  }}
+                />
+              ))}
+            </div>
+          </FadeSection>
         </>}
 
 
         {ENROLLMENT_OPEN && <>
-        <FadeSection delay={560}>
-          <div style={{
-            maxWidth: 640, margin: '0 auto 40px', textAlign: 'center',
-            fontFamily: "'Onest', sans-serif", fontSize: 12.5, lineHeight: 1.7, color: C.kostMuted,
-          }}>
-            Цена растёт по мере приближения к отплытию. Все детали по срокам и условиям
-            раскроем после одобрения заявки в telegram.
-          </div>
-        </FadeSection>
+          <FadeSection delay={560}>
+            <div style={{
+              maxWidth: 640, margin: '0 auto 40px', textAlign: 'center',
+              fontFamily: "'Onest', sans-serif", fontSize: 12.5, lineHeight: 1.7, color: C.kostMuted,
+            }}>
+              Цена растёт по мере приближения к отплытию. Все детали по срокам и условиям
+              раскроем после одобрения заявки в telegram.
+            </div>
+          </FadeSection>
 
-        <FadeSection delay={620}>
-          <div style={{ textAlign: 'center' }}>
-            <a
-              href={TG_BOT}
-              target="_blank" rel="noopener noreferrer"
-              onClick={() => { try { window.ym && window.ym(110223480, 'reachGoal', 'bot_click') } catch (e) { } }}
-              style={{
-                display: 'inline-block', fontFamily: "'Onest', sans-serif",
-                fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase',
-                padding: '16px 44px', background: C.zoloto, color: '#0B0E0C',
-                borderRadius: 7, textDecoration: 'none', transition: 'background 220ms ease',
-              }}
-              onMouseEnter={e => { e.currentTarget.style.background = C.zolotoYar }}
-              onMouseLeave={e => { e.currentTarget.style.background = C.zoloto }}
-            >Записаться в Telegram →</a>
-            <p style={{
-              fontFamily: "'Onest', sans-serif", fontSize: 12, color: C.ghost,
-              margin: '16px auto 0', maxWidth: 360,
-            }}>Позицию выберешь внутри — второй раз ничего заполнять не придётся.</p>
-          </div>
-        </FadeSection>
+          <FadeSection delay={620}>
+            <div style={{ textAlign: 'center' }}>
+              <a
+                href={TG_BOT}
+                target="_blank" rel="noopener noreferrer"
+                onClick={() => { try { window.ym && window.ym(110223480, 'reachGoal', 'bot_click') } catch (e) { } }}
+                style={{
+                  display: 'inline-block', fontFamily: "'Onest', sans-serif",
+                  fontSize: 13, fontWeight: 600, letterSpacing: 1, textTransform: 'uppercase',
+                  padding: '16px 44px', background: C.zoloto, color: '#0B0E0C',
+                  borderRadius: 7, textDecoration: 'none', transition: 'background 220ms ease',
+                }}
+                onMouseEnter={e => { e.currentTarget.style.background = C.zolotoYar }}
+                onMouseLeave={e => { e.currentTarget.style.background = C.zoloto }}
+              >Записаться в Telegram →</a>
+              <p style={{
+                fontFamily: "'Onest', sans-serif", fontSize: 12, color: C.ghost,
+                margin: '16px auto 0', maxWidth: 360,
+              }}>Позицию выберешь внутри — второй раз ничего заполнять не придётся.</p>
+            </div>
+          </FadeSection>
         </>}
       </div>
 
