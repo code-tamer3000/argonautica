@@ -73,14 +73,6 @@ input, textarea, button {
   50%       { transform: translate(-50%,-50%) scale(1.6); opacity: 0.06; }
 }
 
-/* Map scroll hint — appears once then disappears */
-@keyframes scrollHint {
-  0%   { opacity: 0; }
-  12%  { opacity: 1; }
-  72%  { opacity: 0.85; }
-  100% { opacity: 0; }
-}
-
 /* Scroll indicator arrow bob */
 @keyframes bob {
   0%, 100% { transform: translateY(0); }
