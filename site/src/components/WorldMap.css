@@ -1,0 +1,16 @@
+.world-map-hint {
+  padding: 0 20px;
+  margin-bottom: 14px;
+  color: var(--text-muted);
+  font: 400 13px/1.5 var(--font-t4);
+  text-align: center;
+}
+
+.world-map-hint__touch {
+  display: none;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .world-map-hint__mouse { display: none; }
+  .world-map-hint__touch { display: inline; }
+}
